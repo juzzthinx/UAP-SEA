@@ -97,11 +97,21 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
 
 <div class="sheet" id="sheet">
   <h2>CONFIG</h2>
-  <label>Anthropic API key (optional)</label>
-  <input id="key" type="password" placeholder="sk-ant-... leave empty for command mode" autocomplete="off">
-  <div class="hint">No key = Jarvis runs in free command mode. Add a key for full conversation with Claude. Stored only on this phone. Billed separately from your Claude plan.</div>
+  <label>Brain</label>
+  <select id="prov">
+    <option value="claude">Claude (Anthropic)</option>
+    <option value="gemini">Google Gemini</option>
+    <option value="groq">Groq</option>
+    <option value="openrouter">OpenRouter</option>
+    <option value="custom">Custom (OpenAI-style)</option>
+  </select>
+  <label>API key (optional)</label>
+  <input id="key" type="password" placeholder="paste key, or leave empty for command mode" autocomplete="off">
+  <div class="hint" id="provHint"></div>
+  <div id="baseWrap" style="display:none"><label>Base URL</label><input id="base" type="text" placeholder="https://example.com/v1" autocapitalize="off"></div>
   <label>Model</label>
-  <input id="model" type="text" placeholder="claude-sonnet-5-5">
+  <input id="model" type="text" autocapitalize="off">
+  <div class="hint">No key = free command mode. Keys are stored only on this phone, one per brain.</div>
   <label>Listening language</label>
   <select id="lang"><option value="en-US">English</option><option value="ms-MY">Bahasa Melayu</option></select>
   <label>Voice</label>
@@ -148,7 +158,22 @@ var MODES={
 };
 function ld(k,d){try{var v=localStorage.getItem(k);return v===null?d:v}catch(e){return d}}
 function sv(k,v){try{localStorage.setItem(k,v)}catch(e){}}
-var cfg={key:ld("jv_key",""),model:ld("jv_model","claude-sonnet-5-5"),lang:ld("jv_lang","en-US"),voice:ld("jv_voice",""),speak:ld("jv_speak","1"),mode:ld("jv_mode","assist")};
+var PROV={
+ claude:{name:"Claude",model:"claude-sonnet-5-5",hint:"Paid. Billed separately from your Claude plan."},
+ gemini:{name:"Gemini",model:"gemini-2.5-flash",hint:"Free tier available through Google AI Studio (aistudio.google.com). Limits and availability can change."},
+ groq:{name:"Groq",model:"llama-3.3-70b-versatile",base:"https://api.groq.com/openai/v1",hint:"Free tier available. Get a key at console.groq.com. Limits can change."},
+ openrouter:{name:"OpenRouter",model:"meta-llama/llama-3.3-70b-instruct:free",base:"https://openrouter.ai/api/v1",hint:"Has free models (names end in :free) with daily limits. Get a key at openrouter.ai. Free model names change, so edit the model if it errors."},
+ custom:{name:"Custom",model:"",hint:"Any OpenAI-style provider. Enter its base URL, key and model."}
+};
+var cfg={key:"",model:"",prov:ld("jv_prov","claude"),lang:ld("jv_lang","en-US"),voice:ld("jv_voice",""),speak:ld("jv_speak","1"),mode:ld("jv_mode","assist")};
+if(!PROV[cfg.prov])cfg.prov="claude";
+var keys={},models={},baseCustom=ld("jv_base","");
+try{keys=JSON.parse(ld("jv_keys","{}"))||{}}catch(e){keys={}}
+try{models=JSON.parse(ld("jv_models","{}"))||{}}catch(e){models={}}
+if(!keys.claude&&ld("jv_key",""))keys.claude=ld("jv_key","");
+if(!models.claude&&ld("jv_model",""))models.claude=ld("jv_model","");
+function syncCur(){cfg.key=keys[cfg.prov]||"";cfg.model=models[cfg.prov]||PROV[cfg.prov].model}
+syncCur();
 var soul=ld("jv_soul",DEFAULT_SOUL), notes=ld("jv_notes",""), linksTxt=ld("jv_links",DEFAULT_LINKS);
 var hist=[]; try{hist=JSON.parse(ld("jv_hist","[]"))||[]}catch(e){hist=[]}
 var tasks=[]; try{tasks=JSON.parse(ld("jv_tasks","[]"))||[]}catch(e){tasks=[]}
@@ -335,7 +360,7 @@ function local(raw){
   if(/(who are you|what are you|your name)/.test(n)){return R("I am Jarvis, your personal system, built by you and Claude on an iPhone 11. Veni. Vidi. Vici.")}
   if(/^(thanks|thank you|thankyou|appreciate it|cheers)( jarvis| boss| bro)?$/.test(n)){return R(pick(["Anytime, boss.","Always, J.Nazreen.","Do not mention it."]))}
   if(/^(status|system check|diagnostics|system status|status report)$/.test(n)){
-    return R("All systems online. Brain is "+(cfg.key?"Claude":"local")+". "+openTasks().length+(openTasks().length===1?" open task, ":" open tasks, ")+timers.length+(timers.length===1?" timer running.":" timers running."));
+    return R("All systems online. Brain is "+(cfg.key?PROV[cfg.prov].name:"local")+". "+openTasks().length+(openTasks().length===1?" open task, ":" open tasks, ")+timers.length+(timers.length===1?" timer running.":" timers running."));
   }
   if(/(motto|mantra|creed)/.test(n)){return R("Veni. Vidi. Vici. I came, I saw, I conquered.")}
   if(/\bjoke\b/.test(n)){
@@ -367,6 +392,36 @@ function systemPrompt(){
   s+="\n\nNow: "+new Date().toString();
   return s;
 }
+function post(url,headers,body){
+  return fetch(url,{method:"POST",headers:headers,body:JSON.stringify(body)}).then(function(r){
+    return r.json().catch(function(){return{}}).then(function(j){
+      if(!r.ok){var em=(j&&j.error&&(j.error.message||j.error))||("HTTP "+r.status);throw new Error(typeof em==="string"?em:JSON.stringify(em))}
+      return j;
+    });
+  });
+}
+function callBrain(msgs,sys){
+  var p=cfg.prov,url,headers={"content-type":"application/json"},body;
+  if(p==="claude"){
+    url="https://api.anthropic.com/v1/messages";
+    headers["x-api-key"]=cfg.key;headers["anthropic-version"]="2023-06-01";headers["anthropic-dangerous-direct-browser-access"]="true";
+    body={model:cfg.model,max_tokens:700,system:sys,messages:msgs};
+    return post(url,headers,body).then(function(j){return (j.content||[]).filter(function(b){return b.type==="text"}).map(function(b){return b.text}).join("\n").trim()});
+  }
+  if(p==="gemini"){
+    url="https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(cfg.model)+":generateContent";
+    headers["x-goog-api-key"]=cfg.key;
+    body={systemInstruction:{parts:[{text:sys}]},contents:msgs.map(function(m){return{role:m.role==="assistant"?"model":"user",parts:[{text:m.content}]}}),generationConfig:{maxOutputTokens:700}};
+    return post(url,headers,body).then(function(j){var c=j.candidates&&j.candidates[0];return c&&c.content&&c.content.parts?c.content.parts.map(function(x){return x.text||""}).join("").trim():""});
+  }
+  var base=(p==="custom"?baseCustom:PROV[p].base)||"";
+  base=base.replace(/\/+$/,"");
+  if(!base)return Promise.reject(new Error("Add a base URL in CONFIG for the custom brain."));
+  url=base+"/chat/completions";
+  headers["authorization"]="Bearer "+cfg.key;
+  body={model:cfg.model,max_tokens:700,messages:[{role:"system",content:sys}].concat(msgs)};
+  return post(url,headers,body).then(function(j){return ((j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||"").trim()});
+}
 function reply(text,links){
   hist.push({role:"assistant",content:text});saveHist();
   add("a",text,links);speak(text);
@@ -392,19 +447,14 @@ function send(text){
   setState("think","thinking...");
   var msgs=hist.slice(-16);
   while(msgs.length&&msgs[0].role!=="user")msgs.shift();
-  fetch("https://api.anthropic.com/v1/messages",{
-    method:"POST",
-    headers:{"content-type":"application/json","x-api-key":cfg.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-    body:JSON.stringify({model:cfg.model,max_tokens:700,system:systemPrompt(),messages:msgs})
-  }).then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j}})})
-  .then(function(x){
-    if(!x.ok){throw new Error((x.j&&x.j.error&&x.j.error.message)||"Request failed")}
-    var out=(x.j.content||[]).filter(function(b){return b.type==="text"}).map(function(b){return b.text}).join("\n").trim()||"...";
-    busy=false;reply(out);
+  callBrain(msgs,systemPrompt()).then(function(out){
+    busy=false;reply(out||"...");
   })
   .catch(function(e){
     hist.pop();saveHist();busy=false;
-    add("e","Error: "+e.message);idle();
+    var em=String(e&&e.message||e);
+    if(/failed to fetch|networkerror|load failed/i.test(em))em="Could not reach the brain. Check your internet and key, or this provider may block calls from a web page.";
+    add("e","Error: "+em);idle();
   });
 }
 
@@ -463,14 +513,27 @@ function hud(){
     var s=Math.max(0,Math.round((nx.end-Date.now())/1000));
     r="TIMER <b>"+Math.floor(s/60)+":"+("0"+(s%60)).slice(-2)+"</b> &middot; "+r;
   }
-  r+=" &middot; "+(cfg.key?"CLAUDE":"LOCAL");
+  r+=" &middot; "+(cfg.key?PROV[cfg.prov].name.toUpperCase():"LOCAL");
   $("hR").innerHTML=r;
 }
 setInterval(hud,1000);
 
 /* ---------- config sheet ---------- */
+var draft={keys:{},models:{}},shownProv="claude";
+function loadProvFields(p){
+  $("key").value=draft.keys[p]!==undefined?draft.keys[p]:(keys[p]||"");
+  $("model").value=draft.models[p]!==undefined?draft.models[p]:(models[p]||PROV[p].model);
+  $("model").placeholder=PROV[p].model||"model name";
+  $("provHint").textContent=PROV[p].hint;
+  $("baseWrap").style.display=p==="custom"?"block":"none";
+}
+$("prov").addEventListener("change",function(){
+  draft.keys[shownProv]=$("key").value.trim();draft.models[shownProv]=$("model").value.trim();
+  shownProv=$("prov").value;loadProvFields(shownProv);
+});
 function openSheet(){
-  $("key").value=cfg.key;$("model").value=cfg.model;$("lang").value=cfg.lang;
+  draft={keys:{},models:{}};shownProv=cfg.prov;$("prov").value=cfg.prov;$("base").value=baseCustom;loadProvFields(cfg.prov);
+  $("lang").value=cfg.lang;
   $("speakOn").value=cfg.speak;$("soul").value=soul;$("notes").value=notes;$("links").value=linksTxt;
   loadVoices();$("voice").value=cfg.voice;
   $("sheet").classList.add("open");
@@ -478,10 +541,13 @@ function openSheet(){
 $("openSet").addEventListener("click",openSheet);
 $("close").addEventListener("click",function(){$("sheet").classList.remove("open")});
 $("save").addEventListener("click",function(){
-  cfg.key=$("key").value.trim();cfg.model=$("model").value.trim()||"claude-sonnet-5-5";
+  draft.keys[shownProv]=$("key").value.trim();draft.models[shownProv]=$("model").value.trim();
+  Object.keys(draft.keys).forEach(function(k){keys[k]=draft.keys[k]});
+  Object.keys(draft.models).forEach(function(k){if(draft.models[k])models[k]=draft.models[k];else delete models[k]});
+  cfg.prov=$("prov").value;baseCustom=$("base").value.trim();syncCur();
   cfg.lang=$("lang").value;cfg.voice=$("voice").value;cfg.speak=$("speakOn").value;
   soul=$("soul").value.trim()||DEFAULT_SOUL;notes=$("notes").value;linksTxt=$("links").value;
-  sv("jv_key",cfg.key);sv("jv_model",cfg.model);sv("jv_lang",cfg.lang);sv("jv_voice",cfg.voice);sv("jv_speak",cfg.speak);
+  sv("jv_keys",JSON.stringify(keys));sv("jv_models",JSON.stringify(models));sv("jv_prov",cfg.prov);sv("jv_base",baseCustom);sv("jv_lang",cfg.lang);sv("jv_voice",cfg.voice);sv("jv_speak",cfg.speak);
   sv("jv_soul",soul);sv("jv_notes",notes);sv("jv_links",linksTxt);
   $("sheet").classList.remove("open");add("s","// config saved");hud();
 });
@@ -492,7 +558,7 @@ $("resetSoul").addEventListener("click",function(){$("soul").value=DEFAULT_SOUL}
 $("goBtn").addEventListener("click",function(){
   ctx();unlockSpeech();
   $("goBtn").style.display="none";
-  var lines=["core systems ........ ONLINE","voice interface ..... ONLINE","command engine ...... ONLINE","brain link .......... "+(cfg.key?"CLAUDE":"LOCAL"),"welcome, J.Nazreen"];
+  var lines=["core systems ........ ONLINE","voice interface ..... ONLINE","command engine ...... ONLINE","brain link .......... "+(cfg.key?PROV[cfg.prov].name.toUpperCase():"LOCAL"),"welcome, J.Nazreen"];
   var i=0,box=$("bootlines");
   (function nx(){
     if(i<lines.length){var d=document.createElement("div");d.textContent="> "+lines[i++];box.appendChild(d);setTimeout(nx,380)}
