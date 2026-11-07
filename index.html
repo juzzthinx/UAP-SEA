@@ -76,7 +76,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
 </head>
 <body>
 <header>
-  <div class="brand">JARVIS<small>FOR J.NAZREEN // F12 // VENI. VIDI. VICI.</small></div>
+  <div class="brand">JARVIS<small>FOR J.NAZREEN // F12 // VENI. VIDI. VICI. &middot; <span id="ver"></span></small></div>
   <button class="iconbtn" id="openSet">CONFIG</button>
 </header>
 <div class="hud"><span id="hL"></span><span id="hR"></span></div>
@@ -236,7 +236,9 @@ function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
 function tm(){return new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}
 function dt(){return new Date().toLocaleDateString([], {weekday:"long",day:"numeric",month:"long"})}
-function part(){var h=new Date().getHours();return h<5?"evening":h<12?"morning":h<18?"afternoon":"evening"}
+var VER="v2.2";
+function part(){var h=new Date().getHours();return h<5?"night":h<12?"morning":h<18?"afternoon":"evening"}
+function greet(){var h=new Date().getHours();return h<5?"Burning the midnight oil, J.Nazreen":"Good "+part()+", J.Nazreen"}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
   var s=t.toLowerCase().replace(/[“”"!?,]/g," ").replace(/['’]/g,"").replace(/\s+/g," ").trim();
@@ -355,12 +357,12 @@ function local(raw){
   }
 
   if(/^(hi|hello|hey|yo|sup|wassup|good (morning|afternoon|evening|night)|whats up)( there| boss| bro| broski)?$/.test(n)){
-    return R(pick(["Good "+part()+", J.Nazreen. What are we building?","At your service, boss. Good "+part()+".","Online and ready, J.Nazreen."]));
+    return R(pick([greet()+". What are we building?","At your service, boss. "+(new Date().getHours()<5?"Late one tonight.":"Good "+part()+"."),"Online and ready, J.Nazreen."]));
   }
   if(/(who are you|what are you|your name)/.test(n)){return R("I am Jarvis, your personal system, built by you and Claude on an iPhone 11. Veni. Vidi. Vici.")}
   if(/^(thanks|thank you|thankyou|appreciate it|cheers)( jarvis| boss| bro)?$/.test(n)){return R(pick(["Anytime, boss.","Always, J.Nazreen.","Do not mention it."]))}
   if(/^(status|system check|diagnostics|system status|status report)$/.test(n)){
-    return R("All systems online. Brain is "+(cfg.key?PROV[cfg.prov].name:"local")+". "+openTasks().length+(openTasks().length===1?" open task, ":" open tasks, ")+timers.length+(timers.length===1?" timer running.":" timers running."));
+    return R("All systems online. Version "+VER+". Brain is "+(cfg.key?PROV[cfg.prov].name:"local")+". "+openTasks().length+(openTasks().length===1?" open task, ":" open tasks, ")+timers.length+(timers.length===1?" timer running.":" timers running."));
   }
   if(/(motto|mantra|creed)/.test(n)){return R("Veni. Vidi. Vici. I came, I saw, I conquered.")}
   if(/\bjoke\b/.test(n)){
@@ -564,13 +566,14 @@ $("goBtn").addEventListener("click",function(){
     if(i<lines.length){var d=document.createElement("div");d.textContent="> "+lines[i++];box.appendChild(d);setTimeout(nx,380)}
     else{setTimeout(function(){
       $("boot").classList.add("out");
-      var g="Good "+part()+", J.Nazreen. It is "+tm()+", "+dt()+". All systems online.";
+      var g=greet()+". It is "+tm()+", "+dt()+". All systems online.";
       add("a",g);speak(g);
     },500)}
   })();
 });
 
 paintModes();renderAll();idle();hud();
+var vv=$("ver");if(vv)vv.textContent=VER;
 })();
 </script>
 </body>
