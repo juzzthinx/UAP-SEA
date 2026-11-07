@@ -64,6 +64,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
 .sheet .row button{flex:1;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--p);color:var(--t);font-size:14px}
 .sheet .row .pri{background:var(--c);color:var(--bg);border-color:var(--c);font-weight:700}
 .sheet .row .dng{color:var(--warn)}
+.mini{width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--p);color:var(--c);font-size:12px;letter-spacing:.1em}
+#modelList button{display:inline-block;margin:6px 6px 0 0;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--p);color:var(--t);font-size:13px}
 .hint{font-size:12px;color:var(--dim);margin-top:6px;line-height:1.4}
 #boot{position:fixed;inset:0;z-index:30;background:radial-gradient(ellipse at 50% 30%,#3a0a0c,#0a0203 65%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .9s}
 #boot.out{opacity:0;pointer-events:none}
@@ -111,6 +113,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
   <div id="baseWrap" style="display:none"><label>Base URL</label><input id="base" type="text" placeholder="https://example.com/v1" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
   <label>Model</label>
   <input id="model" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <button type="button" class="mini" id="listModels">SHOW MODELS MY KEY CAN USE</button>
+  <div id="modelList" class="hint"></div>
   <div class="hint">No key = free command mode. Keys are stored only on this phone, one per brain.</div>
   <label>Listening language</label>
   <select id="lang"><option value="en-US">English</option><option value="ms-MY">Bahasa Melayu</option></select>
@@ -236,7 +240,7 @@ function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
 function tm(){return new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}
 function dt(){return new Date().toLocaleDateString([], {weekday:"long",day:"numeric",month:"long"})}
-var VER="v2.3";
+var VER="v2.4";
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 function part(){var h=new Date().getHours();return h<5?"night":h<12?"morning":h<18?"afternoon":"evening"}
 function greet(){var h=new Date().getHours();return h<5?"Burning the midnight oil, J.Nazreen":"Good "+part()+", J.Nazreen"}
@@ -532,8 +536,42 @@ function loadProvFields(p){
 }
 $("prov").addEventListener("change",function(){
   draft.keys[shownProv]=$("key").value.trim();draft.models[shownProv]=$("model").value.trim();
-  shownProv=$("prov").value;loadProvFields(shownProv);
+  shownProv=$("prov").value;$("modelList").innerHTML="";loadProvFields(shownProv);
 });
+function listModels(){
+  var p=$("prov").value,k=cleanId($("key").value),box=$("modelList"),url,h={};
+  if(!k){box.textContent="Paste your key above first.";return}
+  if(p==="claude"){url="https://api.anthropic.com/v1/models?limit=100";h={"x-api-key":k,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"}}
+  else if(p==="gemini"){url="https://generativelanguage.googleapis.com/v1beta/models?pageSize=100";h={"x-goog-api-key":k}}
+  else{
+    var b=(p==="custom"?cleanId($("base").value):PROV[p].base)||"";b=b.replace(/\/+$/,"");
+    if(!b){box.textContent="Add the base URL first.";return}
+    url=b+"/models";h={"authorization":"Bearer "+k};
+  }
+  box.textContent="Checking...";
+  fetch(url,{headers:h}).then(function(r){
+    return r.json().catch(function(){return{}}).then(function(j){
+      if(!r.ok){var em=(j&&j.error&&(j.error.message||j.error))||("HTTP "+r.status);throw new Error(typeof em==="string"?em:JSON.stringify(em))}
+      return j;
+    });
+  }).then(function(j){
+    var ids=[];
+    if(j.models){ids=j.models.filter(function(m){return !m.supportedGenerationMethods||m.supportedGenerationMethods.indexOf("generateContent")>-1}).map(function(m){return String(m.name).replace(/^models\//,"")})}
+    else{ids=(j.data||[]).map(function(m){return m.id})}
+    ids=ids.filter(function(id){return !/whisper|tts|orpheus|guard|safeguard|embed|playai|transcribe|image|dall|moderation/i.test(id)});
+    if(p==="openrouter"){ids.sort(function(a,c){return (/:free$/.test(c)?1:0)-(/:free$/.test(a)?1:0)})}
+    ids=ids.slice(0,30);
+    box.innerHTML="";
+    if(!ids.length){box.textContent="This key cannot see any chat models. Check the key and the account.";return}
+    var t=document.createElement("div");t.textContent="Your key can use these. Tap one to select it, then SAVE:";box.appendChild(t);
+    ids.forEach(function(id){var bt=document.createElement("button");bt.type="button";bt.textContent=id;bt.onclick=function(){$("model").value=id;draft.models[shownProv]=id};box.appendChild(bt)});
+  }).catch(function(e){
+    var em=String(e&&e.message||e);
+    if(/failed to fetch|networkerror|load failed/i.test(em))em="Could not reach the provider. Check your internet.";
+    box.textContent="Could not list models: "+em;
+  });
+}
+$("listModels").addEventListener("click",listModels);
 function openSheet(){
   draft={keys:{},models:{}};shownProv=cfg.prov;$("prov").value=cfg.prov;$("base").value=baseCustom;loadProvFields(cfg.prov);
   $("lang").value=cfg.lang;
