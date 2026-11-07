@@ -106,11 +106,11 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
     <option value="custom">Custom (OpenAI-style)</option>
   </select>
   <label>API key (optional)</label>
-  <input id="key" type="password" placeholder="paste key, or leave empty for command mode" autocomplete="off">
+  <input id="key" type="password" placeholder="paste key, or leave empty for command mode" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
   <div class="hint" id="provHint"></div>
-  <div id="baseWrap" style="display:none"><label>Base URL</label><input id="base" type="text" placeholder="https://example.com/v1" autocapitalize="off"></div>
+  <div id="baseWrap" style="display:none"><label>Base URL</label><input id="base" type="text" placeholder="https://example.com/v1" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>
   <label>Model</label>
-  <input id="model" type="text" autocapitalize="off">
+  <input id="model" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
   <div class="hint">No key = free command mode. Keys are stored only on this phone, one per brain.</div>
   <label>Listening language</label>
   <select id="lang"><option value="en-US">English</option><option value="ms-MY">Bahasa Melayu</option></select>
@@ -172,7 +172,7 @@ try{keys=JSON.parse(ld("jv_keys","{}"))||{}}catch(e){keys={}}
 try{models=JSON.parse(ld("jv_models","{}"))||{}}catch(e){models={}}
 if(!keys.claude&&ld("jv_key",""))keys.claude=ld("jv_key","");
 if(!models.claude&&ld("jv_model",""))models.claude=ld("jv_model","");
-function syncCur(){cfg.key=keys[cfg.prov]||"";cfg.model=models[cfg.prov]||PROV[cfg.prov].model}
+function syncCur(){cfg.key=cleanId(keys[cfg.prov]);cfg.model=cleanId(models[cfg.prov])||PROV[cfg.prov].model}
 syncCur();
 var soul=ld("jv_soul",DEFAULT_SOUL), notes=ld("jv_notes",""), linksTxt=ld("jv_links",DEFAULT_LINKS);
 var hist=[]; try{hist=JSON.parse(ld("jv_hist","[]"))||[]}catch(e){hist=[]}
@@ -236,7 +236,8 @@ function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
 function tm(){return new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}
 function dt(){return new Date().toLocaleDateString([], {weekday:"long",day:"numeric",month:"long"})}
-var VER="v2.2";
+var VER="v2.3";
+function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 function part(){var h=new Date().getHours();return h<5?"night":h<12?"morning":h<18?"afternoon":"evening"}
 function greet(){var h=new Date().getHours();return h<5?"Burning the midnight oil, J.Nazreen":"Good "+part()+", J.Nazreen"}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
@@ -546,7 +547,9 @@ $("save").addEventListener("click",function(){
   draft.keys[shownProv]=$("key").value.trim();draft.models[shownProv]=$("model").value.trim();
   Object.keys(draft.keys).forEach(function(k){keys[k]=draft.keys[k]});
   Object.keys(draft.models).forEach(function(k){if(draft.models[k])models[k]=draft.models[k];else delete models[k]});
-  cfg.prov=$("prov").value;baseCustom=$("base").value.trim();syncCur();
+  Object.keys(keys).forEach(function(k){keys[k]=cleanId(keys[k])});
+  Object.keys(models).forEach(function(k){models[k]=cleanId(models[k]);if(!models[k])delete models[k]});
+  cfg.prov=$("prov").value;baseCustom=cleanId($("base").value);syncCur();
   cfg.lang=$("lang").value;cfg.voice=$("voice").value;cfg.speak=$("speakOn").value;
   soul=$("soul").value.trim()||DEFAULT_SOUL;notes=$("notes").value;linksTxt=$("links").value;
   sv("jv_keys",JSON.stringify(keys));sv("jv_models",JSON.stringify(models));sv("jv_prov",cfg.prov);sv("jv_base",baseCustom);sv("jv_lang",cfg.lang);sv("jv_voice",cfg.voice);sv("jv_speak",cfg.speak);
