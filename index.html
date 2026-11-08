@@ -5,111 +5,126 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Jarvis">
-<meta name="theme-color" content="#00080b" id="tc">
+<meta name="theme-color" content="#f7f5f1" id="tc">
 <title>JARVIS // J.NAZREEN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Michroma&display=swap" rel="stylesheet">
 <script>
-try{document.documentElement.setAttribute("data-theme",localStorage.getItem("jv_theme")||"matrix")}catch(e){document.documentElement.setAttribute("data-theme","matrix")}
+try{var t=localStorage.getItem("jv_theme");document.documentElement.setAttribute("data-theme",t==="night"?"night":"paddock")}catch(e){document.documentElement.setAttribute("data-theme","paddock")}
 </script>
 <style>
-:root{--c:#19f5c8;--c2:#1e90ff;--bg:#00080b;--bg2:#052a2f;--p:#04171b;--t:#d4fff5;--dim:#5f9a92;--warn:#ff6b81;--ok:#39ff14;--ok2:#0a6b10;--line:#0b3d42;--hi:#eafff9;--core2:#04586a;--ga:#19f5c833;--gb:#19f5c855;--gc:#19f5c866;--gd:#19f5c812;--ge:#19f5c844;--c2a:#1e90ff33;--okc:#39ff1466;--ub:#06262c;--ubr:#0f5560;--errt:#ffc2cb;--barline:#0a2a2e;--barbg:#00090c;--sheetbg:#00080bee}
-[data-theme="ironman"]{--c:#ffb81c;--c2:#d62828;--bg:#0a0203;--bg2:#3a0a0c;--p:#1a0608;--t:#ffe9d0;--dim:#a0806a;--warn:#ff7a45;--ok:#ff3b30;--ok2:#7a0c0c;--line:#4a1a14;--hi:#fff6e0;--core2:#8a3200;--ga:#ffb81c33;--gb:#ffb81c55;--gc:#ffb81c66;--gd:#ffb81c12;--ge:#ffb81c44;--c2a:#d6282833;--okc:#ff3b3066;--ub:#2a0c0c;--ubr:#5c2a1a;--errt:#ffc2cb;--barline:#2a0f0c;--barbg:#080203;--sheetbg:#0a0203ee}
-#rain{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.36}
-header,.hud,.modes,.stage,#log,.bar{position:relative;z-index:1}
-html[data-rain="off"] #rain{display:none}
-:root:not([data-theme="ironman"]) .brand small{letter-spacing:0;font-size:8.5px}
-:root:not([data-theme="ironman"]) .hud,:root:not([data-theme="ironman"]) .status,:root:not([data-theme="ironman"]) .brand small{font-family:ui-monospace,Menlo,monospace}
+:root{--c:#d50000;--bg:#f7f5f1;--p:#ffffff;--t:#141414;--dim:#8b8680;--warn:#b00020;--line:#e6e1da;--ub:#efebe4;--errt:#8a0018;--sheetbg:#f7f5f1f2;--on:#ffffff}
+[data-theme="night"]{--c:#ff2d2d;--bg:#0c0c0d;--p:#161617;--t:#f1eee9;--dim:#8c8984;--warn:#ff6b6b;--line:#2a2a2c;--ub:#1d1d1f;--errt:#ffb3b3;--sheetbg:#0c0c0df2;--on:#0c0c0d}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{width:100%;overflow-x:hidden}
-html,body{margin:0;background:var(--bg);color:var(--t);font-family:-apple-system,"SF Pro Text",Helvetica,Arial,sans-serif;overscroll-behavior:none}
-body{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;max-width:100%;overflow-x:hidden;display:flex;flex-direction:column;
-padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);background:radial-gradient(ellipse at 50% 18%,var(--bg2) 0%,var(--bg) 62%)}
-header,.modes,.hud,.bar{width:100%;max-width:100%}
-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px 6px}
-.brand{min-width:0;letter-spacing:.35em;font-weight:700;font-size:14px;color:var(--c);text-shadow:0 0 12px var(--c)}
-.brand small{display:block;letter-spacing:.08em;font-weight:400;font-size:9px;color:var(--dim);text-shadow:none;margin-top:2px}
-.iconbtn{flex:none;background:var(--p);border:1px solid var(--line);color:var(--c);border-radius:10px;padding:7px 11px;font-size:13px;letter-spacing:.08em}
-.hud{display:flex;justify-content:space-between;gap:10px;padding:0 16px 8px;font-size:10px;letter-spacing:.14em;color:var(--dim);white-space:nowrap;overflow:hidden}
-.hud b{color:var(--c);font-weight:600}
-.modes{display:flex;gap:8px;padding:0 16px 4px}
-.modes button{flex:1;min-width:0;background:var(--p);border:1px solid var(--line);color:var(--dim);border-radius:10px;padding:8px 2px;font-size:11px;letter-spacing:.08em;white-space:nowrap;overflow:hidden}
-.modes button.on{color:var(--bg);background:var(--c);border-color:var(--c);box-shadow:0 0 14px var(--gc);font-weight:700}
-.stage{position:relative;height:190px;display:flex;align-items:center;justify-content:center;flex:none}
-.orb{position:relative;width:132px;height:132px;border-radius:50%;border:0;background:none;padding:0}
-.orb .core{position:absolute;inset:34px;border-radius:50%;background:radial-gradient(circle,var(--hi) 0%,var(--c) 38%,var(--core2) 100%);box-shadow:0 0 38px var(--c),0 0 90px var(--gb);transition:transform .25s}
-.orb .r{position:absolute;border-radius:50%;border:2px solid transparent}
-.orb .r1{inset:0;border-top-color:var(--c);border-bottom-color:var(--ga);animation:spin 5s linear infinite}
-.orb .r2{inset:12px;border-left-color:var(--c2);border-right-color:var(--c2a);animation:spin 3.2s linear infinite reverse}
-.orb .r3{inset:-12px;border:1px dashed var(--gb);animation:spin 14s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
-@keyframes think{0%,100%{opacity:.45}50%{opacity:1}}
-.orb.listen .core{animation:pulse .9s ease-in-out infinite;background:radial-gradient(circle,#fff 0%,var(--ok) 40%,var(--ok2) 100%);box-shadow:0 0 40px var(--ok),0 0 100px var(--okc)}
-.orb.listen .r1,.orb.listen .r2{border-top-color:var(--ok);border-left-color:var(--ok)}
-.orb.think .core{animation:think .7s ease-in-out infinite}
-.orb.think .r1{animation-duration:1s}.orb.think .r2{animation-duration:.8s}
-.orb.speak .core{animation:pulse .5s ease-in-out infinite}
-.status{position:absolute;bottom:2px;left:0;right:0;text-align:center;font-size:11px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase;min-height:14px;padding:0 20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#log{flex:1;overflow-y:auto;padding:6px 16px 10px;-webkit-overflow-scrolling:touch}
-.m{max-width:88%;margin:8px 0;padding:10px 13px;border-radius:14px;font-size:15px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word}
-.m.u{margin-left:auto;background:var(--ub);border:1px solid var(--ubr);border-bottom-right-radius:4px}
-.m.a{margin-right:auto;background:var(--p);border:1px solid var(--line);border-bottom-left-radius:4px;box-shadow:0 0 16px var(--gd)}
-.m.s{margin:8px auto;background:none;border:0;color:var(--dim);font-size:12px;text-align:center;letter-spacing:.05em}
-.m.e{border-color:var(--warn);color:var(--errt)}
-.m a{display:inline-block;margin-top:8px;padding:8px 12px;border:1px solid var(--c);border-radius:10px;color:var(--c);text-decoration:none;font-weight:700;font-size:14px}
-.bar{display:flex;gap:8px;padding:8px 12px 10px;border-top:1px solid var(--barline);background:var(--barbg)}
-.bar input{flex:1;min-width:0;background:var(--p);border:1px solid var(--line);color:var(--t);border-radius:22px;padding:11px 16px;font-size:16px;outline:none}
+html,body{margin:0;background:var(--bg);color:var(--t);font-family:"Barlow","Avenir Next","Helvetica Neue",Helvetica,Arial,sans-serif;overscroll-behavior:none}
+.f{font-family:"Michroma","Eurostile","Microgramma D Extended","Avenir Next",sans-serif}
+body{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;max-width:100%;overflow-x:hidden;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);border-top:3px solid var(--c)}
+header,.hud,.chips,.modes,.bar,.wx{width:100%;max-width:100%}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 18px 4px}
+.brand{min-width:0;font-family:"Michroma","Eurostile","Microgramma D Extended",sans-serif;font-size:15px;letter-spacing:.34em;color:var(--t)}
+.brand small{display:block;font-size:7.5px;letter-spacing:.2em;color:var(--dim);margin-top:5px;white-space:nowrap}
+.brand i{font-style:normal;color:var(--c)}
+.iconbtn{flex:none;background:none;border:1px solid var(--line);color:var(--t);border-radius:999px;padding:7px 13px;font-family:"Michroma","Eurostile",sans-serif;font-size:8px;letter-spacing:.2em}
+.hud{display:flex;justify-content:space-between;gap:10px;padding:4px 18px 0;font-family:"Michroma","Eurostile",sans-serif;font-size:7.5px;letter-spacing:.16em;color:var(--dim);white-space:nowrap;overflow:hidden}
+.hud b{color:var(--t);font-weight:400}
+.stage{position:relative;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 0 0}
+#orb{display:block;width:170px;height:170px;border:0;background:none;padding:0;border-radius:50%}
+#viz{width:170px;height:170px;display:block}
+.status{min-height:16px;margin-top:-4px;text-align:center;font-family:"Michroma","Eurostile",sans-serif;font-size:8px;letter-spacing:.22em;color:var(--dim);text-transform:uppercase;padding:0 20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.wx{display:flex;align-items:center;gap:12px;padding:8px 18px 4px;cursor:pointer}
+#wxi{width:54px;height:54px;flex:none}
+.wxt{min-width:0}
+.wxt .big{font-family:"Michroma","Eurostile",sans-serif;font-size:19px;letter-spacing:.04em}
+.wxt .d{font-size:14px;color:var(--t);margin-left:8px}
+.wxt small{display:block;font-family:"Michroma","Eurostile",sans-serif;font-size:7px;letter-spacing:.16em;color:var(--dim);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chips{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 18px}
+.seg{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.seg button{background:none;border:0;color:var(--dim);padding:7px 11px;font-family:"Michroma","Eurostile",sans-serif;font-size:8px;letter-spacing:.14em}
+.seg button.on{background:var(--c);color:var(--on)}
+.pill{background:none;border:1px solid var(--line);color:var(--t);border-radius:999px;padding:7px 12px;font-family:"Michroma","Eurostile",sans-serif;font-size:7.5px;letter-spacing:.16em;white-space:nowrap}
+.pill.on{background:var(--c);border-color:var(--c);color:var(--on)}
+.acts{display:flex;gap:6px}
+.modes{display:flex;gap:18px;padding:4px 18px 0;border-bottom:1px solid var(--line)}
+.modes button{background:none;border:0;border-bottom:2px solid transparent;color:var(--dim);padding:8px 0 7px;font-family:"Michroma","Eurostile",sans-serif;font-size:7.5px;letter-spacing:.2em;margin-bottom:-1px}
+.modes button.on{color:var(--t);border-bottom-color:var(--c)}
+#log{flex:1;overflow-y:auto;padding:4px 18px 10px;-webkit-overflow-scrolling:touch}
+.m{max-width:90%;margin:11px 0;font-size:16px;line-height:1.45;white-space:pre-wrap;word-wrap:break-word}
+.m.u{margin-left:auto;background:var(--ub);padding:9px 14px;border-radius:16px 16px 4px 16px;font-size:15px}
+.m.a{margin-right:auto;padding:1px 0 1px 13px;border-left:2px solid var(--c)}
+.m.s{margin:10px auto;color:var(--dim);font-family:"Michroma","Eurostile",sans-serif;font-size:7.5px;letter-spacing:.16em;text-align:center;text-transform:uppercase;max-width:100%}
+.m.e{border-left-color:var(--warn);color:var(--errt);padding-left:13px;margin-right:auto}
+.m a{display:inline-block;margin-top:9px;padding:9px 15px;border:1px solid var(--c);border-radius:999px;color:var(--c);text-decoration:none;font-family:"Michroma","Eurostile",sans-serif;font-size:8px;letter-spacing:.18em}
+.bar{display:flex;gap:8px;padding:8px 14px 10px;border-top:1px solid var(--line);background:var(--bg)}
+.bar input{flex:1;min-width:0;background:var(--p);border:1px solid var(--line);color:var(--t);border-radius:999px;padding:11px 17px;font-size:16px;font-family:inherit;outline:none}
 .bar input:focus{border-color:var(--c)}
-.bar button{flex:none;background:var(--c);color:var(--bg);border:0;border-radius:22px;padding:0 18px;font-weight:700;font-size:14px}
-.sheet{position:fixed;inset:0;background:var(--sheetbg);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;z-index:9;overflow-y:auto;padding:calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 24px)}
+.bar button{flex:none;background:var(--c);color:var(--on);border:0;border-radius:999px;padding:0 18px;font-family:"Michroma","Eurostile",sans-serif;font-size:8px;letter-spacing:.2em}
+.sheet{position:fixed;inset:0;background:var(--sheetbg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;z-index:9;overflow-y:auto;padding:calc(env(safe-area-inset-top) + 16px) 18px calc(env(safe-area-inset-bottom) + 28px)}
 .sheet.open{display:block}
-.sheet h2{font-size:14px;letter-spacing:.3em;color:var(--c);margin:4px 0 14px}
-.sheet label{display:block;font-size:11px;letter-spacing:.15em;color:var(--dim);margin:14px 0 5px;text-transform:uppercase}
-.sheet input,.sheet textarea,.sheet select{width:100%;background:var(--p);border:1px solid var(--line);color:var(--t);border-radius:10px;padding:10px 12px;font-size:16px;font-family:inherit;outline:none}
-.sheet textarea{min-height:150px;resize:vertical;font-size:14px;line-height:1.4}
+.sheet h2{font-family:"Michroma","Eurostile",sans-serif;font-size:12px;letter-spacing:.3em;margin:4px 0 6px;font-weight:400}
+.sheet h3{font-family:"Michroma","Eurostile",sans-serif;font-size:8px;letter-spacing:.24em;color:var(--c);margin:26px 0 2px;font-weight:400;border-top:1px solid var(--line);padding-top:16px}
+.sheet label{display:block;font-family:"Michroma","Eurostile",sans-serif;font-size:7.5px;letter-spacing:.16em;color:var(--dim);margin:14px 0 6px;text-transform:uppercase}
+.sheet input,.sheet textarea,.sheet select{width:100%;background:var(--p);border:1px solid var(--line);color:var(--t);border-radius:12px;padding:10px 12px;font-size:16px;font-family:inherit;outline:none}
+.sheet textarea{min-height:150px;resize:vertical;font-size:14px;line-height:1.45}
 .sheet textarea.sm{min-height:84px}
 .sheet .row{display:flex;gap:10px;margin-top:18px}
-.sheet .row button{flex:1;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--p);color:var(--t);font-size:14px}
-.sheet .row .pri{background:var(--c);color:var(--bg);border-color:var(--c);font-weight:700}
+.sheet .row button{flex:1;padding:12px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--t);font-family:"Michroma","Eurostile",sans-serif;font-size:8px;letter-spacing:.16em}
+.sheet .row .pri{background:var(--c);color:var(--on);border-color:var(--c)}
 .sheet .row .dng{color:var(--warn)}
-.mini{width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--p);color:var(--c);font-size:12px;letter-spacing:.1em}
-#modelList button{display:inline-block;margin:6px 6px 0 0;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--p);color:var(--t);font-size:13px}
+.mini{width:100%;margin-top:9px;padding:11px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--c);font-family:"Michroma","Eurostile",sans-serif;font-size:7.5px;letter-spacing:.16em}
+#modelList button,#elList button{display:inline-block;margin:6px 6px 0 0;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--t);font-size:13px;font-family:inherit}
+#elList .vrow{display:flex;gap:6px;align-items:center;margin-top:6px}
+#elList .vrow button{margin:0}
+#elList .vrow .nm{flex:1;text-align:left;border-radius:12px}
 .sheet input[type=range]{background:none;border:0;padding:0;height:34px;accent-color:var(--c)}
-.hint{font-size:12px;color:var(--dim);margin-top:6px;line-height:1.4}
-#boot{position:fixed;inset:0;z-index:30;background:radial-gradient(ellipse at 50% 30%,var(--bg2),var(--bg) 65%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .9s}
+.hint{font-size:13px;color:var(--dim);margin-top:7px;line-height:1.45}
+#boot{position:fixed;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;transition:opacity .9s;border-top:3px solid var(--c)}
 #boot.out{opacity:0;pointer-events:none}
-#boot .ring{width:96px;height:96px;border-radius:50%;border:2px solid transparent;border-top-color:var(--c);border-bottom-color:var(--c2);animation:spin 2.2s linear infinite;box-shadow:0 0 30px var(--ge)}
-#boot .t{letter-spacing:.5em;color:var(--c);font-weight:700;font-size:18px;text-shadow:0 0 14px var(--c);padding-left:.5em}
-#boot .sub{font-size:10px;letter-spacing:.2em;color:var(--dim)}
-#boot .go{background:none;border:1px solid var(--c);color:var(--c);border-radius:12px;padding:12px 22px;letter-spacing:.25em;font-size:12px;font-weight:700}
-#bootlines{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--dim);line-height:1.7;min-height:100px;text-align:left}
+#boot .t{font-family:"Michroma","Eurostile",sans-serif;letter-spacing:.5em;font-size:20px;padding-left:.5em}
+#boot .sub{font-family:"Michroma","Eurostile",sans-serif;font-size:7.5px;letter-spacing:.26em;color:var(--dim);text-align:center;padding:0 20px}
+.lights{display:flex;gap:12px}
+.lights i{display:block;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);background:transparent;transition:background .12s,box-shadow .12s,border-color .12s}
+.lights i.on{background:var(--c);border-color:var(--c);box-shadow:0 0 18px var(--c)}
+#boot .go{background:none;border:1px solid var(--c);color:var(--c);border-radius:999px;padding:14px 28px;font-family:"Michroma","Eurostile",sans-serif;letter-spacing:.28em;font-size:9px}
+@media (max-height:700px){#orb,#viz{width:136px;height:136px}.wx{padding-top:4px}}
 </style>
 </head>
 <body>
-<canvas id="rain"></canvas>
 <header>
-  <div class="brand">JARVIS<small>FOR J.NAZREEN // F12 // VENI. VIDI. VICI. &middot; <span id="ver"></span></small></div>
+  <div class="brand">JARVIS<small>J.NAZREEN &middot; <span id="ver"></span></small></div>
   <button class="iconbtn" id="openSet">CONFIG</button>
 </header>
 <div class="hud"><span id="hL"></span><span id="hR"></span></div>
+<div class="stage">
+  <button type="button" id="orb" aria-label="Talk to Jarvis"><canvas id="viz"></canvas></button>
+  <div class="status" id="status">tap the circle to talk</div>
+</div>
+<div class="wx" id="wx" title="Tap to refresh weather">
+  <canvas id="wxi"></canvas>
+  <div class="wxt"><span class="big" id="wxT">--&deg;</span><span class="d" id="wxD">weather</span><small id="wxS">TAP TO LOAD</small></div>
+</div>
+<div class="chips">
+  <div class="seg" id="langs"><button data-l="en-US">EN</button><button data-l="ms-MY">BM</button><button data-l="zh-CN">&#20013;&#25991;</button></div>
+  <div class="acts"><button type="button" class="pill" id="wazeBtn">WAZE</button><button type="button" class="pill" id="stbyBtn">STANDBY</button></div>
+</div>
 <div class="modes" id="modes">
   <button data-m="assist" class="on">ASSIST</button>
   <button data-m="lyrics">LYRICS</button>
   <button data-m="f12">F12 CMD</button>
 </div>
-<div class="stage">
-  <button class="orb" id="orb" aria-label="Talk"><span class="r r3"></span><span class="r r1"></span><span class="r r2"></span><span class="core"></span></button>
-  <div class="status" id="status">tap the orb to talk</div>
-</div>
 <div id="log"></div>
 <form class="bar" id="form">
-  <input id="txt" type="text" placeholder="Type to Jarvis..." autocomplete="off" autocapitalize="sentences" enterkeyhint="send">
+  <input id="txt" type="text" placeholder="Message Jarvis" autocomplete="off" autocapitalize="sentences" enterkeyhint="send">
   <button type="submit">SEND</button>
 </form>
 
 <div class="sheet" id="sheet">
   <h2>CONFIG</h2>
+
+  <h3>BRAIN</h3>
   <label>Brain</label>
   <select id="prov">
     <option value="claude">Claude (Anthropic)</option>
@@ -127,40 +142,73 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
   <button type="button" class="mini" id="listModels">SHOW MODELS MY KEY CAN USE</button>
   <div id="modelList" class="hint"></div>
   <div class="hint">No key = free command mode. Keys are stored only on this phone, one per brain.</div>
-  <label>Listening language</label>
-  <select id="lang"><option value="en-US">English</option><option value="ms-MY">Bahasa Melayu</option></select>
-  <label>Voice</label>
-  <select id="voice"></select>
+
+  <h3>VOICE</h3>
+  <label>Voice engine</label>
+  <select id="engine">
+    <option value="device">Device voices (free)</option>
+    <option value="eleven">ElevenLabs (best quality, needs key)</option>
+  </select>
+  <div id="elBox" style="display:none">
+    <label>ElevenLabs API key</label>
+    <input id="elKey" type="password" placeholder="paste ElevenLabs key" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <label>Voice ID</label>
+    <input id="elVoice" type="text" placeholder="tap FIND MY VOICES, or paste a voice ID" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <button type="button" class="mini" id="elFind">FIND MY VOICES</button>
+    <div id="elList" class="hint"></div>
+    <label>Model</label>
+    <select id="elModel"><option value="eleven_multilingual_v2">Multilingual v2 (richest)</option><option value="eleven_flash_v2_5">Flash v2.5 (fastest)</option></select>
+    <div class="hint">Speaks English, Bahasa Malaysia and Mandarin in one voice. If it ever fails, Jarvis falls back to the device voice.</div>
+  </div>
+  <div id="devBox">
+    <label>Device voice &middot; English</label><select id="voEn"></select>
+    <label>Device voice &middot; Bahasa Melayu</label><select id="voMs"></select>
+    <label>Device voice &middot; &#20013;&#25991;</label><select id="voZh"></select>
+    <div class="hint">Auto picks the best British male voice installed. For the richest one: Settings &gt; Accessibility &gt; Spoken Content &gt; Voices &gt; English &gt; United Kingdom, then download an Enhanced or Premium voice.</div>
+  </div>
   <label>Voice speed <span id="rateV" style="color:var(--c)"></span></label>
-  <input type="range" id="rate" min="0.7" max="1.4" step="0.05">
+  <input type="range" id="rate" min="0.7" max="1.3" step="0.05">
   <label>Voice pitch <span id="pitchV" style="color:var(--c)"></span></label>
   <input type="range" id="pitch" min="0.5" max="1.5" step="0.05">
-  <div class="row" style="margin-top:10px"><button type="button" id="testVoice">TEST VOICE</button><button type="button" id="jarvisPreset">JARVIS PRESET</button></div>
-  <div class="hint">Lower pitch and slower speed sounds calmer and deeper. Some iPhone voices ignore pitch, and Enhanced or Premium voices respond best.</div>
+  <div class="row" style="margin-top:10px"><button type="button" id="testVoice">TEST VOICE</button><button type="button" id="jarvisPreset">CALM PRESET</button></div>
   <label>Speak replies</label>
   <select id="speakOn"><option value="1">On</option><option value="0">Off (text only)</option></select>
+
+  <h3>LOOK</h3>
   <label>Theme</label>
-  <select id="theme"><option value="matrix">Matrix (turquoise)</option><option value="ironman">Iron Man (red and gold)</option></select>
-  <label>Digital rain</label>
-  <select id="rainOn"><option value="1">On</option><option value="0">Off (saves battery)</option></select>
+  <select id="theme"><option value="paddock">Paddock (white and red)</option><option value="night">Night (black and red)</option></select>
+
+  <h3>WEATHER AND WAZE</h3>
+  <label>Weather location</label>
+  <select id="wxLoc"><option value="gps">Where I am (asks for location)</option><option value="kl">Kuala Lumpur always</option></select>
+  <label>Waze</label>
+  <select id="wazeAuto"><option value="0">Show an OPEN WAZE button</option><option value="1">Also try to open Waze automatically</option></select>
+  <label>Saved places (name | address or lat,lon)</label>
+  <textarea id="places" class="sm" placeholder="home | Taman Tun Dr Ismail, Kuala Lumpur&#10;work | 3.1579,101.7116"></textarea>
+  <div class="hint">Say "navigate home", "bawa saya ke pejabat" or "导航到公司". Names: home, work, office, studio, rumah, pejabat, 家, 公司.</div>
+
+  <h3>WAKE AND LINKS</h3>
+  <label>Wake link (for a Siri Shortcut)</label>
+  <input id="wakeUrl" type="text" readonly>
+  <button type="button" class="mini" id="copyWake">COPY WAKE LINK</button>
+  <div class="hint">Opens Jarvis on a "Daddy's home" screen. Paste it into the Open URLs action of your Shortcut.</div>
   <label>Quick links (name | url, one per line)</label>
   <textarea id="links" class="sm" placeholder="my game | https://juzzthinx.github.io/yourgame.html"></textarea>
-  <div class="hint">Say "open my game" and Jarvis shows a tap-to-open button.</div>
+
+  <h3>MIND</h3>
   <label>Soul file (who Jarvis is)</label>
   <textarea id="soul"></textarea>
   <label>Notes (what Jarvis knows about you)</label>
   <textarea id="notes" placeholder="Say or type: remember ... and it lands here."></textarea>
-  <div class="hint">Tip: after a build session in Claude, ask it for a short "Jarvis notes" summary and paste it here.</div>
   <div class="row"><button class="pri" id="save">SAVE</button><button id="close">CLOSE</button></div>
   <div class="row"><button class="dng" id="clear">CLEAR CHAT</button><button class="dng" id="resetSoul">RESET SOUL</button></div>
 </div>
 
 <div id="boot">
-  <div class="ring"></div>
-  <div class="t">J.A.R.V.I.S</div>
-  <div class="sub">PERSONAL SYSTEM FOR J.NAZREEN</div>
-  <div id="bootlines"></div>
-  <button class="go" id="goBtn">TAP TO INITIALIZE</button>
+  <div class="lights" id="lights"><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="t">JARVIS</div>
+  <div class="sub" id="bootSub">J.NAZREEN &middot; VENI. VIDI. VICI.</div>
+  <button class="go" id="goBtn">LIGHTS OUT</button>
 </div>
 
 <script>
@@ -172,8 +220,10 @@ var DEFAULT_SOUL=
 "He is ASWARA-trained, Minangkabau by lineage (Suku Tanah Datar, Pagaruyung), and lives by the line \"Veni. Vidi. Vici.\" "+
 "He identifies more with Nazreen, the curious, inward, philosophical side, than with the stage name. "+
 "He builds browser games and tools on an iPhone 11 together with Claude, in single-file HTML and Three.js, hosted on GitHub Pages. "+
-"You are his co-builder and sparring partner, not a servant. Call him bro, broski or boss. Be casual, warm, quick-witted, with a little Malaysian flavor, and switch into Bahasa Melayu when he does. "+
-"Be honest. If an idea has holes, say so kindly and offer a better angle. Never flatter. "+
+"Your manner: calm, composed and quietly confident, like the race engineer of a classic Italian F1 team who is also a perfect English butler. Classy, understated, dry wit, never loud, never gushing. "+
+"Speak like team radio: short, clear, precise. Address him as J.Nazreen, and occasionally boss. You are his co-builder and sparring partner. "+
+"Be honest. If an idea has holes, say so calmly and offer a better line. Never flatter. "+
+"LANGUAGE: reply in the language he used, English, Bahasa Malaysia or Mandarin Chinese. If he mixes languages, Malaysian rojak style, mirror that. Write Mandarin in Chinese characters. "+
 "Your replies are spoken aloud on a phone: default to one to three short sentences, no markdown, no lists, no emojis. Go longer only when he asks for depth.";
 var DEFAULT_LINKS="my site | https://juzzthinx.github.io/";
 var MODES={
@@ -190,69 +240,38 @@ var PROV={
  openrouter:{name:"OpenRouter",model:"meta-llama/llama-3.3-70b-instruct:free",base:"https://openrouter.ai/api/v1",hint:"Has free models (names end in :free) with daily limits. Get a key at openrouter.ai. Free model names change, so edit the model if it errors."},
  custom:{name:"Custom",model:"",hint:"Any OpenAI-style provider. Enter its base URL, key and model."}
 };
-var cfg={key:"",model:"",prov:ld("jv_prov","claude"),lang:ld("jv_lang","en-US"),voice:ld("jv_voice",""),speak:ld("jv_speak","1"),mode:ld("jv_mode","assist")};
+var cfg={key:"",model:"",prov:ld("jv_prov","claude"),lang:ld("jv_lang","en-US"),speak:ld("jv_speak","1"),mode:ld("jv_mode","assist")};
 if(!PROV[cfg.prov])cfg.prov="claude";
-cfg.rate=parseFloat(ld("jv_rate","1.02"))||1.02;cfg.pitch=parseFloat(ld("jv_pitch","0.92"))||0.92;
+if(["en-US","ms-MY","zh-CN"].indexOf(cfg.lang)<0)cfg.lang="en-US";
+cfg.rate=parseFloat(ld("jv_rate","0.98"))||0.98;cfg.pitch=parseFloat(ld("jv_pitch","0.9"))||0.9;
+cfg.vo={en:ld("jv_vo_en",""),ms:ld("jv_vo_ms",""),zh:ld("jv_vo_zh","")};
+cfg.engine=ld("jv_engine","device");if(cfg.engine!=="eleven")cfg.engine="device";
+cfg.elKey=cleanIdEarly(ld("jv_elkey",""));cfg.elVoice=cleanIdEarly(ld("jv_elvoice",""));cfg.elModel=ld("jv_elmodel","eleven_multilingual_v2");
+cfg.wxLoc=ld("jv_wxloc","gps")==="kl"?"kl":"gps";cfg.wazeAuto=ld("jv_wazeauto","0")==="1"?"1":"0";
 var keys={},models={},baseCustom=ld("jv_base","");
 try{keys=JSON.parse(ld("jv_keys","{}"))||{}}catch(e){keys={}}
 try{models=JSON.parse(ld("jv_models","{}"))||{}}catch(e){models={}}
 if(!keys.claude&&ld("jv_key",""))keys.claude=ld("jv_key","");
 if(!models.claude&&ld("jv_model",""))models.claude=ld("jv_model","");
-var theme=ld("jv_theme","matrix"),rainOn=ld("jv_rain",(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)?"0":"1");
-if(theme!=="matrix"&&theme!=="ironman")theme="matrix";
-var RCH=Array.from("\uFF71\uFF72\uFF73\uFF74\uFF75\uFF76\uFF77\uFF78\uFF79\uFF7A\uFF7B\uFF7C\uFF7D\uFF7E\uFF7F\uFF80\uFF81\uFF82\uFF83\uFF84\uFF85\uFF86\uFF87\uFF88\uFF89\uFF8A\uFF8B\uFF8C\uFF8D\uFF8E\uFF8F\uFF90\uFF91\uFF92\uFF93\uFF94\uFF95\uFF96\uFF97\uFF98\uFF99\uFF9A\uFF9B\uFF9C\uFF9D0123456789:.=*+-<>");
-var rainRAF=0,rainLast=0,rainCols=[],rainFS=16,rainW=0,rainH=0,rainRGB="25,245,200";
-function hexToRgb(h){h=String(h).trim().replace("#","");if(h.length===3)h=h.split("").map(function(c){return c+c}).join("");var n=parseInt(h,16);return[(n>>16)&255,(n>>8)&255,n&255]}
-function rch(){return RCH[Math.floor(Math.random()*RCH.length)]}
-function newCol(){var a=[];for(var i=0;i<48;i++)a.push(rch());return{y:-Math.random()*40,s:0.18+Math.random()*0.45,t:10+Math.floor(Math.random()*14),ch:a}}
-function rainSize(){
-  var c=$("rain"),dpr=Math.min(window.devicePixelRatio||1,2);
-  rainW=window.innerWidth;rainH=window.innerHeight;
-  c.width=Math.floor(rainW*dpr);c.height=Math.floor(rainH*dpr);
-  var g=c.getContext("2d");g.setTransform(dpr,0,0,dpr,0,0);
-  rainCols=[];for(var i=0;i<Math.ceil(rainW/rainFS);i++)rainCols.push(newCol());
-}
-function rainFrame(ts){
-  rainRAF=requestAnimationFrame(rainFrame);
-  if(ts-rainLast<45)return;rainLast=ts;
-  var g=$("rain").getContext("2d");g.clearRect(0,0,rainW,rainH);
-  g.font=rainFS+"px ui-monospace,Menlo,monospace";g.textBaseline="top";
-  for(var i=0;i<rainCols.length;i++){
-    var d=rainCols[i],x=i*rainFS,head;d.y+=d.s;head=Math.floor(d.y);
-    for(var k=0;k<d.t;k++){
-      var row=head-k;if(row<0)continue;var yy=row*rainFS;if(yy>rainH)continue;
-      var a=k===0?0.95:Math.max(0.05,(1-k/d.t)*0.65);
-      g.fillStyle=k===0?"rgba(230,255,250,"+a+")":"rgba("+rainRGB+","+a+")";
-      g.fillText(d.ch[(row+i)%d.ch.length],x,yy);
-    }
-    if((head-d.t)*rainFS>rainH){rainCols[i]=newCol();rainCols[i].y=-Math.random()*20}
-    if(Math.random()<0.02)d.ch[Math.floor(Math.random()*d.ch.length)]=rch();
-  }
-}
-function rainSync(){
-  if(rainRAF){cancelAnimationFrame(rainRAF);rainRAF=0}
-  if(rainOn!=="1"||document.hidden)return;
-  try{rainRGB=hexToRgb(getComputedStyle(document.documentElement).getPropertyValue("--c")).join(",")}catch(e){}
-  rainSize();rainRAF=requestAnimationFrame(rainFrame);
-}
+var theme=ld("jv_theme","paddock");if(theme!=="night")theme="paddock";
+function cleanIdEarly(x){return String(x||"").replace(/[‐-―−]/g,"-").replace(/\s+/g,"")}
 function applyTheme(){
-  var r=document.documentElement;
-  r.setAttribute("data-theme",theme);r.setAttribute("data-rain",rainOn==="1"?"on":"off");
-  try{var tc=document.getElementById("tc");if(tc)tc.setAttribute("content",getComputedStyle(r).getPropertyValue("--bg").trim()||"#000")}catch(e){}
-  rainSync();
+  var r=document.documentElement;r.setAttribute("data-theme",theme);
+  try{var tc=$("tc");if(tc)tc.setAttribute("content",getComputedStyle(r).getPropertyValue("--bg").trim()||"#f7f5f1")}catch(e){}
+  try{vizColors();wxColors()}catch(e){}
 }
-window.addEventListener("resize",function(){if(window.innerWidth!==rainW)rainSync()});
-document.addEventListener("visibilitychange",rainSync);
 function syncCur(){cfg.key=cleanId(keys[cfg.prov]);cfg.model=cleanId(models[cfg.prov])||PROV[cfg.prov].model}
 syncCur();
-var soul=ld("jv_soul",DEFAULT_SOUL), notes=ld("jv_notes",""), linksTxt=ld("jv_links",DEFAULT_LINKS);
+var soul=ld("jv_soul",DEFAULT_SOUL);
+if(ld("jv_soulv","")!=="4"){soul=DEFAULT_SOUL;sv("jv_soul",soul);sv("jv_soulv","4")}
+var notes=ld("jv_notes",""), linksTxt=ld("jv_links",DEFAULT_LINKS), placesTxt=ld("jv_places","");
 var hist=[]; try{hist=JSON.parse(ld("jv_hist","[]"))||[]}catch(e){hist=[]}
 var tasks=[]; try{tasks=JSON.parse(ld("jv_tasks","[]"))||[]}catch(e){tasks=[]}
 var timers=[];
 var busy=false, listening=false, rec=null, voices=[];
-
-function setState(s,t){var o=$("orb");o.className="orb"+(s?" "+s:"");$("status").textContent=t||""}
-function idle(){setState("", "tap the orb to talk")}
+function lkey(){return cfg.lang.slice(0,2)==="ms"?"ms":cfg.lang.slice(0,2)==="zh"?"zh":"en"}
+var curK="en";
+function LT(en,ms,zh,k){k=k||curK;return k==="ms"?ms:k==="zh"?zh:en}
 function add(cls,text,links){
   var d=document.createElement("div");d.className="m "+cls;d.textContent=text;
   if(links&&links.length){links.forEach(function(l){d.appendChild(document.createElement("br"));var a=document.createElement("a");a.href=l.url;a.target="_blank";a.rel="noopener";a.textContent="OPEN "+l.name.toUpperCase();d.appendChild(a)})}
@@ -274,48 +293,163 @@ function beep(){
     o.start(s);o.stop(s+0.3)}catch(e){}
   });
 }
-
-/* ---------- voice out ---------- */
+/* ---------- voice out: multilingual, device or ElevenLabs ---------- */
+var LANGTAG={en:"en-GB",ms:"ms-MY",zh:"zh-CN"};
+var MSW=" yang dan saya aku awak kamu anda kita kami mereka tidak tak nak boleh dengan untuk ini itu apa siapa mana bila kenapa macam dah sudah belum akan sedang sangat juga lagi atau tapi tetapi kalau jika sebab kerana hari pagi petang malam tengah selamat terima kasih maaf tolong sila cuaca hujan panas sejuk cerah mendung suhu darjah kebarangkalian peratus sekarang pukul rumah pergi bawa buka dekat kat sini sana buat mahu pun lah kah adalah semua sistem sedia baik bos jadi bawalah payung ke pada dari ada ";
+function detectLang(s,prev){
+  if(/[㐀-鿿]/.test(s))return"zh";
+  var w=(s.toLowerCase().match(/[a-z']+/g)||[]),c=0;
+  w.forEach(function(x){if(MSW.indexOf(" "+x+" ")>-1)c++});
+  if(c>=2||(c>=1&&w.length&&c/w.length>=0.34))return"ms";
+  if(w.length<=2&&prev)return prev;
+  return"en";
+}
+function vkey(v){var l=String(v.lang||"").toLowerCase().replace("_","-");return l.indexOf("en")===0?"en":l.indexOf("ms")===0?"ms":(l.indexOf("zh")===0||l.indexOf("cmn")===0||l.indexOf("yue")===0)?"zh":l.indexOf("id")===0?"id":""}
+var AVOID=/albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|jester|organ|superstar|trinoids|whisper|wobble|zarvox|eddy|\bflo\b|grandma|grandpa|\breed\b|rocko|sandy|shelley|junior|ralph|\bfred\b|kathy|princess/i;
+var MALE=/daniel|arthur|oliver|rishi|gordon|malcolm|rizwan|yu-?shu|kangkang|aaron|thomas|\bmale\b|george|ryan|james|liam|hamed|danny/i;
+var FEMALE=/martha|kate|serena|stephanie|fiona|moira|samantha|karen|tessa|amira|ting-?ting|lili|mei-?jia|sin-?ji|damayanti|\bfemale\b|susan|zira|hazel|sara\b/i;
+function scoreVoice(v,key){
+  var n=v.name||"",l=String(v.lang||"").replace("_","-"),s=0;
+  if(AVOID.test(n))s-=100;
+  if(key==="en"){if(/en-gb/i.test(l))s+=50;else if(/en-(au|ie|za|in|sg|nz)/i.test(l))s+=18;else if(/en-us/i.test(l))s+=6}
+  else if(key==="ms"){if(/^ms/i.test(l))s+=50;else s+=20}
+  else if(key==="zh"){if(/zh-cn|cmn-cn|zh_cn/i.test(l))s+=50;else s+=20}
+  if(MALE.test(n))s+=30;if(FEMALE.test(n))s-=30;
+  if(/premium/i.test(n))s+=26;else if(/enhanced/i.test(n))s+=18;
+  if(/siri/i.test(n))s+=10;
+  if(/compact/i.test(n))s-=4;
+  if(/daniel/i.test(n))s-=22;
+  return s;
+}
+function autoVoice(key){
+  var best=null,bs=-1e9;
+  voices.forEach(function(v){var k=vkey(v);if(!(k===key||(key==="ms"&&k==="id")))return;var s=scoreVoice(v,key);if(s>bs){bs=s;best=v}});
+  return best;
+}
+function voiceFor(key){
+  var id=cfg.vo[key],v=id?voices.filter(function(x){return x.voiceURI===id})[0]:null;
+  return v||autoVoice(key);
+}
+function fillVoiceSel(selId,key){
+  var sel=$(selId);sel.innerHTML="";
+  var d=document.createElement("option");d.value="";
+  var a=autoVoice(key);d.textContent="Auto"+(a?" ("+a.name+")":" (none installed)");sel.appendChild(d);
+  voices.filter(function(v){var k=vkey(v);return k===key||(key==="ms"&&k==="id")}).forEach(function(v){
+    var o=document.createElement("option");o.value=v.voiceURI;o.textContent=v.name+" ("+v.lang+")";sel.appendChild(o)});
+  sel.value=cfg.vo[key]||"";
+}
 function loadVoices(){
   voices=(window.speechSynthesis&&speechSynthesis.getVoices())||[];
-  var sel=$("voice");sel.innerHTML="";
-  var d=document.createElement("option");d.value="";d.textContent="Auto";sel.appendChild(d);
-  voices.forEach(function(v){var o=document.createElement("option");o.value=v.voiceURI;o.textContent=v.name+" ("+v.lang+")";sel.appendChild(o)});
-  sel.value=cfg.voice;
+  fillVoiceSel("voEn","en");fillVoiceSel("voMs","ms");fillVoiceSel("voZh","zh");
 }
 if(window.speechSynthesis){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}
 function clean(t){return t.replace(/```[\s\S]*?```/g," code omitted ").replace(/[*_#`>~]/g,"").replace(/\[([^\]]+)\]\([^)]+\)/g,"$1").replace(/\s+/g," ").trim()}
-var sp={pending:0,streaming:false,gen:0,muted:false};
-function cancelSpeech(mute){try{if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}sp.gen++;sp.pending=0;sp.streaming=false;if(mute)sp.muted=true}
+var standby={on:false,rec:null,timer:0,ttl:0,lock:null};
+var sp={pending:0,streaming:false,gen:0,muted:false,onIdle:null};
+var tts={audio:null,q:[],busy:false,bad:false,warned:false};
+function makeSilentWav(){
+  var n=800,b=new Uint8Array(44+n*2),dv=new DataView(b.buffer);
+  function s(o,t){for(var i=0;i<t.length;i++)dv.setUint8(o+i,t.charCodeAt(i))}
+  s(0,"RIFF");dv.setUint32(4,36+n*2,true);s(8,"WAVE");s(12,"fmt ");dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);
+  dv.setUint32(24,8000,true);dv.setUint32(28,16000,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true);s(36,"data");dv.setUint32(40,n*2,true);
+  var str="";for(var i=0;i<b.length;i++)str+=String.fromCharCode(b[i]);
+  return"data:audio/wav;base64,"+btoa(str);
+}
+function ttsUnlock(){
+  try{
+    if(!tts.audio){tts.audio=new Audio();tts.audio.setAttribute("playsinline","");tts.audio.preload="auto"}
+    if(!tts.unl){tts.unl=true;tts.audio.src=makeSilentWav();var p=tts.audio.play();if(p&&p.catch)p.catch(function(){tts.unl=false})}
+  }catch(e){}
+}
+function ttsStop(){
+  try{if(tts.audio){tts.audio.onended=null;tts.audio.onerror=null;tts.audio.pause()}}catch(e){}
+  tts.q.forEach(function(it){it.p.then(function(u){if(u)try{URL.revokeObjectURL(u)}catch(e){}})});
+  tts.q=[];tts.busy=false;
+}
+function cancelSpeech(mute){try{if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}ttsStop();sp.gen++;sp.pending=0;sp.streaming=false;sp.onIdle=null;if(mute)sp.muted=true}
 function speechBegin(){cancelSpeech();sp.muted=false;sp.streaming=true}
-function pickVoice(id){
-  var v=null;
-  if(id){v=voices.filter(function(x){return x.voiceURI===id})[0]}
-  if(!v){v=voices.filter(function(x){return x.lang.indexOf(cfg.lang.slice(0,2))===0})[0]}
-  return v;
+function isEleven(){return cfg.engine==="eleven"&&cfg.elKey&&cfg.elVoice&&!tts.bad}
+function segs(t){
+  var raw=t.match(/[^.!?…。！？\n]+[.!?…。！？]*\s*/g)||[t],out=[];
+  raw.forEach(function(s){
+    if(!s.trim())return;
+    var k=detectLang(s,out.length?out[out.length-1].k:null);
+    if(out.length&&out[out.length-1].k===k)out[out.length-1].t+=s;else out.push({t:s,k:k});
+  });
+  return out;
+}
+function onePart(g){if(g!==sp.gen)return;sp.pending=Math.max(0,sp.pending-1);if(sp.pending===0&&!sp.streaming)speechDone()}
+function devSpeakOne(seg,g,cb,o){
+  o=o||{};
+  var done=false,fin=function(){if(done)return;done=true;cb()};
+  try{
+    var u=new SpeechSynthesisUtterance(seg.t),v=voiceFor(seg.k);
+    if(v){u.voice=v;u.lang=v.lang}else{u.lang=LANGTAG[seg.k]}
+    u.rate=o.rate||cfg.rate;u.pitch=o.pitch||cfg.pitch;
+    u.onstart=function(){if(g===sp.gen)setState("speak","speaking... tap to stop")};
+    u.onboundary=function(){if(g===sp.gen)viz.bump=Math.min(0.5,viz.bump+0.22)};
+    u.onend=fin;u.onerror=fin;
+    speechSynthesis.speak(u);
+  }catch(e){fin()}
+}
+function ttsFetch(text){
+  return fetch("https://api.elevenlabs.io/v1/text-to-speech/"+encodeURIComponent(cfg.elVoice)+"?output_format=mp3_44100_64",{
+    method:"POST",headers:{"xi-api-key":cfg.elKey,"content-type":"application/json","accept":"audio/mpeg"},
+    body:JSON.stringify({text:text,model_id:cfg.elModel,voice_settings:{stability:0.55,similarity_boost:0.78,style:0.12,use_speaker_boost:true,speed:Math.min(1.2,Math.max(0.7,cfg.rate))}})
+  }).then(function(r){
+    if(!r.ok)return r.text().then(function(b){var e=new Error("ElevenLabs "+r.status+": "+String(b).slice(0,140));e.status=r.status;throw e});
+    return r.blob();
+  }).then(function(b){return URL.createObjectURL(b)});
+}
+function ttsFail(err){
+  if(err&&(err.status===401||err.status===402||err.status===403||err.status===422)){
+    tts.bad=true;
+    if(!tts.warned){tts.warned=true;add("e","ElevenLabs refused the request ("+(err.message||"error")+"). I will use the device voice for now. Check the key and the voice ID in CONFIG.")}
+  }
+}
+function ttsEnqueue(seg,g){
+  sp.pending++;
+  var it={seg:seg,g:g,err:null};
+  it.p=ttsFetch(seg.t).catch(function(e){it.err=e;return null});
+  tts.q.push(it);
+  if(!tts.busy)ttsNext();
+}
+function ttsNext(){
+  if(!tts.q.length){tts.busy=false;return}
+  tts.busy=true;
+  var it=tts.q.shift();
+  if(it.g!==sp.gen){it.p.then(function(u){if(u)try{URL.revokeObjectURL(u)}catch(e){}});ttsNext();return}
+  it.p.then(function(url){
+    if(it.g!==sp.gen){if(url)try{URL.revokeObjectURL(url)}catch(e){}ttsNext();return}
+    var done=false,fin=function(){if(done)return;done=true;if(url)try{URL.revokeObjectURL(url)}catch(e){}onePart(it.g);ttsNext()};
+    if(!url){ttsFail(it.err);devSpeakOne(it.seg,it.g,fin);return}
+    var a=tts.audio;
+    if(!a){fin();return}
+    a.onended=fin;a.onerror=fin;a.src=url;
+    setState("speak","speaking... tap to stop");
+    var p=a.play();if(p&&p.catch)p.catch(function(){devSpeakOne(it.seg,it.g,fin)});
+  });
 }
 function queueSpeech(text,o){
   o=o||{};
-  if(!window.speechSynthesis||(!o.force&&(cfg.speak!=="1"||sp.muted)))return;
+  if(!window.speechSynthesis&&!isEleven())return;
+  if(!o.force&&(cfg.speak!=="1"||sp.muted))return;
   var t=clean(text);if(!t)return;
-  try{
-    var u=new SpeechSynthesisUtterance(t),v=pickVoice(o.voice!==undefined?o.voice:cfg.voice),g=sp.gen,done=false;
-    if(v){u.voice=v;u.lang=v.lang}else{u.lang=cfg.lang}
-    u.rate=o.rate||cfg.rate;u.pitch=o.pitch||cfg.pitch;
-    sp.pending++;
-    u.onstart=function(){if(g===sp.gen)setState("speak","speaking... tap to stop")};
-    var fin=function(){if(done)return;done=true;if(g!==sp.gen)return;sp.pending=Math.max(0,sp.pending-1);if(sp.pending===0&&!sp.streaming)idle()};
-    u.onend=fin;u.onerror=fin;
-    speechSynthesis.speak(u);
-  }catch(e){}
+  var g=sp.gen;
+  segs(t).forEach(function(seg){
+    if(isEleven()&&!o.device){ttsEnqueue(seg,g)}
+    else if(window.speechSynthesis){sp.pending++;devSpeakOne(seg,g,function(){onePart(g)},o)}
+  });
 }
+function speechDone(){idle();if(sp.onIdle){var f=sp.onIdle;sp.onIdle=null;setTimeout(f,250)}}
+function afterSpeech(fn){if(sp.pending>0||sp.streaming)sp.onIdle=fn;else setTimeout(fn,300)}
 function speak(text){
-  if(cfg.speak!=="1"||!window.speechSynthesis){idle();return}
+  if(cfg.speak!=="1"||(!window.speechSynthesis&&!isEleven())){idle();return}
   cancelSpeech();sp.muted=false;queueSpeech(text);
   if(sp.pending===0)idle();
 }
 function speakReady(all,from){
-  var rest=all.slice(from),re=/(?:[.!?…]+["')\]]*\s)|\n/g,m,last=0;
+  var rest=all.slice(from),re=/(?:[.!?…。！？]+["')\]]*\s)|\n|[。！？]/g,m,last=0;
   while((m=re.exec(rest)))last=re.lastIndex;
   if(!last&&rest.length>240){last=rest.lastIndexOf(" ");if(last<1)last=0}
   if(last>0){queueSpeech(rest.slice(0,last));return from+last}
@@ -323,19 +457,188 @@ function speakReady(all,from){
 }
 function speakFlush(all,from){
   var rem=all.slice(from);if(rem.trim())queueSpeech(rem);
-  sp.streaming=false;if(sp.pending===0)idle();
+  sp.streaming=false;if(sp.pending===0)speechDone();
 }
-function unlockSpeech(){try{if(window.speechSynthesis){var u=new SpeechSynthesisUtterance("");u.volume=0;speechSynthesis.speak(u)}}catch(e){}}
+function unlockSpeech(){
+  try{if(window.speechSynthesis){var u=new SpeechSynthesisUtterance("");u.volume=0;speechSynthesis.speak(u)}}catch(e){}
+  ttsUnlock();
+}
+/* ---------- speaking circle ---------- */
+var viz={state:"",a:0,bump:0,rip:[],lastRip:0};
+var vc={ink:"#141414",red:"#d50000",dim:"#8b8680"};
+var vcv=$("viz"),vg=null,vsz=0,vRAF=0;
+function rgba(hex,a){var h=String(hex).trim().replace("#","");if(h.length===3)h=h.replace(/./g,"$&$&");var n=parseInt(h,16);if(isNaN(n))n=0;return"rgba("+((n>>16)&255)+","+((n>>8)&255)+","+(n&255)+","+a+")"}
+function vizColors(){var s=getComputedStyle(document.documentElement);vc.ink=s.getPropertyValue("--t").trim()||vc.ink;vc.red=s.getPropertyValue("--c").trim()||vc.red;vc.dim=s.getPropertyValue("--dim").trim()||vc.dim}
+function vizSize(){var dpr=Math.min(window.devicePixelRatio||1,2),w=vcv.clientWidth||170;vsz=w;vcv.width=Math.round(w*dpr);vcv.height=Math.round(w*dpr);vg=vcv.getContext("2d");vg.setTransform(dpr,0,0,dpr,0,0)}
+function vizFrame(ts){
+  vRAF=requestAnimationFrame(vizFrame);
+  if(!vg)return;
+  var t=ts/1000,W=vsz,cx=W/2,cy=W/2,R=W*0.27,st=viz.state,g=vg,i;
+  var target=0;
+  if(st==="speak")target=0.5+0.3*Math.sin(t*4.3)*Math.sin(t*1.7+1)+0.2*Math.sin(t*9.1);
+  else if(st==="listen")target=0.3+0.12*Math.sin(t*5);
+  viz.bump*=0.9;
+  viz.a+=(Math.max(0,target+viz.bump)-viz.a)*0.14;
+  var a=viz.a;
+  g.clearRect(0,0,W,W);
+  if(st==="speak"&&t-viz.lastRip>0.75){viz.rip.push(t);viz.lastRip=t}
+  viz.rip=viz.rip.filter(function(s){return t-s<2.4});
+  viz.rip.forEach(function(s){var k=(t-s)/2.4;g.beginPath();g.arc(cx,cy,R*(1.06+k*0.8),0,6.2832);g.strokeStyle=rgba(vc.red,0.38*(1-k));g.lineWidth=1.2;g.stroke()});
+  g.beginPath();g.arc(cx,cy,R*1.28,0,6.2832);g.strokeStyle=rgba(vc.ink,0.09);g.lineWidth=1;g.stroke();
+  var breathe=(st===""||st==="stby")?0.022*Math.sin(t*1.3):0,N=96;
+  g.beginPath();
+  for(i=0;i<=N;i++){
+    var th=i/N*6.2832,wob=a*(0.055*Math.sin(3*th+t*3.1)+0.04*Math.sin(5*th-t*2.3)+0.025*Math.sin(8*th+t*4.7));
+    var r=R*(1+breathe+wob),x=cx+Math.cos(th)*r,y=cy+Math.sin(th)*r;
+    if(i)g.lineTo(x,y);else g.moveTo(x,y);
+  }
+  g.closePath();
+  if(st==="listen"){g.fillStyle=rgba(vc.red,0.07+0.05*Math.sin(t*5));g.fill()}
+  g.strokeStyle=vc.red;g.lineWidth=st==="speak"?2.2:1.7;g.stroke();
+  g.beginPath();g.arc(cx,cy,R*0.8,0,6.2832);g.strokeStyle=rgba(vc.ink,0.13);g.lineWidth=1;g.stroke();
+  if(st==="think"){var s0=t*3.2;g.beginPath();g.arc(cx,cy,R*1.28,s0,s0+1.9);g.strokeStyle=vc.red;g.lineWidth=2;g.lineCap="round";g.stroke();g.lineCap="butt"}
+  if(st==="stby"){g.save();g.setLineDash([2,7]);g.beginPath();g.arc(cx,cy,R*1.28,t*0.2,t*0.2+6.2832);g.strokeStyle=rgba(vc.red,0.6);g.lineWidth=1.3;g.stroke();g.restore()}
+  g.beginPath();g.arc(cx,cy,2.5+a*2.5,0,6.2832);g.fillStyle=vc.red;g.fill();
+}
+function vizSync(){
+  if(vRAF){cancelAnimationFrame(vRAF);vRAF=0}
+  if(document.hidden)return;
+  vizSize();vRAF=requestAnimationFrame(vizFrame);
+}
+var _rw=window.innerWidth;
+window.addEventListener("resize",function(){if(window.innerWidth!==_rw){_rw=window.innerWidth;vizSync()}});
+document.addEventListener("visibilitychange",function(){vizSync()});
+function setState(s,t){viz.state=s||"";$("status").textContent=t||""}
+function idle(){setState("","tap the circle to talk");if(standby.on)standbySoon()}
 
-/* ---------- helpers for command brain ---------- */
+/* ---------- weather ---------- */
+var wx=null,wxC={ink:"#141414",red:"#d50000"},wxcv=$("wxi"),wxg=null,wxRAF=0;
+try{var _w=JSON.parse(ld("jv_wx","null"));if(_w&&_w.ts)wx=_w}catch(e){}
+function wxColors(){var s=getComputedStyle(document.documentElement);wxC.ink=s.getPropertyValue("--t").trim()||wxC.ink;wxC.red=s.getPropertyValue("--c").trim()||wxC.red}
+function wxKind(c){
+  if(c===0)return"clear";if(c===1||c===2)return"pcloud";if(c===3)return"cloud";
+  if(c===45||c===48)return"fog";if(c>=51&&c<=57)return"drizzle";
+  if((c>=61&&c<=67)||(c>=80&&c<=82))return"rain";
+  if((c>=71&&c<=77)||c===85||c===86)return"snow";if(c>=95)return"storm";return"cloud";
+}
+var WXD={
+  clear:["clear skies","langit cerah","晴朗"],pcloud:["partly cloudy","separa mendung","多云"],cloud:["overcast","mendung","阴天"],
+  fog:["foggy","berkabus","有雾"],drizzle:["light drizzle","hujan renyai","毛毛雨"],rain:["rainy","hujan","下雨"],
+  storm:["thunderstorms","ribut petir","雷雨"],snow:["snowy","bersalji","下雪"]
+};
+function wxDesc(w,k){var d=WXD[w.kind]||WXD.cloud;return k==="ms"?d[1]:k==="zh"?d[2]:d[0]}
+function placeName(p,k){
+  if(/kuala lumpur/i.test(p||"")){return k==="zh"?"吉隆坡":"Kuala Lumpur"}
+  return p||LT("your area","kawasan anda","您所在的地区",k);
+}
+function wxShort(w,k){
+  var pl=placeName(w.place,k),d=wxDesc(w,k),rainy=w.pop>=50;
+  if(k==="ms")return"Di "+pl+", suhu "+w.t+" darjah dan "+d+". Tertinggi hari ini "+w.hi+" darjah"+(rainy?", dengan kebarangkalian hujan "+w.pop+" peratus, jadi bawalah payung":"")+".";
+  if(k==="zh")return pl+"目前"+w.t+"度，"+d+"。今天最高"+w.hi+"度"+(rainy?"，降雨概率百分之"+w.pop+"，记得带伞":"")+"。";
+  return"In "+pl+", it is "+w.t+" degrees and "+d+". A high of "+w.hi+" today"+(rainy?", with a "+w.pop+" percent chance of rain, so keep an umbrella close":"")+".";
+}
+function wxFull(w,k){
+  var s=wxShort(w,k);
+  if(k==="ms")return s+" Terasa seperti "+w.feel+" darjah, dan paling rendah "+w.lo+" darjah.";
+  if(k==="zh")return s+" 体感"+w.feel+"度，最低"+w.lo+"度。";
+  return s+" It feels like "+w.feel+", and the low is "+w.lo+".";
+}
+function paintWx(){
+  if(!wx){$("wxT").textContent="--°";$("wxD").textContent="weather";$("wxS").textContent="TAP TO LOAD";return}
+  $("wxT").textContent=wx.t+"°";$("wxD").textContent=wxDesc(wx,"en");
+  $("wxS").textContent=("H "+wx.hi+"° · L "+wx.lo+"° · RAIN "+wx.pop+"% · "+(wx.place||"")).toUpperCase();
+}
+function withTO(p,ms){return new Promise(function(res,rej){var d=false,t=setTimeout(function(){if(!d){d=true;rej(new Error("timeout"))}},ms);p.then(function(v){if(!d){d=true;clearTimeout(t);res(v)}},function(e){if(!d){d=true;clearTimeout(t);rej(e)}})})}
+var KL={lat:3.139,lon:101.6869,place:"Kuala Lumpur"};
+function coords(){
+  return new Promise(function(res){
+    var c=null;try{c=JSON.parse(ld("jv_loc","null"))}catch(e){}
+    if(cfg.wxLoc==="kl")return res(KL);
+    if(c&&c.lat&&Date.now()-c.ts<6*3600000)return res(c);
+    if(!navigator.geolocation)return res(c||KL);
+    var done=false;function fin(p){if(done)return;done=true;res(p)}
+    setTimeout(function(){fin(c||KL)},5000);
+    try{
+      navigator.geolocation.getCurrentPosition(function(pos){
+        var o={lat:+pos.coords.latitude.toFixed(3),lon:+pos.coords.longitude.toFixed(3),place:"",ts:Date.now()};
+        withTO(fetch("https://api.bigdatacloud.net/data/reverse-geocode-client?latitude="+o.lat+"&longitude="+o.lon+"&localityLanguage=en").then(function(r){return r.json()}),3000)
+          .then(function(j){o.place=j.city||j.locality||j.principalSubdivision||""}).catch(function(){})
+          .then(function(){if(!o.place&&Math.abs(o.lat-KL.lat)<0.6&&Math.abs(o.lon-KL.lon)<0.6)o.place="Kuala Lumpur";sv("jv_loc",JSON.stringify(o));fin(o)});
+      },function(){fin(c||KL)},{timeout:4500,maximumAge:3600000});
+    }catch(e){fin(c||KL)}
+  });
+}
+function getWeather(force){
+  if(!force&&wx&&Date.now()-wx.ts<15*60000)return Promise.resolve(wx);
+  return coords().then(function(p){
+    var url="https://api.open-meteo.com/v1/forecast?latitude="+p.lat+"&longitude="+p.lon+
+      "&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,is_day"+
+      "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=1";
+    return withTO(fetch(url).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}),6000).then(function(j){
+      var c=j.current||{},d=j.daily||{};
+      if(typeof c.temperature_2m!=="number")throw new Error("no data");
+      var code=c.weather_code;
+      wx={t:Math.round(c.temperature_2m),feel:Math.round(c.apparent_temperature),hum:c.relative_humidity_2m,code:code,day:c.is_day!==0,kind:wxKind(code),
+        hi:Math.round((d.temperature_2m_max||[c.temperature_2m])[0]),lo:Math.round((d.temperature_2m_min||[c.temperature_2m])[0]),
+        pop:Math.round((d.precipitation_probability_max||[0])[0]||0),place:p.place||"",ts:Date.now()};
+      sv("jv_wx",JSON.stringify(wx));paintWx();return wx;
+    });
+  }).catch(function(){return(wx&&Date.now()-wx.ts<3*3600000)?wx:null});
+}
+function wxSize(){var dpr=Math.min(window.devicePixelRatio||1,2),w=wxcv.clientWidth||54;wxcv.width=Math.round(w*dpr);wxcv.height=Math.round(w*dpr);wxg=wxcv.getContext("2d");wxg.setTransform(dpr,0,0,dpr,0,0)}
+function wxCloud(g,x,y,s,col){
+  var P=Math.PI;g.beginPath();g.moveTo(x-0.85*s,y+0.5*s);
+  g.arc(x-0.85*s,y+0.15*s,0.35*s,P/2,P*1.5);
+  g.arc(x-0.3*s,y-0.1*s,0.5*s,P*1.15,P*1.95);
+  g.arc(x+0.45*s,y+0.1*s,0.4*s,P*1.5,P*2.5);
+  g.closePath();g.strokeStyle=col;g.lineWidth=1.6;g.lineJoin="round";g.stroke();
+}
+function wxSun(g,x,y,r,t,col){
+  g.beginPath();g.arc(x,y,r,0,6.2832);g.strokeStyle=col;g.lineWidth=1.6;g.stroke();
+  for(var i=0;i<8;i++){var a=i/8*6.2832+t*0.4,l=r*(0.5+0.18*Math.sin(t*2+i));
+    g.beginPath();g.moveTo(x+Math.cos(a)*(r+3),y+Math.sin(a)*(r+3));g.lineTo(x+Math.cos(a)*(r+3+l),y+Math.sin(a)*(r+3+l));g.stroke()}
+}
+function wxMoon(g,x,y,r,t){
+  var W=wxcv.clientWidth||54;
+  g.save();g.beginPath();g.rect(0,0,W,W);g.arc(x+r*0.55,y-r*0.3,r*0.85,0,6.2832,true);g.clip("evenodd");
+  g.beginPath();g.arc(x,y,r,0,6.2832);g.strokeStyle=wxC.red;g.lineWidth=1.6;g.stroke();g.restore();
+  g.save();g.beginPath();g.arc(x,y,r,0,6.2832);g.clip();g.beginPath();g.arc(x+r*0.55,y-r*0.3,r*0.85,0,6.2832);g.strokeStyle=wxC.red;g.lineWidth=1.6;g.stroke();g.restore();
+  [[0.72,-0.7],[0.95,0.1],[0.5,0.8]].forEach(function(p,i){var al=0.35+0.55*Math.abs(Math.sin(t*1.3+i*2)),sx=x+p[0]*r*1.2,sy=y+p[1]*r;
+    g.strokeStyle=rgba(wxC.ink,al);g.lineWidth=1;g.beginPath();g.moveTo(sx-2.5,sy);g.lineTo(sx+2.5,sy);g.moveTo(sx,sy-2.5);g.lineTo(sx,sy+2.5);g.stroke()});
+}
+function wxFrame(ts){
+  wxRAF=requestAnimationFrame(wxFrame);
+  if(!wxg)return;
+  var g=wxg,W=wxcv.clientWidth||54,t=ts/1000,k=wx?wx.kind:"load",day=wx?wx.day:true,cx=W/2,cy=W/2,ink=wxC.ink,red=wxC.red,i;
+  g.clearRect(0,0,W,W);g.lineCap="round";
+  var dx=Math.sin(t*0.6)*2;
+  if(k==="load"){g.beginPath();g.arc(cx,cy,W*0.26,t*2,t*2+4);g.strokeStyle=red;g.lineWidth=1.6;g.stroke();return}
+  if(k==="clear"){if(day)wxSun(g,cx,cy,W*0.2,t,red);else wxMoon(g,cx,cy,W*0.26,t)}
+  else if(k==="pcloud"){
+    if(day)wxSun(g,cx+W*0.12,cy-W*0.1,W*0.14,t,red);else wxMoon(g,cx+W*0.12,cy-W*0.1,W*0.17,t);
+    g.save();g.fillStyle=getComputedStyle(document.documentElement).getPropertyValue("--bg").trim()||"#fff";wxCloud(g,cx-W*0.05+dx,cy+W*0.1,W*0.3,ink);g.restore();
+  }
+  else if(k==="cloud"){wxCloud(g,cx-W*0.12+dx,cy-W*0.02,W*0.24,rgba(ink,0.45));wxCloud(g,cx+W*0.02-dx,cy+W*0.1,W*0.3,ink)}
+  else if(k==="fog"){for(i=0;i<4;i++){var yy=cy-W*0.18+i*W*0.12,off=Math.sin(t*0.8+i*1.3)*W*0.06;g.beginPath();g.moveTo(cx-W*0.3+off,yy);g.lineTo(cx+W*0.3+off,yy);g.strokeStyle=i%2?rgba(ink,0.4):ink;g.lineWidth=1.6;g.stroke()}}
+  else if(k==="rain"||k==="drizzle"||k==="storm"){
+    wxCloud(g,cx+dx*0.5,cy-W*0.12,W*0.3,ink);
+    var n=k==="drizzle"?3:5;
+    for(i=0;i<n;i++){var ph=(t*(k==="drizzle"?0.7:1.3)+i/n)%1,x=cx-W*0.24+i*(W*0.48/(n-1)),y0=cy+W*0.14+ph*W*0.26;
+      g.beginPath();g.moveTo(x,y0);g.lineTo(x-2,y0+W*0.09);g.strokeStyle=rgba(red,1-ph*0.8);g.lineWidth=1.6;g.stroke()}
+    if(k==="storm"){var f=Math.max(0,Math.sin(t*3.1))>0.9?1:0.55;g.beginPath();g.moveTo(cx+W*0.02,cy+W*0.08);g.lineTo(cx-W*0.07,cy+W*0.24);g.lineTo(cx+W*0.02,cy+W*0.24);g.lineTo(cx-W*0.05,cy+W*0.4);g.strokeStyle=rgba(red,f);g.lineWidth=2;g.stroke()}
+  }
+  else if(k==="snow"){
+    wxCloud(g,cx,cy-W*0.12,W*0.3,ink);
+    for(i=0;i<5;i++){var ph2=(t*0.5+i/5)%1,sx=cx-W*0.24+i*W*0.12+Math.sin(t*2+i)*2,sy=cy+W*0.16+ph2*W*0.28;g.beginPath();g.arc(sx,sy,1.6,0,6.2832);g.fillStyle=rgba(red,1-ph2*0.7);g.fill()}
+  }
+}
+function wxSync(){if(wxRAF){cancelAnimationFrame(wxRAF);wxRAF=0}if(document.hidden)return;wxSize();wxRAF=requestAnimationFrame(wxFrame)}
+document.addEventListener("visibilitychange",wxSync);
+$("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-function tm(){return new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})}
-function dt(){return new Date().toLocaleDateString([], {weekday:"long",day:"numeric",month:"long"})}
-var VER="v3.1";
+var VER="v4.1";
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
-function part(){var h=new Date().getHours();return h<5?"night":h<12?"morning":h<18?"afternoon":"evening"}
-function greet(){var h=new Date().getHours();return h<5?"Burning the midnight oil, J.Nazreen":"Good "+part()+", J.Nazreen"}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
   var s=t.toLowerCase().replace(/[“”"!?,]/g," ").replace(/['’]/g,"").replace(/\s+/g," ").trim();
@@ -372,7 +675,120 @@ function addTimer(ms,label){
 function paintModes(){
   Array.prototype.forEach.call(document.querySelectorAll("#modes button"),function(b){b.classList.toggle("on",b.dataset.m===cfg.mode)});
 }
+/* ---------- greeting, language-aware time ---------- */
+var DAYS={en:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],ms:["Ahad","Isnin","Selasa","Rabu","Khamis","Jumaat","Sabtu"],zh:["星期日","星期一","星期二","星期三","星期四","星期五","星期六"]};
+var MONS={en:["January","February","March","April","May","June","July","August","September","October","November","December"],ms:["Januari","Februari","Mac","April","Mei","Jun","Julai","Ogos","September","Oktober","November","Disember"]};
+function timeK(k,d){
+  d=d||new Date();var h=d.getHours(),m=d.getMinutes(),h12=h%12||12,mm=m<10?"0"+m:""+m;
+  if(k==="zh")return(h<12?"上午":"下午")+h12+"点"+(m?mm+"分":"整");
+  if(k==="ms")return"pukul "+h12+(m?" "+mm:"")+" "+(h<12?"pagi":h<14?"tengah hari":h<19?"petang":"malam");
+  return h12+":"+mm+" "+(h<12?"AM":"PM");
+}
+function dateK(k,d){
+  d=d||new Date();
+  if(k==="zh")return(d.getMonth()+1)+"月"+d.getDate()+"日，"+DAYS.zh[d.getDay()];
+  if(k==="ms")return"hari "+DAYS.ms[d.getDay()]+", "+d.getDate()+" "+MONS.ms[d.getMonth()];
+  return DAYS.en[d.getDay()]+" the "+d.getDate()+ordEn(d.getDate())+" of "+MONS.en[d.getMonth()];
+}
+function ordEn(n){var r=n%100;if(r>=11&&r<=13)return"th";return["th","st","nd","rd"][n%10<4?n%10:0]||"th"}
+function tm(){return timeK("en")}
+function dt(){return dateK("en")}
+function part(){var h=new Date().getHours();return h<5?"night":h<12?"morning":h<18?"afternoon":"evening"}
+function greetK(k){
+  var h=new Date().getHours();
+  if(k==="zh")return h<5?"夜深了，J.Nazreen":h<12?"早上好，J.Nazreen":h<18?"下午好，J.Nazreen":"晚上好，J.Nazreen";
+  if(k==="ms")return h<5?"Lewat malam, J.Nazreen":h<11?"Selamat pagi, J.Nazreen":h<15?"Selamat tengah hari, J.Nazreen":h<19?"Selamat petang, J.Nazreen":"Selamat malam, J.Nazreen";
+  return h<5?"Burning the midnight oil, J.Nazreen":"Good "+part()+", J.Nazreen";
+}
+function greet(){return greetK("en")}
+function buildGreeting(w,k,wake){
+  var pre=wake?LT("Welcome home, J.Nazreen","Selamat pulang, J.Nazreen","欢迎回家，J.Nazreen",k):greetK(k);
+  var s=pre+LT(". It is "+timeK("en")+", "+dateK("en")+".",". Sekarang "+timeK("ms")+", "+dateK("ms")+".","。现在是"+timeK("zh")+"，"+dateK("zh")+"。",k);
+  if(w)s+=" "+wxShort(w,k);
+  s+=" "+LT("All systems are green.","Semua sistem hijau.","所有系统正常。",k);
+  return s;
+}
 
+/* ---------- Waze ---------- */
+var pendingNav=false;
+function wazeLink(dest){
+  var d=String(dest).trim(),m=d.match(/^(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)$/);
+  if(m)return"https://waze.com/ul?ll="+m[1]+"%2C"+m[2]+"&navigate=yes";
+  return"https://waze.com/ul?q="+encodeURIComponent(d)+"&navigate=yes";
+}
+function parsePlaces(){
+  return placesTxt.split("\n").map(function(l){var p=l.split("|");return{name:(p[0]||"").trim().toLowerCase(),q:(p.slice(1).join("|")||"").trim()}}).filter(function(x){return x.name&&x.q});
+}
+var PLACE_SYN={home:["home","house","rumah","家","我家"],work:["work","office","pejabat","tempat kerja","studio","f12","公司","办公室","工作室"]};
+function resolvePlace(dest){
+  var d=dest.toLowerCase().trim(),saved=parsePlaces(),hit=null,kind=null;
+  saved.forEach(function(x){if(!hit&&(d===x.name||d.indexOf(x.name)>-1))hit=x});
+  if(hit)return{q:hit.q,label:hit.name};
+  Object.keys(PLACE_SYN).forEach(function(key){PLACE_SYN[key].forEach(function(s){if(!kind&&d===s)kind=key})});
+  if(kind){
+    var fb=saved.filter(function(x){return PLACE_SYN[kind].indexOf(x.name)>-1})[0];
+    if(fb)return{q:fb.q,label:kind};
+    return{missing:kind};
+  }
+  return{q:dest.trim(),label:dest.trim()};
+}
+function wazeReply(dest,k){
+  var r=resolvePlace(dest);
+  if(r.missing){
+    return R(LT("I do not have your "+r.missing+" address yet. Add it in CONFIG under saved places, or tell me a street or a place name.","Saya belum ada alamat "+(r.missing==="home"?"rumah":"pejabat")+" anda. Tambah di CONFIG bawah saved places, atau sebut nama jalan atau tempat.","我还没有您的"+(r.missing==="home"?"家":"公司")+"地址。请在设置里的已保存地点添加，或直接告诉我路名或地点。",k));
+  }
+  var url=wazeLink(r.q),lab=r.label.replace(/\b\w/g,function(c){return c.toUpperCase()});
+  var out=R(LT("Route to "+lab+" is ready. Tap to open Waze.","Laluan ke "+lab+" sudah sedia. Tekan untuk buka Waze.","前往"+lab+"的路线已备好，点按即可打开Waze。",k),[{name:"Waze",url:url}]);
+  out.nav=url;return out;
+}
+function cleanDest(s){return s.replace(/\b(please|tolong|sila)\b/g," ").replace(/\s+/g," ").replace(/[.]+$/,"").trim()}
+function navIntent(raw,n){
+  var m,t=raw.trim();
+  if(/^(open|launch|start|buka)\s+waze$/.test(n)||/^waze$/.test(n))return{ask:true};
+  if(/^(打开|开启)\s*waze$/i.test(t))return{ask:true};
+  m=t.match(/^(?:请)?(?:导航到|导航去|导航|带我去|带我到|开车去|开车到|去)\s*(.+)$/);
+  if(m&&/waze|导航|带我|开车|去/.test(t)&&m[1].length<40)return{dest:cleanDest(m[1].replace(/^waze\s*/i,""))};
+  m=n.match(/^(?:(?:open |use |buka )?waze (?:and )?)?(?:navigate|navigation|directions?|route|guide me)(?: me)?(?: to| for| ke)?\s+(.+)$/);
+  if(m)return{dest:cleanDest(m[1])};
+  m=n.match(/^(?:(?:open |use |buka )?waze (?:and )?)?(?:take me|bring me|drive me|get me|go|head|drive|walk|navigate me)(?: me)? to\s+(.+)$/);
+  if(m)return{dest:cleanDest(m[1])};
+  if(/^(?:go|drive|head|take me|bring me|drive me)(?: me)? home$/.test(n))return{dest:"home"};
+  m=n.match(/^how (?:do i|can i|to) get to\s+(.+)$/);if(m)return{dest:cleanDest(m[1])};
+  m=n.match(/^waze\s+(?:to |ke )?(.+)$/);if(m)return{dest:cleanDest(m[1])};
+  m=n.match(/^(?:bawa|bawak|hantar|hantarkan)\s+(?:saya|aku|kami)\s+(?:ke|pergi ke)\s+(.+)$/);if(m)return{dest:cleanDest(m[1])};
+  m=n.match(/^(?:nak |mahu |saya nak |aku nak )?(?:pergi|jom pergi|jalan|navigasi|arah)\s+(?:ke\s+)?(.+)$/);if(m&&m[1].length<50&&!/^(?:tidur|makan|balik dulu)$/.test(m[1]))return{dest:cleanDest(m[1])};
+  return null;
+}
+function openWazeUrl(url){
+  if(cfg.wazeAuto!=="1")return;
+  afterSpeech(function(){try{window.location.href=url}catch(e){}});
+}
+
+/* ---------- weather and nav intents (async-capable) ---------- */
+function weatherIntent(raw,n){
+  var w=n.split(" ").length;
+  if(w>9)return false;
+  if(/(verse|lyric|song|write|rap\b|bar\b|poem)/.test(n))return false;
+  return /\b(weather|forecast|umbrella|temperature|how hot|how cold)\b/.test(n)||/\b(will it rain|is it raining|going to rain)\b/.test(n)||/(cuaca|ramalan cuaca|akan hujan|hujan tak|panas tak|suhu)/.test(n)||/(天气|下雨|气温|温度|会下雨)/.test(raw);
+}
+function special(text){
+  var raw=text.trim(),n=norm(raw);
+  if(!n)return null;
+  if(pendingNav){
+    pendingNav=false;
+    if(/^(cancel|never ?mind|batal|tak jadi|取消|stop)$/.test(n)||/取消/.test(raw))return{sync:R(LT("Cancelled.","Dibatalkan.","已取消。"))};
+    var d=raw.replace(/^(?:to|ke|去|到)\s*/i,"").trim();
+    return{sync:wazeReply(d)};
+  }
+  var ni=navIntent(raw,n);
+  if(ni&&ni.dest){var dl=ni.dest.toLowerCase(),isLink=false;parseLinks().forEach(function(x){var nm=x.name.toLowerCase();if(dl.replace(/^(my|the) /,"")===nm||nm.indexOf(dl.replace(/^(my|the) /,""))>-1&&dl.length>2)isLink=true});if(isLink)return null}
+  if(ni){
+    if(ni.ask){pendingNav=true;return{sync:R(LT("Where to?","Ke mana?","要去哪里？")),listen:true}}
+    return{sync:wazeReply(ni.dest)};
+  }
+  if(weatherIntent(raw,n))return{weather:true};
+  return null;
+}
 /* ---------- command brain (free, offline) ---------- */
 function local(raw){
   var body=raw.replace(/^\s*(?:hey |ok |okay )?jarvis[\s,.:]*/i,"").trim();
@@ -440,15 +856,14 @@ function local(raw){
   if(/^(what is |what s |whats )?(the |today s |todays )?(date|day)( today| is it)?$/.test(n)||/^what day is it/.test(n)||/^today s date$/.test(n)){return R("Today is "+dt()+".")}
   if(/^(date and time|time and date)$/.test(n)){return R("It is "+tm()+", "+dt()+".")}
 
-  if(/(digital|matrix) rain/.test(n)&&/\b(on|off|start|stop|enable|disable)\b/.test(n)){
-    rainOn=/\b(off|stop|disable)\b/.test(n)?"0":"1";sv("jv_rain",rainOn);applyTheme();
-    return R("Digital rain "+(rainOn==="1"?"on":"off")+".");
+  if(/\b(stand ?by|go to sleep)\b/.test(n)||/^stop listening$/.test(n)){
+    if(/(\boff\b|stop|\bsleep\b|cancel)/.test(n)){standbyStop();return R("Standby off. Tap the circle when you need me.")}
+    standbyStart();return R("Standby on. Say Daddy's home when you need me.");
   }
-  m=n.match(/(matrix|turquoise|iron ?man|red and gold)/);
-  if(m&&/\b(theme|colou?rs?|skin|look)\b/.test(n)){
-    theme=/matrix|turquoise/.test(m[1])?"matrix":"ironman";sv("jv_theme",theme);applyTheme();
-    return R("Theme switched to "+(theme==="matrix"?"Matrix turquoise":"Iron Man red and gold")+".");
-  }
+  if(/\b(night|dark|black)\b/.test(n)&&/\b(mode|theme|look)\b/.test(n)){theme="night";sv("jv_theme",theme);applyTheme();return R("Night mode on.")}
+  if(/\b(paddock|white|light|day)\b/.test(n)&&/\b(mode|theme|look)\b/.test(n)){theme="paddock";sv("jv_theme",theme);applyTheme();return R("Paddock mode on.")}
+  m=n.match(/(?:speak|talk|switch|listen|use|change)(?: to| in)?\s+(english|malay|bahasa|mandarin|chinese)/);
+  if(m){cfg.lang=/^eng/.test(m[1])?"en-US":/^(malay|bahasa)/.test(m[1])?"ms-MY":"zh-CN";sv("jv_lang",cfg.lang);paintLangs();return R("Listening in "+({"en-US":"English","ms-MY":"Bahasa Melayu","zh-CN":"Mandarin"})[cfg.lang]+".")}
   if(/\b(mode|switch)\b/.test(n)){
     var mm=n.match(/(assist|general|lyrics?|f ?12|chief of staff)/);
     if(mm){var k=/^l/.test(mm[1])?"lyrics":/^(f|c)/.test(mm[1])?"f12":"assist";cfg.mode=k;sv("jv_mode",k);paintModes();hud();return R("Switched to "+(k==="f12"?"F 12 command":k)+" mode.")}
@@ -486,17 +901,17 @@ function local(raw){
   if(/flip (a )?coin|heads or tails/.test(n)){return R(Math.random()<0.5?"Heads.":"Tails.")}
   if(/roll (a |the )?(dice|die)/.test(n)){return R("You rolled a "+(1+Math.floor(Math.random()*6))+".")}
   if(/^(help|what can you do|commands|what can i say)$/.test(n)){
-    return R("I can tell the time and date, run timers, do math, keep notes and tasks, open your links, flip a coin, tell a joke, or give you a lyric prompt. Add a key in CONFIG for full conversation.");
+    return R("I can tell the time and date, run timers, do math, keep notes and tasks, open your links, flip a coin, tell a joke, or give you a lyric prompt. Say standby on and I will listen for Daddy's home. Add a key in CONFIG for full conversation.");
   }
   return null;
 }
-
-/* ---------- brain (Claude, optional) ---------- */
 function systemPrompt(){
   var s=soul+"\n\n"+(MODES[cfg.mode]||MODES.assist);
   if(notes.trim())s+="\n\nNOTES ABOUT NAZREEN (from him):\n"+notes.trim();
   var ot=openTasks();
   if(ot.length)s+="\n\nHIS OPEN TASKS:\n"+ot.map(function(x){return x.n+". "+x.t}).join("\n");
+  if(wx&&Date.now()-wx.ts<3*3600000)s+="\n\nCURRENT WEATHER"+(wx.place?" in "+wx.place:"")+": "+wx.t+"C, "+wxDesc(wx,"en")+", high "+wx.hi+", low "+wx.lo+", rain chance "+wx.pop+"%.";
+  s+="\n\nHe currently has the listening language set to "+({en:"English",ms:"Bahasa Malaysia",zh:"Mandarin"})[lkey()]+". Reply in whatever language his latest message is in.";
   s+="\n\nNow: "+new Date().toString();
   return s;
 }
@@ -596,10 +1011,34 @@ function reply(text,links){
   hist.push({role:"assistant",content:text});saveHist();
   add("a",text,links);speak(text);
 }
+function userLang(text){
+  var k=detectLang(text,null);
+  if(k==="en"&&lkey()!=="en"&&text.split(/\s+/).length<=3)return lkey();
+  return k;
+}
 function send(text){
   text=(text||"").trim();
   if(!text||busy)return;
-  cancelSpeech();
+  cancelSpeech();standbyPause();
+  curK=userLang(text);
+  var sx=null;
+  try{sx=special(text)}catch(e){sx=null}
+  if(sx){
+    add("u",text);hist.push({role:"user",content:text});
+    if(sx.weather){
+      busy=true;setState("think","checking the weather...");
+      getWeather(true).then(function(w){
+        busy=false;
+        if(w){reply(wxFull(w,curK))}
+        else reply(LT("I cannot reach the weather service right now.","Saya tidak dapat menghubungi perkhidmatan cuaca sekarang.","目前无法连接天气服务。"));
+      });
+      return;
+    }
+    var r=sx.sync;reply(r.t,r.links);
+    if(r.nav)openWazeUrl(r.nav);
+    if(sx.listen)afterSpeech(function(){startListen(true)});
+    hud();return;
+  }
   var L=null;
   try{L=local(text)}catch(e){L=null}
   if(L){
@@ -608,7 +1047,7 @@ function send(text){
   }
   if(!cfg.key){
     add("u",text);hist.push({role:"user",content:text});
-    reply("I am in command mode, boss, no brain linked. Say help to hear what I can do, or add a key in CONFIG for full conversation.");
+    reply("I am in command mode, J.Nazreen, no brain linked. Say help to hear what I can do, or add a key in CONFIG for full conversation.");
     return;
   }
   busy=true;
@@ -648,12 +1087,12 @@ function send(text){
     }
   });
 }
-
 /* ---------- voice in ---------- */
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-function startListen(){
+function startListen(quiet){
   if(!SR){add("e","This browser has no speech recognition. Open it in Safari, or type instead.");return}
   if(busy)return;
+  standbyPause();
   unlockSpeech();ctx();
   var finalText="";
   rec=new SR();rec.lang=cfg.lang;rec.interimResults=true;rec.continuous=false;
@@ -665,8 +1104,8 @@ function startListen(){
   };
   rec.onerror=function(e){
     listening=false;
-    if(e.error==="not-allowed"||e.error==="service-not-allowed"){add("e","Mic blocked. Settings > Safari > Microphone, and make sure Dictation is on in Settings > General > Keyboard.")}
-    else if(e.error!=="no-speech"&&e.error!=="aborted"){add("e","Mic error: "+e.error)}
+    if(e.error==="not-allowed"||e.error==="service-not-allowed"){if(!quiet)add("e","Mic blocked. Settings > Safari > Microphone, and make sure Dictation is on in Settings > General > Keyboard.")}
+    else if(!quiet&&e.error!=="no-speech"&&e.error!=="aborted"){add("e","Mic error: "+e.error)}
     idle();
   };
   rec.onend=function(){
@@ -675,6 +1114,69 @@ function startListen(){
   };
   try{rec.start()}catch(e){idle()}
 }
+function standbyPause(){clearTimeout(standby.timer);var r=standby.rec;standby.rec=null;if(r){try{r.abort()}catch(e){}}}
+function standbySoon(){clearTimeout(standby.timer);standby.timer=setTimeout(standbyListen,500)}
+function findWake(text){
+  var t=String(text).toLowerCase().replace(/['’]/g,"").replace(/[^a-z0-9\s]/g," ").replace(/\s+/g," ").trim();
+  if(/\b(daddy is home|daddys home|daddy home|dad is home|dads home|daddy dah balik|ayah dah balik|abah dah balik)\b/.test(t)||/(爸爸回来了|爸爸回家了)/.test(String(text)))return{home:true};
+  if(/\b(jarvis|jarvis)\b/.test(t)||/贾维斯/.test(String(text)))return{home:false};
+  return null;
+}
+function standbyListen(){
+  if(!standby.on||standby.rec||listening||busy||sp.pending>0||sp.streaming||!SR)return;
+  var r=new SR(),woke=false;
+  r.lang=cfg.lang;r.continuous=true;r.interimResults=true;
+  standby.rec=r;
+  r.onstart=function(){if(standby.rec===r)setState("stby","standby · say Daddy's home")};
+  r.onresult=function(e){
+    if(woke||standby.rec!==r)return;
+    var chunk="";
+    for(var i=e.resultIndex||0;i<e.results.length;i++)chunk+=e.results[i][0].transcript+" ";
+    var w=findWake(chunk);
+    if(w){woke=true;standbyWake(chunk,w)}
+  };
+  r.onerror=function(e){
+    if(e.error==="not-allowed"||e.error==="service-not-allowed"){standbyStop();add("e","Standby needs the microphone. Allow it for this site, and check Dictation is on in Settings > General > Keyboard.")}
+  };
+  r.onend=function(){
+    var mine=(standby.rec===r);
+    if(mine)standby.rec=null;
+    if(mine&&standby.on&&!woke)standbySoon();
+  };
+  try{r.start()}catch(e){standby.rec=null;standbySoon()}
+}
+function standbyWake(chunk,w){
+  standbyTTL();
+  var r=standby.rec;standby.rec=null;if(r){try{r.abort()}catch(e){}}
+  var rest=chunk.replace(/^[\s\S]*?(?:jarvis)[\s,.:;!?-]*/i,"").trim();
+  if(!w.home&&rest.length>2){add("s","// heard: "+rest);send(rest);return}
+  curK=lkey();
+  var ack=w.home?LT("Welcome home, J.Nazreen. All systems are green. What do you need?","Selamat pulang, J.Nazreen. Semua sistem hijau. Apa yang anda perlukan?","欢迎回家，J.Nazreen。所有系统正常。需要什么？"):pick([LT("Yes, J.Nazreen?","Ya, J.Nazreen?","请说，J.Nazreen。"),LT("Listening.","Saya mendengar.","我在听。"),LT("At your service.","Sedia membantu.","随时为您效劳。")]);
+  add("a",ack);speak(ack);
+  afterSpeech(function(){startListen(true)});
+}
+function standbyTTL(){
+  clearTimeout(standby.ttl);
+  standby.ttl=setTimeout(function(){if(standby.on){standbyStop();add("s","// standby off after 20 minutes to save battery")}},20*60*1000);
+}
+function paintStandby(){var b=$("stbyBtn");b.textContent=standby.on?"STANDBY ON":"STANDBY OFF";b.classList.toggle("on",standby.on)}
+function lockScreen(){try{if(navigator.wakeLock&&navigator.wakeLock.request)navigator.wakeLock.request("screen").then(function(l){standby.lock=l}).catch(function(){})}catch(e){}}
+function standbyStart(){
+  if(!SR){add("e","This browser has no speech recognition. Open Jarvis in Safari for standby.");return}
+  unlockSpeech();ctx();
+  standby.on=true;paintStandby();standbyTTL();lockScreen();
+  add("s","// standby on · say Daddy's home or Jarvis");
+  standbySoon();
+}
+function standbyStop(){
+  standby.on=false;clearTimeout(standby.ttl);standbyPause();
+  try{if(standby.lock){standby.lock.release();standby.lock=null}}catch(e){}
+  paintStandby();idle();
+}
+$("stbyBtn").addEventListener("click",function(){if(standby.on)standbyStop();else standbyStart()});
+document.addEventListener("visibilitychange",function(){
+  if(!document.hidden&&standby.on){standbyPause();standbySoon();lockScreen()}
+});
 $("orb").addEventListener("click",function(){
   if(sp.pending>0||(window.speechSynthesis&&speechSynthesis.speaking)){cancelSpeech(true);idle();return}
   if(listening){try{rec.stop()}catch(e){}return}
@@ -691,7 +1193,6 @@ $("modes").addEventListener("click",function(e){
   cfg.mode=b.dataset.m;sv("jv_mode",cfg.mode);paintModes();
   add("s","// mode: "+b.textContent.toLowerCase());
 });
-
 /* ---------- HUD ---------- */
 function hud(){
   var d=new Date();
@@ -708,7 +1209,6 @@ function hud(){
   $("hR").innerHTML=r;
 }
 setInterval(hud,1000);
-
 /* ---------- config sheet ---------- */
 var draft={keys:{},models:{}},shownProv="claude";
 function loadProvFields(p){
@@ -758,20 +1258,67 @@ function listModels(){
 $("listModels").addEventListener("click",listModels);
 function openSheet(){
   draft={keys:{},models:{}};shownProv=cfg.prov;$("prov").value=cfg.prov;$("base").value=baseCustom;loadProvFields(cfg.prov);
-  $("theme").value=theme;$("rainOn").value=rainOn;
-  $("lang").value=cfg.lang;
-  $("speakOn").value=cfg.speak;$("soul").value=soul;$("notes").value=notes;$("links").value=linksTxt;
-  loadVoices();$("voice").value=cfg.voice;
-  $("rate").value=cfg.rate;$("pitch").value=cfg.pitch;paintSliders();
+  $("theme").value=theme;
+  $("speakOn").value=cfg.speak;$("soul").value=soul;$("notes").value=notes;$("links").value=linksTxt;$("places").value=placesTxt;
+  $("wxLoc").value=cfg.wxLoc;$("wazeAuto").value=cfg.wazeAuto;
+  $("engine").value=cfg.engine;$("elKey").value=cfg.elKey;$("elVoice").value=cfg.elVoice;$("elModel").value=cfg.elModel;paintEngine();
+  loadVoices();
+  $("rate").value=cfg.rate;$("pitch").value=cfg.pitch;paintSliders();$("wakeUrl").value=wakeLink();
   $("sheet").classList.add("open");
 }
+function paintEngine(){var e=$("engine").value==="eleven";$("elBox").style.display=e?"block":"none";$("devBox").style.display=e?"none":"block"}
+$("engine").addEventListener("change",paintEngine);
 function paintSliders(){$("rateV").textContent=(+$("rate").value).toFixed(2);$("pitchV").textContent=(+$("pitch").value).toFixed(2)}
 $("rate").addEventListener("input",paintSliders);$("pitch").addEventListener("input",paintSliders);
+function commitVoice(){
+  cfg.vo={en:$("voEn").value,ms:$("voMs").value,zh:$("voZh").value};
+  sv("jv_vo_en",cfg.vo.en);sv("jv_vo_ms",cfg.vo.ms);sv("jv_vo_zh",cfg.vo.zh);
+  cfg.engine=$("engine").value;cfg.elKey=cleanId($("elKey").value);cfg.elVoice=cleanId($("elVoice").value);cfg.elModel=$("elModel").value;
+  sv("jv_engine",cfg.engine);sv("jv_elkey",cfg.elKey);sv("jv_elvoice",cfg.elVoice);sv("jv_elmodel",cfg.elModel);
+  cfg.rate=parseFloat($("rate").value)||0.98;cfg.pitch=parseFloat($("pitch").value)||0.9;sv("jv_rate",cfg.rate);sv("jv_pitch",cfg.pitch);
+  tts.bad=false;tts.warned=false;
+}
 $("testVoice").addEventListener("click",function(){
-  unlockSpeech();cancelSpeech();sp.muted=false;
-  queueSpeech("Systems online, J.Nazreen. This is how I sound.",{force:true,voice:$("voice").value,rate:+$("rate").value,pitch:+$("pitch").value});
+  unlockSpeech();commitVoice();cancelSpeech();sp.muted=false;
+  queueSpeech("Good evening, J.Nazreen. All systems are green. Selamat petang, semua sistem sedia. 晚上好，所有系统正常。",{force:true});
 });
-$("jarvisPreset").addEventListener("click",function(){$("rate").value=0.95;$("pitch").value=0.8;paintSliders()});
+$("jarvisPreset").addEventListener("click",function(){$("rate").value=0.95;$("pitch").value=0.82;paintSliders()});
+$("elFind").addEventListener("click",function(){
+  var k=cleanId($("elKey").value),box=$("elList");
+  if(!k){box.textContent="Paste your ElevenLabs key above first.";return}
+  box.textContent="Checking...";
+  fetch("https://api.elevenlabs.io/v1/voices",{headers:{"xi-api-key":k}}).then(function(r){
+    return r.json().catch(function(){return{}}).then(function(j){
+      if(!r.ok){var em=(j&&j.detail&&(j.detail.message||j.detail))||("HTTP "+r.status);throw new Error(typeof em==="string"?em:JSON.stringify(em))}
+      return j;
+    });
+  }).then(function(j){
+    var vs=(j.voices||[]).slice();
+    function sc(v){var l=v.labels||{},s=0;if(/british/i.test(l.accent||""))s+=3;if(/male/i.test(l.gender||"")&&!/female/i.test(l.gender||""))s+=2;if(/middle|old/i.test(l.age||""))s+=1;return s}
+    vs.sort(function(a,b){return sc(b)-sc(a)});vs=vs.slice(0,16);
+    box.innerHTML="";
+    if(!vs.length){box.textContent="No voices found on this account.";return}
+    var t=document.createElement("div");t.textContent="Tap a name to select it, tap play to hear a sample, then SAVE:";box.appendChild(t);
+    vs.forEach(function(v){
+      var l=v.labels||{},row=document.createElement("div");row.className="vrow";
+      var b=document.createElement("button");b.type="button";b.className="nm";b.textContent=v.name+" · "+[l.accent,l.gender,l.age].filter(Boolean).join(", ");
+      b.onclick=function(){$("elVoice").value=v.voice_id;b.style.borderColor="var(--c)"};
+      row.appendChild(b);
+      if(v.preview_url){var p=document.createElement("button");p.type="button";p.textContent="▶";p.onclick=function(){try{ttsUnlock();tts.audio.onended=null;tts.audio.src=v.preview_url;tts.audio.play()}catch(e){}};row.appendChild(p)}
+      box.appendChild(row);
+    });
+  }).catch(function(e){
+    var em=String(e&&e.message||e);
+    if(/failed to fetch|networkerror|load failed/i.test(em))em="Could not reach ElevenLabs. Check your internet.";
+    box.textContent="Could not list voices: "+em;
+  });
+});
+function wakeLink(){try{return location.origin+location.pathname+"?wake=1"}catch(e){return"?wake=1"}}
+$("copyWake").addEventListener("click",function(){
+  var u=wakeLink(),b=$("copyWake");
+  try{navigator.clipboard.writeText(u).then(function(){b.textContent="COPIED";setTimeout(function(){b.textContent="COPY WAKE LINK"},1500)},function(){$("wakeUrl").select()})}
+  catch(e){$("wakeUrl").select()}
+});
 $("openSet").addEventListener("click",openSheet);
 $("close").addEventListener("click",function(){cancelSpeech();idle();$("sheet").classList.remove("open")});
 $("save").addEventListener("click",function(){
@@ -781,34 +1328,64 @@ $("save").addEventListener("click",function(){
   Object.keys(keys).forEach(function(k){keys[k]=cleanId(keys[k])});
   Object.keys(models).forEach(function(k){models[k]=cleanId(models[k]);if(!models[k])delete models[k]});
   cfg.prov=$("prov").value;baseCustom=cleanId($("base").value);syncCur();
-  theme=$("theme").value;rainOn=$("rainOn").value;sv("jv_theme",theme);sv("jv_rain",rainOn);
-  cfg.lang=$("lang").value;cfg.voice=$("voice").value;cfg.speak=$("speakOn").value;
-  cfg.rate=parseFloat($("rate").value)||1.02;cfg.pitch=parseFloat($("pitch").value)||0.92;sv("jv_rate",cfg.rate);sv("jv_pitch",cfg.pitch);
-  soul=$("soul").value.trim()||DEFAULT_SOUL;notes=$("notes").value;linksTxt=$("links").value;
-  sv("jv_keys",JSON.stringify(keys));sv("jv_models",JSON.stringify(models));sv("jv_prov",cfg.prov);sv("jv_base",baseCustom);sv("jv_lang",cfg.lang);sv("jv_voice",cfg.voice);sv("jv_speak",cfg.speak);
-  sv("jv_soul",soul);sv("jv_notes",notes);sv("jv_links",linksTxt);
+  theme=$("theme").value;sv("jv_theme",theme);
+  cfg.speak=$("speakOn").value;commitVoice();
+  cfg.wxLoc=$("wxLoc").value;cfg.wazeAuto=$("wazeAuto").value;sv("jv_wxloc",cfg.wxLoc);sv("jv_wazeauto",cfg.wazeAuto);
+  soul=$("soul").value.trim()||DEFAULT_SOUL;notes=$("notes").value;linksTxt=$("links").value;placesTxt=$("places").value;
+  sv("jv_keys",JSON.stringify(keys));sv("jv_models",JSON.stringify(models));sv("jv_prov",cfg.prov);sv("jv_base",baseCustom);sv("jv_speak",cfg.speak);
+  sv("jv_soul",soul);sv("jv_notes",notes);sv("jv_links",linksTxt);sv("jv_places",placesTxt);
   $("sheet").classList.remove("open");add("s","// config saved");hud();applyTheme();
 });
 $("clear").addEventListener("click",function(){hist=[];saveHist();renderAll();$("sheet").classList.remove("open")});
 $("resetSoul").addEventListener("click",function(){$("soul").value=DEFAULT_SOUL});
 
-/* ---------- boot ---------- */
+/* ---------- language chips, waze chip ---------- */
+function paintLangs(){Array.prototype.forEach.call(document.querySelectorAll("#langs button"),function(b){b.classList.toggle("on",b.dataset.l===cfg.lang)})}
+$("langs").addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  cfg.lang=b.dataset.l;sv("jv_lang",cfg.lang);paintLangs();
+  if(standby.on){standbyPause();standbySoon()}
+  add("s","// listening: "+b.textContent);
+});
+$("wazeBtn").addEventListener("click",function(){
+  unlockSpeech();ctx();cancelSpeech();standbyPause();
+  curK=lkey();pendingNav=true;
+  var q=LT("Where to?","Ke mana?","要去哪里？");add("a",q);speak(q);
+  afterSpeech(function(){startListen(true)});
+});
+
+/* ---------- boot: start lights ---------- */
+var wakeMode=false;
+try{wakeMode=new URLSearchParams(location.search).get("wake")==="1"}catch(e){}
+if(wakeMode){$("goBtn").textContent="DADDY'S HOME";$("bootSub").textContent="WELCOME BACK, J.NAZREEN"}
+var booted=false;
 $("goBtn").addEventListener("click",function(){
+  if(booted)return;booted=true;
   ctx();unlockSpeech();
-  $("goBtn").style.display="none";
-  var lines=["core systems ........ ONLINE","voice interface ..... ONLINE","command engine ...... ONLINE","brain link .......... "+(cfg.key?PROV[cfg.prov].name.toUpperCase():"LOCAL"),"welcome, J.Nazreen"];
-  var i=0,box=$("bootlines");
+  $("goBtn").style.visibility="hidden";
+  var gw=getWeather(false).then(function(w){return w},function(){return null});
+  var lights=document.querySelectorAll("#lights i"),i=0;
   (function nx(){
-    if(i<lines.length){var d=document.createElement("div");d.textContent="> "+lines[i++];box.appendChild(d);setTimeout(nx,380)}
-    else{setTimeout(function(){
-      $("boot").classList.add("out");
-      var g=greet()+". It is "+tm()+", "+dt()+". All systems online.";
-      add("a",g);speak(g);
-    },500)}
+    if(i<lights.length){lights[i++].classList.add("on");setTimeout(nx,420)}
+    else{
+      setTimeout(function(){
+        Array.prototype.forEach.call(lights,function(l){l.classList.remove("on")});
+        Promise.race([gw,new Promise(function(r){setTimeout(function(){r(null)},3500)})]).then(function(w){
+          setTimeout(function(){
+            $("boot").classList.add("out");
+            curK=lkey();
+            var g=buildGreeting(w,curK,wakeMode);
+            add("a",g);speak(g);
+            if(wakeMode)afterSpeech(function(){startListen(true)});
+            if(!w)gw.then(function(){paintWx()});
+          },350);
+        });
+      },650);
+    }
   })();
 });
 
-paintModes();renderAll();idle();hud();applyTheme();
+paintModes();paintLangs();renderAll();applyTheme();paintWx();paintStandby();idle();hud();vizSync();wxSync();
 var vv=$("ver");if(vv)vv.textContent=VER;
 })();
 </script>
