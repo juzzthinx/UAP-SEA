@@ -17,7 +17,7 @@ try{var t=localStorage.getItem("jv_theme");document.documentElement.setAttribute
 </script>
 <style>
 :root{--c:#d50000;--bg:#f7f5f1;--p:#ffffff;--t:#141414;--dim:#8b8680;--warn:#b00020;--line:#e6e1da;--ub:#efebe4;--errt:#8a0018;--sheetbg:#f7f5f1f2;--on:#ffffff}
-[data-theme="night"]{--c:#ff2d2d;--bg:#0c0c0d;--p:#161617;--t:#f1eee9;--dim:#8c8984;--warn:#ff6b6b;--line:#2a2a2c;--ub:#1d1d1f;--errt:#ffb3b3;--sheetbg:#0c0c0df2;--on:#0c0c0d}
+[data-theme="night"]{--c:#00d2be;--bg:#07090a;--p:#111516;--t:#e4e8e9;--dim:#8a9496;--warn:#ff6b6b;--line:#242b2d;--ub:#182022;--errt:#ffb3b3;--sheetbg:#07090af2;--on:#04100f}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{width:100%;overflow-x:hidden}
 html,body{margin:0;background:var(--bg);color:var(--t);font-family:"Barlow","Avenir Next","Helvetica Neue",Helvetica,Arial,sans-serif;overscroll-behavior:none}
@@ -176,7 +176,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
 
   <h3>LOOK</h3>
   <label>Theme</label>
-  <select id="theme"><option value="paddock">Paddock (white and red)</option><option value="night">Night (black and red)</option></select>
+  <select id="theme"><option value="paddock">Paddock (white and red)</option><option value="night">Night (black, silver and teal)</option></select>
 
   <h3>WEATHER AND WAZE</h3>
   <label>Weather location</label>
@@ -637,7 +637,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v4.1";
+var VER="v4.2";
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
