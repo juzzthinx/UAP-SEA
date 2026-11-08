@@ -135,6 +135,12 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
 .code{display:block;white-space:pre;overflow-x:auto;background:var(--card);border:1px solid var(--cardb);border-radius:12px;padding:10px 12px;margin:8px 0 4px;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;-webkit-overflow-scrolling:touch;max-width:100%}
 .m.a .cp{display:inline-block;margin:0 0 6px;padding:6px 12px;border:1px solid var(--c);border-radius:999px;background:none;color:var(--c);font-family:"Michroma","Eurostile",sans-serif;font-size:7px;letter-spacing:.16em}
 .m.a{max-width:96%}
+#runBox{position:fixed;inset:0;z-index:40;background:#000;display:none;flex-direction:column;padding-top:env(safe-area-inset-top)}
+#runBox.open{display:flex}
+.rbar{display:flex;gap:8px;padding:8px 12px;background:var(--bg);border-bottom:1px solid var(--cardb)}
+.rbar button{background:none;border:1px solid var(--c);color:var(--c);border-radius:999px;padding:9px 16px;font-family:"Michroma","Eurostile",sans-serif;font-size:7.5px;letter-spacing:.16em}
+#rFrame{flex:1;border:0;width:100%;background:#fff}
+.m.a .cp.run{background:var(--c);color:var(--on);margin-left:6px}
 </style>
 </head>
 <body>
@@ -154,7 +160,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
 </div>
 <div class="chips">
   <div class="seg" id="langs"><button data-l="en-US">EN</button><button data-l="ms-MY">BM</button><button data-l="zh-CN">&#20013;&#25991;</button><button data-l="ru-RU">RU</button><button data-l="ja-JP">JP</button></div>
-  <div class="acts"><button type="button" class="pill" id="wazeBtn">WAZE</button><button type="button" class="pill" id="stbyBtn">STANDBY</button></div>
+  <div class="acts"><button type="button" class="pill" id="wazeBtn">WAZE</button><button type="button" class="pill" id="talkBtn">TALK</button><button type="button" class="pill" id="stbyBtn">STANDBY</button></div>
 </div>
 <div class="modes" id="modes">
   <button data-m="assist" class="on">ASSIST</button>
@@ -257,6 +263,27 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
   <input id="liveModel" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
   <div class="hint">Works with Claude, Gemini and Groq brains. Groq uses its built-in search model. Gemini uses Google Search and Claude uses its web search tool, which may need to be enabled on your account. If search fails, Jarvis answers normally and says so.</div>
 
+  <h3>REASONING</h3>
+  <label>Thinking depth</label>
+  <select id="reason"><option value="auto">Auto (deep only for hard questions)</option><option value="fast">Always fast</option><option value="deep">Always deep</option></select>
+  <div class="hint">Deep thinking works best with a reasoning model: openai/gpt-oss-120b on Groq, or Claude. Fast answers stay fast.</div>
+
+  <h3>MUSIC</h3>
+  <label>AudD key (optional, exact song recognition)</label>
+  <input id="auddKey" type="password" placeholder="optional" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <div class="hint">Without it, Jarvis listens for lyrics with Groq and finds the song by searching. Say: "what song is this".</div>
+
+  <h3>BACKUP</h3>
+  <button type="button" class="mini" id="bkExport">DOWNLOAD BACKUP FILE</button>
+  <button type="button" class="mini" id="bkCopy">COPY BACKUP TEXT</button>
+  <label>Restore: paste backup text here</label>
+  <textarea id="bkText" class="sm"></textarea>
+  <button type="button" class="mini" id="bkRestore">RESTORE FROM TEXT</button>
+  <button type="button" class="mini" id="bkFile">RESTORE FROM FILE</button>
+  <input type="file" id="bkPick" accept=".json,application/json,text/plain" style="display:none">
+  <div class="hint" id="bkMsg"></div>
+  <div class="hint">A backup includes your API keys, so keep the file private.</div>
+
   <h3>WAKE AND LINKS</h3>
   <label>Wake link (for a Siri Shortcut)</label>
   <input id="wakeUrl" type="text" readonly>
@@ -274,6 +301,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
   <div class="row"><button class="dng" id="clear">CLEAR CHAT</button><button class="dng" id="resetSoul">RESET SOUL</button></div>
 </div>
 
+<div id="runBox"><div class="rbar"><button type="button" id="rClose">CLOSE</button><button type="button" id="rSave">SAVE</button><button type="button" id="rCopy">COPY</button></div><iframe id="rFrame" sandbox="allow-scripts allow-pointer-lock allow-modals allow-forms"></iframe></div>
 <div id="boot">
   <div class="lights" id="lights"><i></i><i></i><i></i><i></i><i></i></div>
   <div class="t">JARVIS</div>
@@ -290,8 +318,8 @@ var DEFAULT_SOUL=
 "He is ASWARA-trained, Minangkabau by lineage (Suku Tanah Datar, Pagaruyung), and lives by the line \"Veni. Vidi. Vici.\" "+
 "He identifies more with Nazreen, the curious, inward, philosophical side, than with the stage name. "+
 "He builds browser games and tools on an iPhone 11 together with Claude, in single-file HTML and Three.js, hosted on GitHub Pages. "+
-"Your manner: calm, composed and quietly confident, like the race engineer of a classic Italian F1 team who is also a perfect English butler. Classy, understated, dry wit, never loud, never gushing. "+
-"Speak like team radio: short, clear, precise. Address him as J.Nazreen, and occasionally boss. You are his co-builder and sparring partner. "+
+"Your manner: calm, composed and classy, like the race engineer of a classic Italian F1 team who is also a perfect English butler, but genuinely warm and friendly with him, like a trusted friend. Quick dry wit, never loud. Be interactive: when it helps the conversation move, end with one short natural follow-up question, and celebrate his wins briefly. "+
+"Speak like team radio: short, clear, precise. Address him as J.Nazreen, and occasionally boss. You are his co-builder and sparring partner. Reason carefully: when a question needs thinking, work it through and give the answer first, then the key reason. "+
 "Be honest. If an idea has holes, say so calmly and offer a better line. Never flatter. "+
 "LANGUAGE: reply in the language he used, English, Bahasa Malaysia or Mandarin Chinese. If he mixes languages, Malaysian rojak style, mirror that. Write Mandarin in Chinese characters. "+
 "Your replies are spoken aloud on a phone: default to one or two short sentences, no markdown, no lists, no emojis. Go longer only when he asks for depth.";
@@ -324,6 +352,7 @@ try{models=JSON.parse(ld("jv_models","{}"))||{}}catch(e){models={}}
 if(!keys.claude&&ld("jv_key",""))keys.claude=ld("jv_key","");
 if(!models.claude&&ld("jv_model",""))models.claude=ld("jv_model","");
 if(cfg.mode!=="code")cfg.mode="assist";
+cfg.reason=ld("jv_reason","auto");if(["auto","fast","deep"].indexOf(cfg.reason)<0)cfg.reason="auto";cfg.audd=cleanIdEarly(ld("jv_audd",""));
 cfg.sil=ld("jv_sil","700");if(["700","1100","1800"].indexOf(cfg.sil)<0)cfg.sil="700";
 if(ld("jv_elmv","")!=="5"){cfg.elModel="eleven_flash_v2_5";sv("jv_elmodel",cfg.elModel);sv("jv_elmv","5")}
 var theme=ld("jv_theme","night");if(ld("jv_themev","")!=="43"){theme="night";sv("jv_theme","night");sv("jv_themev","43")}if(theme!=="paddock")theme="night";
@@ -336,7 +365,7 @@ function applyTheme(){
 function syncCur(){cfg.key=cleanId(keys[cfg.prov]);cfg.model=cleanId(models[cfg.prov])||PROV[cfg.prov].model}
 syncCur();
 var soul=ld("jv_soul",DEFAULT_SOUL);
-if(ld("jv_soulv","")!=="5"){soul=DEFAULT_SOUL;sv("jv_soul",soul);sv("jv_soulv","5")}
+if(ld("jv_soulv","")!=="6"){soul=DEFAULT_SOUL;sv("jv_soul",soul);sv("jv_soulv","6")}
 var notes=ld("jv_notes",""), linksTxt=ld("jv_links",DEFAULT_LINKS), placesTxt=ld("jv_places","");
 var hist=[]; try{hist=JSON.parse(ld("jv_hist","[]"))||[]}catch(e){hist=[]}
 var tasks=[]; try{tasks=JSON.parse(ld("jv_tasks","[]"))||[]}catch(e){tasks=[]}
@@ -351,9 +380,14 @@ function fmt(el,text){
     if(i%2===0){if(p)el.appendChild(document.createTextNode(p));return}
     var nl=p.indexOf("\n"),code=(nl>-1&&nl<20)?p.slice(nl+1):p;code=code.replace(/\n$/,"");
     var pre=document.createElement("pre");pre.className="code";var c=document.createElement("code");c.textContent=code;pre.appendChild(c);el.appendChild(pre);
+    var lang=(nl>-1&&nl<20)?p.slice(0,nl).trim():"";
     var b=document.createElement("button");b.type="button";b.className="cp";b.textContent="COPY";
     b.onclick=function(){try{navigator.clipboard.writeText(code);b.textContent="COPIED";setTimeout(function(){b.textContent="COPY"},1400)}catch(e){}};
     el.appendChild(b);
+    if(/^(html|js|javascript)$/i.test(lang)||/<(html|canvas|body|script)/i.test(code)){
+      var rb=document.createElement("button");rb.type="button";rb.className="cp run";rb.textContent="RUN";
+      rb.onclick=function(){openRun(code,lang)};el.appendChild(rb);
+    }
   });
 }
 function speakable(t){
@@ -534,7 +568,7 @@ function queueSpeech(text,o){
     else if(window.speechSynthesis){sp.pending++;devSpeakOne(seg,g,function(){onePart(g)},o)}
   });
 }
-function speechDone(){idle();if(sp.onIdle){var f=sp.onIdle;sp.onIdle=null;setTimeout(f,250)}}
+function speechDone(){idle();if(sp.onIdle){var f=sp.onIdle;sp.onIdle=null;setTimeout(f,250)}else if(conv.on&&!listening&&!busy){setTimeout(function(){if(conv.on&&!listening&&!busy&&sp.pending===0&&!sp.streaming)startListen(true)},350)}}
 function afterSpeech(fn){if(sp.pending>0||sp.streaming)sp.onIdle=fn;else setTimeout(fn,300)}
 function speak(text){
   if(cfg.speak!=="1"||(!window.speechSynthesis&&!isEleven())){idle();return}
@@ -738,7 +772,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v5.1";
+var VER="v6.0";
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -764,7 +798,7 @@ function parseLinks(){
    .filter(function(x){return x.name&&/^https?:\/\//i.test(x.url)});
 }
 function openTasks(){return tasks.map(function(t,i){return{t:t.t,d:t.d,n:i+1}}).filter(function(x){return !x.d})}
-function maxT(){return cfg.mode==="code"?1500:450}
+function maxT(){return deepNow?(cfg.prov==="groq"?3000:1500):(cfg.mode==="code"?1500:450)}
 function addTimer(ms,label){
   var o={end:Date.now()+ms,label:label||""};
   o.tid=setTimeout(function(){
@@ -959,6 +993,8 @@ function special(text){
     if(ni.ask){pendingNav=true;return{sync:R(LT("Where to?","Ke mana?","要去哪里？",null,"Куда едем?","どちらへ行きますか？")),listen:true}}
     return{sync:wazeReply(ni.dest)};
   }
+  if(SONG_RE.test(n)||SONG_RE2.test(raw))return{song:true};
+  var tq=trackQuery(raw,n);if(tq)return{track:tq};
   if(/(where am i|my (current )?location|share my location|send my location|where are we)/.test(n)||/(di mana saya|lokasi saya|saya kat mana|kat mana ni|lokasi semasa)/.test(n)||/(我在哪|我的位置|当前位置|分享位置)/.test(raw)||/(где я|моё местоположение|мое местоположение|где мы)/.test(n)||/(今どこ|現在地|私の位置|ここはどこ)/.test(raw))return{loc:true};
   if(weatherIntent(raw,n))return{weather:true};
   return null;
@@ -1125,6 +1161,7 @@ function streamBrain(msgs,sys,onDelta){
     url="https://api.anthropic.com/v1/messages";
     headers["x-api-key"]=cfg.key;headers["anthropic-version"]="2023-06-01";headers["anthropic-dangerous-direct-browser-access"]="true";
     body={model:cfg.model,max_tokens:maxT(),system:sys,messages:msgs,stream:true};
+    if(deepNow){body.thinking={type:"enabled",budget_tokens:1500};body.max_tokens=3200}
     pickT=function(o){
       if(o.type==="error")throw new Error((o.error&&o.error.message)||"Stream error");
       return (o.type==="content_block_delta"&&o.delta&&o.delta.type==="text_delta")?(o.delta.text||""):"";
@@ -1132,7 +1169,7 @@ function streamBrain(msgs,sys,onDelta){
   }else if(p==="gemini"){
     url="https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(cfg.model)+":streamGenerateContent?alt=sse";
     headers["x-goog-api-key"]=cfg.key;
-    body={systemInstruction:{parts:[{text:sys}]},contents:msgs.map(function(m){return{role:m.role==="assistant"?"model":"user",parts:[{text:m.content}]}}),generationConfig:{maxOutputTokens:700}};
+    body={systemInstruction:{parts:[{text:sys}]},contents:msgs.map(function(m){return{role:m.role==="assistant"?"model":"user",parts:[{text:m.content}]}}),generationConfig:{maxOutputTokens:(deepNow?1500:700)}};
     pickT=function(o){
       if(o.error)throw new Error(o.error.message||"Stream error");
       var c=o.candidates&&o.candidates[0];
@@ -1144,7 +1181,7 @@ function streamBrain(msgs,sys,onDelta){
     url=base+"/chat/completions";
     headers["authorization"]="Bearer "+cfg.key;
     body={model:cfg.model,max_tokens:maxT(),messages:[{role:"system",content:sys}].concat(msgs),stream:true};
-    if(cfg.prov==="groq"&&/gpt-oss/i.test(cfg.model))body.reasoning_effort="low";
+    if(cfg.prov==="groq"&&/gpt-oss/i.test(cfg.model))body.reasoning_effort=deepNow?"high":"low";
     pickT=function(o){
       if(o.error)throw new Error(typeof o.error==="string"?o.error:(o.error.message||"Stream error"));
       var c=o.choices&&o.choices[0];
@@ -1223,6 +1260,136 @@ function briefing(k){
     return s;
   });
 }
+
+/* ---------- code runner ---------- */
+var runCode="",runName="jarvis-app.html";
+function openRun(code,lang){
+  var isHtml=/^html$/i.test(lang)||/<(html|canvas|body|script)/i.test(code),html=code;
+  if(!isHtml){
+    html='<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0;background:#07090a;color:#9ff;font:13px/1.5 ui-monospace,Menlo,monospace"><pre id="o" style="margin:0;padding:12px;white-space:pre-wrap"></pre><script>var o=document.getElementById("o");function P(a){o.textContent+=[].map.call(a,function(x){try{return typeof x==="object"?JSON.stringify(x):String(x)}catch(e){return String(x)}}).join(" ")+"\n"}console.log=function(){P(arguments)};console.error=function(){P(arguments)};window.onerror=function(m,u,l){P(["ERROR",m,"line",l])};<\/script><script>'+code+'<\/script>';
+  }
+  runCode=html;runName=isHtml?"jarvis-app.html":"jarvis-script.html";
+  $("rFrame").srcdoc=html;$("runBox").classList.add("open");
+}
+$("rClose").addEventListener("click",function(){$("runBox").classList.remove("open");$("rFrame").srcdoc="<!doctype html>"});
+$("rCopy").addEventListener("click",function(){var b=$("rCopy");try{navigator.clipboard.writeText(runCode);b.textContent="COPIED";setTimeout(function(){b.textContent="COPY"},1400)}catch(e){}});
+$("rSave").addEventListener("click",function(){
+  try{var bl=new Blob([runCode],{type:"text/html"}),u=URL.createObjectURL(bl),a=document.createElement("a");a.href=u;a.download=runName;document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(u)},1500)}catch(e){}
+});
+
+/* ---------- backup ---------- */
+function backupText(){
+  var o={};try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf("jv_")===0)o[k]=localStorage.getItem(k)}}catch(e){}
+  return JSON.stringify({jarvis:"backup",v:1,at:new Date().toISOString(),data:o});
+}
+function restoreFrom(txt){
+  var j=null,m=$("bkMsg");
+  try{j=JSON.parse(String(txt).trim())}catch(e){}
+  if(!j||j.jarvis!=="backup"||!j.data){m.textContent="That does not look like a Jarvis backup.";return}
+  var n=0;try{Object.keys(j.data).forEach(function(k){if(k.indexOf("jv_")===0&&typeof j.data[k]==="string"){localStorage.setItem(k,j.data[k]);n++}})}catch(e){m.textContent="Could not write to storage.";return}
+  m.textContent="Restored "+n+" items. Reloading...";setTimeout(function(){location.reload()},700);
+}
+$("bkExport").addEventListener("click",function(){
+  try{var d=new Date(),ds=d.getFullYear()+("0"+(d.getMonth()+1)).slice(-2)+("0"+d.getDate()).slice(-2);
+    var bl=new Blob([backupText()],{type:"application/json"}),u=URL.createObjectURL(bl),a=document.createElement("a");a.href=u;a.download="jarvis-backup-"+ds+".json";document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(u)},1500);
+    $("bkMsg").textContent="Backup file created. Check your Downloads."}catch(e){$("bkMsg").textContent="Could not create the file. Use COPY BACKUP TEXT instead."}
+});
+$("bkCopy").addEventListener("click",function(){
+  try{navigator.clipboard.writeText(backupText()).then(function(){$("bkMsg").textContent="Copied. Paste it into Notes to keep it."},function(){$("bkMsg").textContent="Copy was blocked."})}catch(e){$("bkMsg").textContent="Copy was blocked."}
+});
+$("bkRestore").addEventListener("click",function(){restoreFrom($("bkText").value)});
+$("bkFile").addEventListener("click",function(){$("bkPick").click()});
+$("bkPick").addEventListener("change",function(){
+  var f=this.files&&this.files[0];if(!f)return;var fr=new FileReader();fr.onload=function(){restoreFrom(fr.result)};fr.readAsText(f);
+});
+
+/* ---------- conversation mode ---------- */
+var conv={on:false,miss:0};
+var STOP_RE=/^(stand down|stop listening|stop|that is all|thats all|that will be all|thank you|thanks|goodbye|bye|bye bye|sudah|sudah la|tak apa|terima kasih|没事了|谢谢|谢谢你|不用了|хватит|стоп|спасибо|ありがとう|以上です|もういい)$/;
+function paintConv(){$("talkBtn").classList.toggle("on",conv.on)}
+function convOn(){
+  unlockSpeech();ctx();standbyPause();cancelSpeech();
+  conv.on=true;conv.miss=0;paintConv();curK=lkey();
+  var g=pick([LT("I'm all ears, J.Nazreen.","Saya mendengar, J.Nazreen.","我在听，请说。",null,"Слушаю вас, J.Nazreen.","お聞きしています、J.Nazreen。"),LT("Go ahead, I'm listening.","Silakan, saya mendengar.","请说，我在听。",null,"Говорите, я слушаю.","どうぞ、お話しください。")]);
+  add("a",g);speak(g);
+  afterSpeech(function(){if(conv.on)startListen(true)});
+}
+function convOff(){
+  conv.on=false;conv.miss=0;paintConv();
+  if(listening&&rec){try{rec.abort()}catch(e){}}
+  listening=false;idle();
+}
+function convMiss(){
+  conv.miss++;
+  if(conv.miss>=2){convOff();add("s","// conversation paused · tap TALK to resume");return}
+  idle();setTimeout(function(){if(conv.on&&!busy&&!listening&&sp.pending===0)startListen(true)},400);
+}
+$("talkBtn").addEventListener("click",function(){if(conv.on)convOff();else convOn()});
+
+/* ---------- deep reasoning ---------- */
+var deepNow=false;
+var DEEP_NOTE="\n\nTHINK CAREFULLY: reason step by step before answering. Then speak the conclusion first, followed by the one or two key reasons, in plain spoken sentences. Check any arithmetic.";
+var DEEP_RE=/(^|\W)(think|reason|analy[sz]e|step by step|explain why|why does|why is|why do|plan|strategy|compare|pros and cons|should i|debug|figure out|work out|prove|calculate|solve|trade-?off|fikir|analisis|bandingkan|kenapa|strategi)(\W|$)|分析|为什么|比较|思考|подумай|проанализируй|почему|考えて|分析して|なぜ/i;
+function isDeep(t){if(cfg.reason==="fast")return false;if(cfg.reason==="deep")return true;return DEEP_RE.test(t)||t.split(/\s+/).length>28}
+function fillerLine(){
+  return pick([LT("Let me think that through.","Biar saya fikirkan sebentar.","让我想一想。",null,"Дайте подумать.","少し考えさせてください。"),LT("Good question, give me a second.","Soalan menarik, sekejap ya.","好问题，请稍等。",null,"Хороший вопрос, секунду.","いい質問ですね、少々お待ちください。"),LT("Working it out.","Sedang menganalisis.","正在分析。",null,"Разбираюсь.","検討しています。")]);
+}
+
+/* ---------- songs and tracks ---------- */
+var SONG_RE=/(what('?s| is) (this|that) (song|track|music)|name (this|that) (song|track)|identify (this|the|that) (song|track|music)|shazam|what am i listening to|what('?s| is) playing)/;
+var SONG_RE2=/(lagu apa (ini|tu)|apa tajuk lagu|这是什么歌|这首歌叫什么|这是啥歌|что это за (песня|музыка|трек)|какая это песня|この曲は|何の曲|この歌は)/;
+function recordClip(ms){
+  return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}}).then(function(stream){
+    return new Promise(function(res,rej){
+      var mr;try{mr=new MediaRecorder(stream)}catch(e){stream.getTracks().forEach(function(t){t.stop()});return rej(e)}
+      var ch=[];
+      mr.ondataavailable=function(e){if(e.data&&e.data.size)ch.push(e.data)};
+      mr.onstop=function(){stream.getTracks().forEach(function(t){t.stop()});res(new Blob(ch,{type:mr.mimeType||"audio/mp4"}))};
+      mr.start();setTimeout(function(){try{mr.stop()}catch(e){}},ms);
+    });
+  });
+}
+function extFor(b){var t=(b.type||"").toLowerCase();return t.indexOf("webm")>-1?"webm":t.indexOf("ogg")>-1?"ogg":t.indexOf("wav")>-1?"wav":"m4a"}
+function lyricsRoute(blob){
+  if(!(cfg.prov==="groq"&&cfg.key))return Promise.reject(new Error("no-recog"));
+  var fd=new FormData();fd.append("file",blob,"clip."+extFor(blob));fd.append("model","whisper-large-v3-turbo");fd.append("response_format","json");fd.append("temperature","0");
+  return withTO(fetch("https://api.groq.com/openai/v1/audio/transcriptions",{method:"POST",headers:{authorization:"Bearer "+cfg.key},body:fd}).then(function(r){
+    return r.json().catch(function(){return{}}).then(function(j){if(!r.ok)throw new Error((j&&j.error&&j.error.message)||("HTTP "+r.status));return j});
+  }),25000).then(function(j){
+    var tx=String(j.text||"").trim();
+    if(tx.split(/\s+/).length<4)return null;
+    var q='These words were transcribed from music playing nearby: "'+tx.slice(0,600)+'". Identify the song using web search. Reply exactly in this format: ARTIST | TITLE. If you cannot identify it, reply exactly UNKNOWN.';
+    return liveBrain([{role:"user",content:q}],"You identify songs from lyrics. Be exact.").then(function(a){
+      a=String(a||"").trim();var m=a.match(/^(.+?)\s*\|\s*(.+)$/m);
+      if(!m||/unknown/i.test(a))return null;
+      return{artist:m[1].trim(),title:m[2].trim().replace(/["."]+$/,"")};
+    });
+  });
+}
+function identifySong(){
+  return recordClip(12000).then(function(blob){
+    if(cfg.audd){
+      var fd=new FormData();fd.append("api_token",cfg.audd);fd.append("file",blob,"clip."+extFor(blob));fd.append("return","apple_music");
+      return withTO(fetch("https://api.audd.io/",{method:"POST",body:fd}).then(function(r){return r.json()}),25000).then(function(j){
+        var r=j&&j.result;
+        if(r&&r.title)return{artist:r.artist,title:r.title,url:(r.apple_music&&r.apple_music.url)||r.song_link||"",preview:(r.apple_music&&r.apple_music.previews&&r.apple_music.previews[0]&&r.apple_music.previews[0].url)||""};
+        return(cfg.prov==="groq"&&cfg.key)?lyricsRoute(blob):null;
+      });
+    }
+    return lyricsRoute(blob);
+  });
+}
+function itunes(term){
+  return withTO(fetch("https://itunes.apple.com/search?term="+encodeURIComponent(term)+"&entity=song&limit=1").then(function(r){return r.json()}),6000)
+    .then(function(j){var r=j.results&&j.results[0];return r?{artist:r.artistName,title:r.trackName,url:r.trackViewUrl,preview:r.previewUrl}:null}).catch(function(){return null});
+}
+function songLinks(o){var l=[];if(o.url)l.push({name:"Apple Music",url:o.url});if(o.preview)l.push({name:"30s preview",url:o.preview});return l}
+function trackQuery(raw,n){
+  var m=n.match(/^(?:find|search|look for|get)(?: me)?(?: the)? (?:song|track|music)\s+(.+)$/)||n.match(/^cari lagu\s+(.+)$/);
+  if(m)return m[1];
+  m=raw.match(/^(?:找歌|搜索歌曲|找一首歌?|搜歌)\s*(.+)$/)||raw.match(/^найди (?:песню|трек)\s+(.+)$/i)||raw.match(/^(.+?)の曲を(?:探して|検索)/);
+  return m?m[1]:null;
+}
 function reply(text,links){
   hist.push({role:"assistant",content:text});saveHist();
   add("a",text,links);speak(text);
@@ -1236,12 +1403,45 @@ function send(text){
   text=(text||"").trim();
   if(!text||busy)return;
   cancelSpeech();standbyPause();
+  if(conv.on){
+    if(STOP_RE.test(norm(text))){
+      curK=userLang(text);add("u",text);convOff();
+      reply(LT("Standing down. I'm here whenever you need me.","Baik, saya sedia bila-bila masa.","好的，需要时叫我。",null,"Отключаюсь. Я рядом, если понадоблюсь.","待機します。いつでもお呼びください。"));return;
+    }
+    conv.miss=0;
+  }
   if(view!=="chat")setView("chat");
   curK=userLang(text);
   var sx=null;
   try{sx=special(text)}catch(e){sx=null}
   if(sx){
     add("u",text);hist.push({role:"user",content:text});
+    if(sx.song){
+      busy=true;setState("think","listening to the music...");
+      add("s","// listening to the music for 12 seconds");
+      identifySong().then(function(o){
+        if(!o){busy=false;reply(LT("I could not catch it. Try again closer to the speaker, or when the vocals are clear.","Saya tidak dapat kenal pasti. Cuba lagi dekat dengan pembesar suara, atau bila vokal jelas.","没能识别出来。请靠近音源再试一次，或在人声清晰时再试。",null,"Не удалось распознать. Попробуйте поближе к колонке или когда слышен вокал.","聞き取れませんでした。スピーカーに近づけるか、ボーカルがはっきりした所でもう一度お試しください。"));return}
+        return itunes(o.artist+" "+o.title).then(function(it){
+          busy=false;var u=o;if(it){u.url=u.url||it.url;u.preview=u.preview||it.preview}
+          reply(LT('That is "'+o.title+'" by '+o.artist+".",'Itu "'+o.title+'" oleh '+o.artist+".",o.artist+"的《"+o.title+"》。",null,"Это «"+o.title+"», исполнитель "+o.artist+".",o.artist+"の「"+o.title+"」です。"),songLinks(u));
+        });
+      }).catch(function(e){
+        busy=false;var em=String(e&&e.message||e);
+        if(em==="no-recog")reply(LT("To recognise songs I need a Groq brain or an AudD key in CONFIG.","Untuk mengenal pasti lagu, saya perlukan otak Groq atau kunci AudD dalam CONFIG.","识别歌曲需要Groq大脑或在设置中添加AudD密钥。",null,"Для распознавания песен нужен мозг Groq или ключ AudD в настройках.","曲の認識にはGroqブレインか、設定のAudDキーが必要です。"));
+        else if(/notallowed|permission|denied/i.test(em))reply(LT("The microphone is blocked. Allow it for this site in Safari settings.","Mikrofon disekat. Benarkannya untuk laman ini dalam tetapan Safari.","麦克风被阻止，请在Safari设置中允许。",null,"Микрофон заблокирован. Разрешите доступ в настройках Safari.","マイクがブロックされています。Safariの設定で許可してください。"));
+        else reply(LT("Song recognition failed: "+em.slice(0,80),"Pengecaman lagu gagal: "+em.slice(0,80),"识别失败："+em.slice(0,80),null,"Не удалось распознать: "+em.slice(0,80),"認識に失敗しました："+em.slice(0,80)));
+      });
+      return;
+    }
+    if(sx.track){
+      busy=true;setState("think","searching music...");
+      itunes(sx.track).then(function(it){
+        busy=false;
+        if(!it){reply(LT("I could not find that track.","Saya tidak jumpa lagu itu.","没有找到这首歌。",null,"Не нашёл такой трек.","その曲は見つかりませんでした。"));return}
+        reply(LT('Found "'+it.title+'" by '+it.artist+".",'Jumpa "'+it.title+'" oleh '+it.artist+".","找到了"+it.artist+"的《"+it.title+"》。",null,"Нашёл «"+it.title+"», "+it.artist+".",it.artist+"の「"+it.title+"」が見つかりました。"),songLinks(it));
+      });
+      return;
+    }
     if(sx.loc){
       busy=true;setState("think","locating...");
       locate().then(function(o){
@@ -1298,13 +1498,14 @@ function send(text){
     });
     return;
   }
+  deepNow=isDeep(text);
   runStream(msgs);
 }
 function runStream(msgs){
-  setState("think","thinking...");
+  setState("think",deepNow?"thinking it through...":"thinking...");
   var bub=null,spoken=0,acc="";
-  if(cfg.speak==="1")speechBegin();
-  streamBrain(msgs,systemPrompt(),function(t,all){
+  if(cfg.speak==="1"){speechBegin();if(deepNow)queueSpeech(fillerLine())}
+  streamBrain(msgs,systemPrompt()+(deepNow?DEEP_NOTE:""),function(t,all){
     acc=all;
     if(!bub){bub=add("a","");if(cfg.speak!=="1")setState("think","replying...")}
     fmt(bub,all);$("log").scrollTop=$("log").scrollHeight;
@@ -1366,6 +1567,7 @@ function startListen(quiet){
   };
   me.onerror=function(e){
     listening=false;clearTimeout(silT);
+    if(conv.on&&(e.error==="not-allowed"||e.error==="service-not-allowed"))convOff();
     if(e.error==="not-allowed"||e.error==="service-not-allowed"){if(!quiet)add("e","Mic blocked. Settings > Safari > Microphone, and make sure Dictation is on in Settings > General > Keyboard.")}
     else if(!quiet&&e.error!=="no-speech"&&e.error!=="aborted"){add("e","Mic error: "+e.error)}
     idle();
@@ -1373,7 +1575,7 @@ function startListen(quiet){
   me.onend=function(){
     listening=false;clearTimeout(silT);
     if(sent)return;
-    if(lastTxt.trim()){sent=true;send(lastTxt)}else if(!busy){idle()}
+    if(lastTxt.trim()){sent=true;send(lastTxt)}else if(!busy){if(conv.on)convMiss();else idle()}
   };
   try{me.start()}catch(e){idle()}
 }
@@ -1423,7 +1625,7 @@ function standbyTTL(){
   clearTimeout(standby.ttl);
   standby.ttl=setTimeout(function(){if(standby.on){standbyStop();add("s","// standby off after 20 minutes to save battery")}},20*60*1000);
 }
-function paintStandby(){var b=$("stbyBtn");b.textContent=standby.on?"STANDBY ON":"STANDBY OFF";b.classList.toggle("on",standby.on)}
+function paintStandby(){var b=$("stbyBtn");b.textContent="STANDBY";b.classList.toggle("on",standby.on)}
 function lockScreen(){try{if(navigator.wakeLock&&navigator.wakeLock.request)navigator.wakeLock.request("screen").then(function(l){standby.lock=l}).catch(function(){})}catch(e){}}
 function standbyStart(){
   if(!SR){add("e","This browser has no speech recognition. Open Jarvis in Safari for standby.");return}
@@ -1442,7 +1644,7 @@ document.addEventListener("visibilitychange",function(){
   if(!document.hidden&&standby.on){standbyPause();standbySoon();lockScreen()}
 });
 $("orb").addEventListener("click",function(){
-  if(sp.pending>0||(window.speechSynthesis&&speechSynthesis.speaking)){cancelSpeech(true);idle();return}
+  if(sp.pending>0||(window.speechSynthesis&&speechSynthesis.speaking)){cancelSpeech(true);idle();if(conv.on)setTimeout(function(){startListen(true)},200);return}
   if(listening){try{rec.stop()}catch(e){}return}
   startListen();
 });
@@ -1531,7 +1733,7 @@ function openSheet(){
   draft={keys:{},models:{}};shownProv=cfg.prov;$("prov").value=cfg.prov;$("base").value=baseCustom;loadProvFields(cfg.prov);
   $("theme").value=theme;
   $("speakOn").value=cfg.speak;$("soul").value=soul;$("notes").value=notes;$("links").value=linksTxt;$("places").value=placesTxt;
-  $("live").value=cfg.live;$("liveModel").value=cfg.liveModel;$("sil").value=cfg.sil;$("wxLoc").value=cfg.wxLoc;$("wazeAuto").value=cfg.wazeAuto;
+  $("live").value=cfg.live;$("liveModel").value=cfg.liveModel;$("sil").value=cfg.sil;$("reason").value=cfg.reason;$("auddKey").value=cfg.audd;$("bkMsg").textContent="";$("wxLoc").value=cfg.wxLoc;$("wazeAuto").value=cfg.wazeAuto;
   $("engine").value=cfg.engine;$("elKey").value=cfg.elKey;$("elVoice").value=cfg.elVoice;$("elModel").value=cfg.elModel;paintEngine();
   loadVoices();
   $("rate").value=cfg.rate;$("pitch").value=cfg.pitch;paintSliders();$("wakeUrl").value=wakeLink();
@@ -1601,7 +1803,7 @@ $("save").addEventListener("click",function(){
   cfg.prov=$("prov").value;baseCustom=cleanId($("base").value);syncCur();
   theme=$("theme").value;sv("jv_theme",theme);
   cfg.speak=$("speakOn").value;commitVoice();
-  cfg.live=$("live").value;cfg.liveModel=cleanId($("liveModel").value)||"groq/compound-mini";sv("jv_live",cfg.live);sv("jv_livemodel",cfg.liveModel);cfg.sil=$("sil").value;sv("jv_sil",cfg.sil);cfg.wxLoc=$("wxLoc").value;cfg.wazeAuto=$("wazeAuto").value;sv("jv_wxloc",cfg.wxLoc);sv("jv_wazeauto",cfg.wazeAuto);
+  cfg.live=$("live").value;cfg.liveModel=cleanId($("liveModel").value)||"groq/compound-mini";sv("jv_live",cfg.live);sv("jv_livemodel",cfg.liveModel);cfg.sil=$("sil").value;sv("jv_sil",cfg.sil);cfg.reason=$("reason").value;sv("jv_reason",cfg.reason);cfg.audd=cleanId($("auddKey").value);sv("jv_audd",cfg.audd);cfg.wxLoc=$("wxLoc").value;cfg.wazeAuto=$("wazeAuto").value;sv("jv_wxloc",cfg.wxLoc);sv("jv_wazeauto",cfg.wazeAuto);
   soul=$("soul").value.trim()||DEFAULT_SOUL;notes=$("notes").value;linksTxt=$("links").value;placesTxt=$("places").value;
   sv("jv_keys",JSON.stringify(keys));sv("jv_models",JSON.stringify(models));sv("jv_prov",cfg.prov);sv("jv_base",baseCustom);sv("jv_speak",cfg.speak);
   sv("jv_soul",soul);sv("jv_notes",notes);sv("jv_links",linksTxt);sv("jv_places",placesTxt);
