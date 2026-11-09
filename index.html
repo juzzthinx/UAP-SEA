@@ -224,6 +224,9 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
     <input id="elVoice" type="text" placeholder="tap FIND MY VOICES, or paste a voice ID" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     <button type="button" class="mini" id="elCheck">CHECK VOICE</button> <button type="button" class="mini" id="elFind">FIND MY VOICES</button>
     <div id="elList" class="hint"></div>
+    <label>Voice saver (stretches the free allowance)</label>
+    <select id="saver"><option value="0">Off: use the ElevenLabs voice for everything</option><option value="120">Short replies only (up to about 120 characters)</option><option value="200">Short replies only (up to about 200 characters)</option><option value="350">Medium replies (up to about 350 characters)</option></select>
+    <div class="hint">Longer replies use the iPhone voice for the whole reply, so the voice never changes mid-answer.</div>
     <label>Model</label>
     <select id="elModel"><option value="eleven_flash_v2_5">Flash v2.5 (fastest, recommended)</option><option value="eleven_multilingual_v2">Multilingual v2 (richest, slower)</option></select>
     <div class="hint">Speaks English, Bahasa Malaysia and Mandarin in one voice. If it ever fails, Jarvis falls back to the device voice.</div>
@@ -369,6 +372,7 @@ if(cfg.mode!=="code")cfg.mode="assist";
 cfg.reason=ld("jv_reason","auto");if(["auto","fast","deep"].indexOf(cfg.reason)<0)cfg.reason="auto";cfg.audd=cleanIdEarly(ld("jv_audd",""));
 cfg.learn=ld("jv_learn","1")==="0"?"0":"1";cfg.barge=ld("jv_barge","0")==="1"?"1":"0";cfg.visRaw=cleanIdEarly(ld("jv_vismodel",""));cfg.vis=cfg.visRaw||"qwen/qwen3.8-27b";
 var mem=[];try{mem=JSON.parse(ld("jv_mem","[]"))||[]}catch(e){mem=[]}if(!Array.isArray(mem))mem=[];
+cfg.saver=ld("jv_saver","200");if(["0","120","200","350"].indexOf(cfg.saver)<0)cfg.saver="200";
 cfg.sil=ld("jv_sil","700");if(["700","1100","1800"].indexOf(cfg.sil)<0)cfg.sil="700";
 if(ld("jv_elmv","")!=="5"){cfg.elModel="eleven_flash_v2_5";sv("jv_elmodel",cfg.elModel);sv("jv_elmv","5")}
 var theme=ld("jv_theme","night");if(ld("jv_themev","")!=="43"){theme="night";sv("jv_theme","night");sv("jv_themev","43")}if(theme!=="paddock")theme="night";
@@ -510,7 +514,7 @@ function ttsStop(){
   tts.q=[];tts.busy=false;
 }
 function cancelSpeech(mute){try{if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}ttsStop();sp.gen++;sp.pending=0;sp.streaming=false;sp.onIdle=null;if(mute)sp.muted=true}
-function speechBegin(){cancelSpeech();sp.said="";sp.muted=false;sp.streaming=true;sp.first=true}
+function speechBegin(){cancelSpeech();sp.said="";sp.dev=false;sp.muted=false;sp.streaming=true;sp.first=true}
 function isEleven(){return cfg.engine==="eleven"&&cfg.elKey&&cfg.elVoice&&!tts.bad}
 function segs(t){
   var raw=t.match(/[^.!?…。！？\n]+[.!?…。！？]*\s*/g)||[t],out=[];
@@ -588,6 +592,7 @@ function ttsNext(){
     var p=a.play();if(p&&p.catch)p.catch(function(){devSpeakOne(it.seg,it.g,fin)});
   });
 }
+function saverActive(){return cfg.engine==="eleven"&&(parseInt(cfg.saver,10)||0)>0&&isEleven()}
 function queueSpeech(text,o){
   o=o||{};
   if(!window.speechSynthesis&&!isEleven())return;
@@ -596,7 +601,7 @@ function queueSpeech(text,o){
   sp.said=((sp.said||"")+" "+t).slice(-1500);
   var g=sp.gen;
   segs(t).forEach(function(seg){
-    if(isEleven()&&!o.device){ttsEnqueue(seg,g)}
+    if(isEleven()&&!o.device&&!sp.dev){ttsEnqueue(seg,g)}
     else if(window.speechSynthesis){sp.pending++;devSpeakOne(seg,g,function(){onePart(g)},o)}
   });
 }
@@ -604,7 +609,7 @@ function speechDone(){idle();if(sp.onIdle){var f=sp.onIdle;sp.onIdle=null;setTim
 function afterSpeech(fn){if(sp.pending>0||sp.streaming)sp.onIdle=fn;else setTimeout(fn,300)}
 function speak(text){
   if(cfg.speak!=="1"||(!window.speechSynthesis&&!isEleven())){idle();return}
-  cancelSpeech();sp.muted=false;queueSpeech(text);
+  cancelSpeech();sp.muted=false;sp.dev=saverActive()&&clean(text).length>parseInt(cfg.saver,10);queueSpeech(text);
   if(sp.pending===0)idle();
 }
 function speakReady(all,from){
@@ -804,7 +809,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v7.3";
+var VER="v7.4";
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1661,12 +1666,15 @@ function send(text){
 function runStream(msgs){
   setState("think",deepNow?"thinking it through...":"thinking...");
   var bub=null,spoken=0,acc="";
-  if(cfg.speak==="1"){speechBegin();if(deepNow)queueSpeech(fillerLine())}
+  var hold=false;
+  if(cfg.speak==="1"){speechBegin();hold=saverActive();if(deepNow)queueSpeech(fillerLine(),hold?{device:true}:null)}
   streamBrain(msgs,systemPrompt()+(deepNow?DEEP_NOTE:"")+(msgs.some(function(m){return m.img})?VIS_NOTE:""),function(t,all){
     acc=all;
     if(!bub){bub=add("a","");if(cfg.speak!=="1")setState("think","replying...")}
     fmt(bub,stripMem(all));$("log").scrollTop=$("log").scrollHeight;
-    spoken=speakReady(speakable(stripMem(all)),spoken);
+    var tx=speakable(stripMem(all));
+    if(hold&&tx.length>(parseInt(cfg.saver,10)||200)){hold=false;sp.dev=true}
+    if(!hold)spoken=speakReady(tx,spoken);
   }).then(function(out){
     busy=false;
     memScan(out);out=stripMem(out||"").trim()||"...";
@@ -1892,7 +1900,7 @@ function openSheet(){
   $("theme").value=theme;
   $("speakOn").value=cfg.speak;$("soul").value=soul;$("notes").value=notes;$("links").value=linksTxt;$("places").value=placesTxt;
   $("live").value=cfg.live;$("liveModel").value=cfg.liveModel;$("sil").value=cfg.sil;$("reason").value=cfg.reason;$("visModel").value=cfg.visRaw;$("learn").value=cfg.learn;$("barge").value=cfg.barge;$("memBox").value=mem.map(function(x){return x.t}).join("\n");$("auddKey").value=cfg.audd;$("bkMsg").textContent="";$("wxLoc").value=cfg.wxLoc;$("wazeAuto").value=cfg.wazeAuto;
-  $("engine").value=cfg.engine;$("elKey").value=cfg.elKey;$("elVoice").value=cfg.elVoice;$("elModel").value=cfg.elModel;paintEngine();
+  $("saver").value=cfg.saver;$("engine").value=cfg.engine;$("elKey").value=cfg.elKey;$("elVoice").value=cfg.elVoice;$("elModel").value=cfg.elModel;paintEngine();
   loadVoices();
   $("rate").value=cfg.rate;$("pitch").value=cfg.pitch;paintSliders();$("wakeUrl").value=wakeLink();
   $("sheet").classList.add("open");
@@ -1907,10 +1915,11 @@ function commitVoice(){
   cfg.engine=$("engine").value;cfg.elKey=cleanId($("elKey").value);cfg.elVoice=cleanId($("elVoice").value);cfg.elModel=$("elModel").value;
   sv("jv_engine",cfg.engine);sv("jv_elkey",cfg.elKey);sv("jv_elvoice",cfg.elVoice);sv("jv_elmodel",cfg.elModel);
   cfg.rate=parseFloat($("rate").value)||0.98;cfg.pitch=parseFloat($("pitch").value)||0.9;sv("jv_rate",cfg.rate);sv("jv_pitch",cfg.pitch);
+  cfg.saver=$("saver").value;sv("jv_saver",cfg.saver);
   tts.bad=false;tts.warned=false;
 }
 $("testVoice").addEventListener("click",function(){
-  unlockSpeech();commitVoice();cancelSpeech();sp.muted=false;
+  unlockSpeech();commitVoice();cancelSpeech();sp.muted=false;sp.dev=false;
   queueSpeech("Good evening, J.Nazreen. All systems are green. Selamat petang, semua sistem sedia. 晚上好，所有系统正常。 Добрый вечер, все системы в норме. こんばんは、全システム正常です。",{force:true});
 });
 $("jarvisPreset").addEventListener("click",function(){$("rate").value=0.95;$("pitch").value=0.82;paintSliders()});
