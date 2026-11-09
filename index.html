@@ -145,6 +145,10 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
 #orb:active{transform:scale(.95)}
 #status{transition:opacity .25s ease}
 @media (prefers-reduced-motion:reduce){.m{animation:none}}
+.mkt{display:flex;justify-content:center;align-items:baseline;flex-wrap:wrap;gap:4px 9px;margin:1px 16px 2px;cursor:pointer;font-family:"Michroma","Eurostile",sans-serif;font-size:7.5px;letter-spacing:.16em;color:var(--dim);-webkit-tap-highlight-color:transparent}
+.mkt .v{font-size:12px;color:var(--t);letter-spacing:.05em}
+.mkt .c.up{color:var(--c)}.mkt .c.dn{color:var(--warn)}
+.mkt .s{font-size:6.5px;opacity:.85}
 .rbar{display:flex;gap:8px;padding:8px 12px;background:var(--bg);border-bottom:1px solid var(--cardb)}
 .rbar button{background:none;border:1px solid var(--c);color:var(--c);border-radius:999px;padding:9px 16px;font-family:"Michroma","Eurostile",sans-serif;font-size:7.5px;letter-spacing:.16em}
 #rFrame{flex:1;border:0;width:100%;background:#fff}
@@ -166,6 +170,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
   <canvas id="wxi"></canvas>
   <div class="wxt"><span class="big" id="wxT">--&deg;</span><span class="d" id="wxD">weather</span><small id="wxS">TAP TO LOAD</small></div>
 </div>
+<div class="mkt" id="mkt" role="button" title="Tap to refresh the KLCI"><span class="k">KLCI</span><span class="v" id="mkV">--</span><span class="c" id="mkC"></span><span class="s" id="mkS"></span></div>
 <div class="chips">
   <div class="seg" id="langs"><button data-l="en-US">EN</button><button data-l="ms-MY">BM</button><button data-l="zh-CN">&#20013;&#25991;</button><button data-l="ru-RU">RU</button><button data-l="ja-JP">JP</button></div>
   <div class="acts"><button type="button" class="pill" id="wazeBtn">WAZE</button><button type="button" class="pill" id="talkBtn">TALK</button><button type="button" class="pill" id="stbyBtn">STANDBY</button></div>
@@ -285,6 +290,10 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
   <input id="auddKey" type="password" placeholder="optional" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
   <div class="hint">Without it, Jarvis listens for lyrics with Groq and finds the song by searching. Say: "what song is this".</div>
 
+  <h3>MARKET</h3>
+  <label>KLCI on the home screen</label>
+  <select id="mktOn"><option value="1">On: FBM KLCI (Bursa Malaysia), tap it to refresh</option><option value="0">Off</option></select>
+
   <h3>EYES, MEMORY AND VOICE</h3>
   <label>Vision model (Groq)</label>
   <input id="visModel" type="text" placeholder="qwen/qwen3.8-27b" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
@@ -378,6 +387,7 @@ if(cfg.mode!=="code")cfg.mode="assist";
 cfg.reason=ld("jv_reason","auto");if(["auto","fast","deep"].indexOf(cfg.reason)<0)cfg.reason="auto";cfg.audd=cleanIdEarly(ld("jv_audd",""));
 cfg.learn=ld("jv_learn","1")==="0"?"0":"1";cfg.barge=ld("jv_barge","0")==="1"?"1":"0";cfg.visRaw=cleanIdEarly(ld("jv_vismodel",""));cfg.vis=cfg.visRaw||"qwen/qwen3.8-27b";
 var mem=[];try{mem=JSON.parse(ld("jv_mem","[]"))||[]}catch(e){mem=[]}if(!Array.isArray(mem))mem=[];
+cfg.mkt=ld("jv_mkt","1")==="0"?"0":"1";
 cfg.saver=ld("jv_saver","200");if(["0","120","200","350"].indexOf(cfg.saver)<0)cfg.saver="200";
 cfg.sil=ld("jv_sil","700");if(["700","1100","1800"].indexOf(cfg.sil)<0)cfg.sil="700";
 if(ld("jv_elmv","")!=="5"){cfg.elModel="eleven_flash_v2_5";sv("jv_elmodel",cfg.elModel);sv("jv_elmv","5")}
@@ -890,7 +900,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v7.5";
+var VER="v7.6";
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1126,6 +1136,7 @@ function special(text){
     return{sync:R(gone?LT("Forgotten. "+gone+(gone>1?" items":" item")+" removed.","Dilupakan. "+gone+" item dibuang.","已忘记，删除了"+gone+"条。"):LT("I had nothing stored about that.","Tiada yang disimpan tentang itu.","我没有存这方面的内容。"))};
   }
   if(/(where am i|my (current )?location|share my location|send my location|where are we)/.test(n)||/(di mana saya|lokasi saya|saya kat mana|kat mana ni|lokasi semasa)/.test(n)||/(我在哪|我的位置|当前位置|分享位置)/.test(raw)||/(где я|моё местоположение|мое местоположение|где мы)/.test(n)||/(今どこ|現在地|私の位置|ここはどこ)/.test(raw))return{loc:true};
+  if(n.split(" ").length<=8&&(/\b(klci|klse|bursa)\b|\b(stock|share) market\b|how('?s| is) the market|pasaran saham|股市|马股|биржа|株式市場/.test(n)||/(股市|马股|株式市場)/.test(raw)))return{mkt:true};
   if(weatherIntent(raw,n))return{weather:true};
   return null;
 }
@@ -1632,6 +1643,77 @@ function bargeListen(){
   r.onend=function(){if(barge.rec===r)barge.rec=null;if(trig&&!done)finish()};
   try{r.start()}catch(e){barge.rec=null}
 }
+
+/* ---------- KLCI market line ---------- */
+var mk=null;try{mk=JSON.parse(ld("jv_mk","null"));if(!mk||typeof mk.lvl!=="number")mk=null}catch(e){mk=null}
+var mkBusy=null;
+function fN(x,d){return Number(x).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d})}
+function klStatus(){
+  try{
+    var parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Kuala_Lumpur",weekday:"short",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(new Date()),o={};
+    parts.forEach(function(p){o[p.type]=p.value});
+    var m=(parseInt(o.hour,10)%24)*60+parseInt(o.minute,10);
+    if(/Sat|Sun/.test(o.weekday))return"CLOSED";
+    if(m>=540&&m<750)return"OPEN";
+    if(m>=750&&m<870)return"LUNCH BREAK";
+    if(m>=870&&m<1020)return"OPEN";
+  }catch(e){}
+  return"CLOSED";
+}
+function paintMkt(busy){
+  var el=$("mkt");if(!el)return;
+  if(cfg.mkt==="0"){el.style.display="none";return}
+  el.style.display="flex";
+  if(!mk){$("mkV").textContent="--";$("mkC").textContent="";$("mkS").textContent=busy?"UPDATING":"TAP TO LOAD";return}
+  var up=mk.chg>=0,c=$("mkC");
+  $("mkV").textContent=fN(mk.lvl,2);
+  c.textContent=(up?"▲ ":"▼ ")+fN(Math.abs(mk.chg),2)+" ("+(up?"+":"-")+fN(Math.abs(mk.pct),2)+"%)";
+  c.className="c "+(up?"up":"dn");
+  var st=klStatus(),age=Date.now()-mk.ts,d=new Date(mk.ts),hm=("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);
+  $("mkS").textContent=(busy?"UPDATING":st)+(age>25*60000&&!busy?" · "+hm:"")+(mk.src==="web"?" · WEB":"");
+}
+function mkValid(l,pv){return typeof l==="number"&&isFinite(l)&&l>500&&l<4000&&typeof pv==="number"&&isFinite(pv)&&pv>500&&pv<4000}
+function mkYahoo(){
+  return withTO(fetch("https://query1.finance.yahoo.com/v8/finance/chart/%5EKLSE?interval=1d&range=5d").then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}),9000).then(function(j){
+    var r=j&&j.chart&&j.chart.result&&j.chart.result[0];if(!r)throw new Error("no data");
+    var q=r.indicators&&r.indicators.quote&&r.indicators.quote[0],cl=((q&&q.close)||[]).filter(function(x){return typeof x==="number"}),n=cl.length;
+    var price=r.meta&&r.meta.regularMarketPrice;if(typeof price!=="number")price=cl[n-1];
+    var prev=(n>=2&&Math.abs(cl[n-1]-price)<0.005)?cl[n-2]:cl[n-1];
+    if(!mkValid(price,prev))throw new Error("bad data");
+    var chg=price-prev;return{lvl:price,chg:chg,pct:chg/prev*100,ts:Date.now(),src:"live"};
+  });
+}
+function mkWeb(){
+  if(!liveSupported())return Promise.reject(new Error("no live brain"));
+  var q='Search the web for the latest FBM KLCI (FTSE Bursa Malaysia KLCI) index level and its change from the previous close. Reply with ONLY this JSON and nothing else: {"level":1234.56,"change":-1.23,"pct":-0.10}';
+  return withTO(liveBrain([{role:"user",content:q}],"You are a market data lookup. Output only the JSON object."),30000).then(function(t){
+    var m=String(t||"").match(/\{[\s\S]*?\}/);if(!m)throw new Error("no json");
+    var o=JSON.parse(m[0]),l=parseFloat(o.level),ch=parseFloat(o.change),pv=l-ch;
+    if(!mkValid(l,pv))throw new Error("bad data");
+    return{lvl:l,chg:ch,pct:ch/pv*100,ts:Date.now(),src:"web"};
+  });
+}
+function getMarket(force){
+  if(cfg.mkt==="0"&&!force)return Promise.resolve(mk);
+  var open=klStatus()==="OPEN";
+  if(!force&&mk&&Date.now()-mk.ts<(open?4:90)*60000)return Promise.resolve(mk);
+  if(mkBusy)return mkBusy;
+  paintMkt(true);
+  mkBusy=mkYahoo().catch(function(){return mkWeb()}).then(function(m){mk=m;sv("jv_mk",JSON.stringify(m));return m}).catch(function(){return mk}).then(function(m){mkBusy=null;paintMkt();return m});
+  return mkBusy;
+}
+function mkSay(m){
+  var up=m.chg>=0,st=klStatus(),a=fN(Math.abs(m.pct),2),l=fN(m.lvl,1),late=st!=="OPEN";
+  return LT("The KLCI is at "+l+", "+(up?"up ":"down ")+a+" percent"+(late?", as of the last close":"")+".",
+    "KLCI berada pada "+l+", "+(up?"naik ":"turun ")+a+" peratus"+(late?", pada penutupan terakhir":"")+".",
+    "富时综指目前"+l+"点，"+(up?"上涨":"下跌")+a+"%"+(late?"（最近收盘）":"")+"。",null,
+    "KLCI на уровне "+l+", "+(up?"рост ":"снижение ")+a+" процента"+(late?" на последнее закрытие":"")+".",
+    "KLCIは"+l+"で、"+(up?"上昇":"下落")+a+"パーセント"+(late?"（直近の終値）":"")+"です。");
+}
+$("mkt").addEventListener("click",function(){getMarket(true)});
+setTimeout(function(){getMarket(false)},1800);
+setInterval(function(){if(!document.hidden)getMarket(false);else paintMkt()},5*60000);
+document.addEventListener("visibilitychange",function(){if(!document.hidden){paintMkt();getMarket(false)}});
 function reply(text,links){
   hist.push({role:"assistant",content:text});saveHist();
   add("a",text,links);speak(text);
@@ -1697,6 +1779,15 @@ function send(text){
     if(sx.brief){
       busy=true;setState("think","preparing your briefing...");
       briefing(curK).then(function(t){busy=false;reply(t)}).catch(function(){busy=false;reply(buildGreeting(null,curK,false))});
+      return;
+    }
+    if(sx.mkt){
+      busy=true;setState("think","checking the market...");
+      getMarket(true).then(function(m){
+        busy=false;
+        if(!m){reply(LT("I cannot reach the market data right now.","Saya tidak dapat data pasaran sekarang.","目前无法获取市场数据。",null,"Сейчас нет данных по рынку.","市場データを取得できません。"));return}
+        reply(mkSay(m),[{name:"Yahoo Finance",url:"https://finance.yahoo.com/quote/%5EKLSE"}]);
+      });
       return;
     }
     if(sx.weather){
@@ -1981,7 +2072,7 @@ function openSheet(){
   $("theme").value=theme;
   $("speakOn").value=cfg.speak;$("soul").value=soul;$("notes").value=notes;$("links").value=linksTxt;$("places").value=placesTxt;
   $("live").value=cfg.live;$("liveModel").value=cfg.liveModel;$("sil").value=cfg.sil;$("reason").value=cfg.reason;$("visModel").value=cfg.visRaw;$("learn").value=cfg.learn;$("barge").value=cfg.barge;$("memBox").value=mem.map(function(x){return x.t}).join("\n");$("auddKey").value=cfg.audd;$("bkMsg").textContent="";$("wxLoc").value=cfg.wxLoc;$("wazeAuto").value=cfg.wazeAuto;
-  $("saver").value=cfg.saver;$("engine").value=cfg.engine;$("elKey").value=cfg.elKey;$("elVoice").value=cfg.elVoice;$("elModel").value=cfg.elModel;paintEngine();
+  $("mktOn").value=cfg.mkt;$("saver").value=cfg.saver;$("engine").value=cfg.engine;$("elKey").value=cfg.elKey;$("elVoice").value=cfg.elVoice;$("elModel").value=cfg.elModel;paintEngine();
   loadVoices();
   $("rate").value=cfg.rate;$("pitch").value=cfg.pitch;paintSliders();$("wakeUrl").value=wakeLink();
   $("sheet").classList.add("open");
@@ -2065,7 +2156,7 @@ $("save").addEventListener("click",function(){
   cfg.prov=$("prov").value;baseCustom=cleanId($("base").value);syncCur();
   theme=$("theme").value;sv("jv_theme",theme);
   cfg.speak=$("speakOn").value;commitVoice();
-  cfg.live=$("live").value;cfg.liveModel=cleanId($("liveModel").value)||"groq/compound-mini";sv("jv_live",cfg.live);sv("jv_livemodel",cfg.liveModel);cfg.sil=$("sil").value;sv("jv_sil",cfg.sil);cfg.reason=$("reason").value;sv("jv_reason",cfg.reason);
+  cfg.live=$("live").value;cfg.liveModel=cleanId($("liveModel").value)||"groq/compound-mini";sv("jv_live",cfg.live);sv("jv_livemodel",cfg.liveModel);cfg.sil=$("sil").value;sv("jv_sil",cfg.sil);cfg.reason=$("reason").value;sv("jv_reason",cfg.reason);cfg.mkt=$("mktOn").value;sv("jv_mkt",cfg.mkt);paintMkt();
   cfg.visRaw=cleanId($("visModel").value);cfg.vis=cfg.visRaw||"qwen/qwen3.8-27b";sv("jv_vismodel",cfg.visRaw);
   cfg.learn=$("learn").value;sv("jv_learn",cfg.learn);cfg.barge=$("barge").value;sv("jv_barge",cfg.barge);
   (function(){var old=mem;mem=$("memBox").value.split("\n").map(function(x){return x.trim()}).filter(Boolean).map(function(t){var o=old.filter(function(x){return x.t===t})[0];return o||{t:t,ts:Date.now()}});memSave()})();
@@ -2124,7 +2215,7 @@ $("goBtn").addEventListener("click",function(){
   })();
 });
 
-paintModes();paintLangs();renderAll();applyTheme();paintWx();paintStandby();idle();hud();vizSync();wxSync();
+paintModes();paintLangs();renderAll();applyTheme();paintWx();paintMkt();paintStandby();idle();hud();vizSync();wxSync();
 var vv=$("ver");if(vv)vv.textContent=VER;
 })();
 </script>
