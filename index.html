@@ -907,7 +907,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v8.1";
+var VER="v8.2";
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1128,7 +1128,7 @@ function navIntent(raw,n){
   return null;
 }
 function openWazeUrl(url){
-  if(cfg.wazeAuto!=="1")return;
+  if(cfg.wazeAuto!=="1"&&url!=="chio.html")return;
   afterSpeech(function(){try{window.location.href=url}catch(e){}});
 }
 
@@ -1171,6 +1171,7 @@ function special(text){
   }
   if(/(where am i|my (current )?location|share my location|send my location|where are we)/.test(n)||/(di mana saya|lokasi saya|saya kat mana|kat mana ni|lokasi semasa)/.test(n)||/(我在哪|我的位置|当前位置|分享位置)/.test(raw)||/(где я|моё местоположение|мое местоположение|где мы)/.test(n)||/(今どこ|現在地|私の位置|ここはどこ)/.test(raw))return{loc:true};
   if(n.split(" ").length<=8&&(/\b(klci|klse|bursa)\b|\b(stock|share) market\b|how('?s| is) the market|pasaran saham|股市|马股|биржа|株式市場/.test(n)||/(股市|马股|株式市場)/.test(raw)))return{mkt:true};
+  if(/^(open |launch |go to |show |start )?(chio|chi o|trading lab|trading assistant)$/.test(n)){var cr=R(LT("Opening Chio, your trading maths assistant.","Membuka Chio, pembantu matematik dagangan anda.","正在打开Chio，您的交易数学助手。",null,"Открываю Chio, вашего помощника по математике трейдинга.","Chioを開きます。"),[{name:"Chio",url:"chio.html"}]);cr.nav="chio.html";return{sync:cr}}
   if(weatherIntent(raw,n))return{weather:true};
   return null;
 }
