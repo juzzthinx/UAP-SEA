@@ -254,6 +254,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
   <input type="range" id="rate" min="0.7" max="1.3" step="0.05">
   <label>Voice pitch <span id="pitchV" style="color:var(--c)"></span></label>
   <input type="range" id="pitch" min="0.5" max="1.5" step="0.05">
+  <div class="row" style="margin-top:10px"><button type="button" class="mini" id="voAll">SHOW ALL VOICES</button></div>
+  <div id="voAllList" class="hint"></div>
   <div class="row" style="margin-top:10px"><button type="button" id="testVoice">TEST VOICE</button><button type="button" id="jarvisPreset">CALM PRESET</button></div>
   <label>Speak replies</label>
   <select id="speakOn"><option value="1">On</option><option value="0">Off (text only)</option></select>
@@ -900,7 +902,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v7.7";
+var VER="v7.8";
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -2100,6 +2102,21 @@ function commitVoice(){
   cfg.saver=$("saver").value;sv("jv_saver",cfg.saver);
   tts.bad=false;tts.warned=false;
 }
+$("voAll").addEventListener("click",function(){
+  loadVoices();var box=$("voAllList");box.innerHTML="";
+  if(!voices.length){box.textContent="The page sees 0 voices right now. Close Jarvis and Safari completely, reopen, and try again.";return}
+  var t=document.createElement("div");t.textContent="The page can see "+voices.length+" voices. Tap one to hear it and select it, then tap SAVE:";box.appendChild(t);
+  var map={en:"voEn",ms:"voMs",zh:"voZh",ru:"voRu",ja:"voJa"};
+  voices.slice().sort(function(a,b){return String(a.lang).localeCompare(String(b.lang))||String(a.name).localeCompare(String(b.name))}).forEach(function(v){
+    var row=document.createElement("div");row.className="vrow";
+    var b=document.createElement("button");b.type="button";b.className="nm";b.textContent=v.name+" · "+v.lang+(v.localService===false?" · online":"");
+    b.onclick=function(){
+      try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance("Good day, J.Nazreen. This is "+v.name+".");u.voice=v;u.lang=v.lang;u.rate=cfg.rate;u.pitch=cfg.pitch;speechSynthesis.speak(u)}catch(e){}
+      var k=vkey(v);if(map[k]&&$(map[k])){$(map[k]).value=v.voiceURI;b.style.borderColor="var(--c)"}
+    };
+    row.appendChild(b);box.appendChild(row);
+  });
+});
 $("testVoice").addEventListener("click",function(){
   unlockSpeech();commitVoice();cancelSpeech();sp.muted=false;sp.dev=false;
   queueSpeech("Good evening, J.Nazreen. All systems are green. Selamat petang, semua sistem sedia. 晚上好，所有系统正常。 Добрый вечер, все системы в норме. こんばんは、全システム正常です。",{force:true});
