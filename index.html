@@ -106,14 +106,30 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
 #elList .vrow .nm{flex:1;text-align:left;border-radius:12px}
 .sheet input[type=range]{background:none;border:0;padding:0;height:34px;accent-color:var(--c)}
 .hint{font-size:13px;color:var(--dim);margin-top:7px;line-height:1.45}
-#boot{position:fixed;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;transition:opacity .9s;border-top:3px solid var(--c)}
+#boot{--bg:#050708;--c:#00d2be;--t:#e8fffb;--dim:#7fa5a0;--line:#173633;position:fixed;inset:0;z-index:30;color:var(--t);background:radial-gradient(120% 70% at 50% 38%,#0b1f1e 0%,#050708 62%),#050708;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;transition:opacity .9s;overflow:hidden}
 #boot.out{opacity:0;pointer-events:none}
-#boot .t{font-family:"Michroma","Eurostile",sans-serif;letter-spacing:.5em;font-size:20px;padding-left:.5em}
+#boot::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,transparent,#00a896 25%,#7ff5e8 50%,#00a896 75%,transparent);box-shadow:0 0 18px #00d2be}
+#boot::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.016) 0 2px,transparent 2px 9px);pointer-events:none}
+#boot .scan{position:absolute;left:0;right:0;top:-140px;height:140px;background:linear-gradient(180deg,transparent,rgba(0,210,190,.09),transparent);animation:bscan 4.6s linear infinite;pointer-events:none}
+@keyframes bscan{to{transform:translateY(calc(100vh + 140px))}}
+#bootFrame{position:absolute;inset:max(20px,env(safe-area-inset-top)) 16px max(20px,env(safe-area-inset-bottom)) 16px;pointer-events:none;opacity:.7;background:
+linear-gradient(#00d2be,#00d2be) top left/22px 1.5px no-repeat,linear-gradient(#00d2be,#00d2be) top left/1.5px 22px no-repeat,
+linear-gradient(#00d2be,#00d2be) top right/22px 1.5px no-repeat,linear-gradient(#00d2be,#00d2be) top right/1.5px 22px no-repeat,
+linear-gradient(#00d2be,#00d2be) bottom left/22px 1.5px no-repeat,linear-gradient(#00d2be,#00d2be) bottom left/1.5px 22px no-repeat,
+linear-gradient(#00d2be,#00d2be) bottom right/22px 1.5px no-repeat,linear-gradient(#00d2be,#00d2be) bottom right/1.5px 22px no-repeat}
+#boot .t{position:relative;font-family:"Michroma","Eurostile",sans-serif;letter-spacing:.5em;font-size:22px;padding-left:.5em;text-shadow:0 0 24px rgba(0,210,190,.5)}
+#boot .t::after{content:"";position:absolute;left:12%;right:12%;bottom:-11px;height:1px;background:linear-gradient(90deg,transparent,#00d2be,transparent)}
 #boot .sub{font-family:"Michroma","Eurostile",sans-serif;font-size:7.5px;letter-spacing:.26em;color:var(--dim);text-align:center;padding:0 20px}
-.lights{display:flex;gap:12px}
-.lights i{display:block;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);background:transparent;transition:background .12s,box-shadow .12s,border-color .12s}
-.lights i.on{background:var(--c);border-color:var(--c);box-shadow:0 0 18px var(--c)}
-#boot .go{background:none;border:1px solid var(--c);color:var(--c);border-radius:999px;padding:14px 28px;font-family:"Michroma","Eurostile",sans-serif;letter-spacing:.28em;font-size:9px}
+.lights{display:flex;gap:10px}
+.lights i{display:block;width:34px;height:12px;border-radius:7px;border:1px solid #1d4a45;background:rgba(0,210,190,.04);transition:background .14s,box-shadow .14s,border-color .14s}
+.lights i.on{background:linear-gradient(180deg,#7ff5e8,#00d2be);border-color:#00d2be;box-shadow:0 0 16px #00d2be,0 0 34px rgba(0,210,190,.35)}
+#bootSlot{position:relative;display:flex;justify-content:center;align-items:center}
+#boot .go{background:rgba(0,210,190,.06);border:1px solid var(--c);color:var(--c);border-radius:999px;padding:14px 28px;font-family:"Michroma","Eurostile",sans-serif;letter-spacing:.28em;font-size:9px;box-shadow:0 0 18px rgba(0,210,190,.18);animation:bpulse 2.2s ease-in-out infinite}
+@keyframes bpulse{50%{box-shadow:0 0 26px rgba(0,210,190,.42)}}
+#bootStat{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:none;text-align:center;white-space:nowrap}
+#bootLab{font-family:"Michroma","Eurostile",sans-serif;font-size:9px;letter-spacing:.28em;color:var(--c)}
+#bootStat .bbar{height:2px;width:210px;margin:11px auto 0;background:#12302d;border-radius:2px;overflow:hidden}
+#bootBar{display:block;height:100%;width:0;background:linear-gradient(90deg,#00a896,#7ff5e8);box-shadow:0 0 10px #00d2be;transition:width .4s ease}
 @media (max-height:800px){#orb,#viz{width:160px;height:160px}}
 @media (max-height:700px){#orb,#viz{width:136px;height:136px}}
 .hud.on{display:flex}
@@ -342,10 +358,11 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px;pa
 
 <div id="runBox"><div class="rbar"><button type="button" id="rClose">CLOSE</button><button type="button" id="rSave">SAVE</button><button type="button" id="rCopy">COPY</button></div><iframe id="rFrame" sandbox="allow-scripts allow-pointer-lock allow-modals allow-forms"></iframe></div>
 <div id="boot">
+  <div class="scan"></div><div id="bootFrame"></div>
   <div class="lights" id="lights"><i></i><i></i><i></i><i></i><i></i></div>
   <div class="t">JARVIS</div>
   <div class="sub" id="bootSub">J.NAZREEN &middot; VENI. VIDI. VICI.</div>
-  <button class="go" id="goBtn">LIGHTS OUT</button>
+  <div id="bootSlot"><button class="go" id="goBtn">INITIALIZE</button><div id="bootStat"><span id="bootLab">INITIALIZING &middot; 0%</span><div class="bbar"><b id="bootBar"></b></div></div></div>
 </div>
 
 <script>
@@ -358,7 +375,7 @@ var DEFAULT_SOUL=
 "He identifies more with Nazreen, the curious, inward, philosophical side, than with the stage name. "+
 "He builds browser games and tools on an iPhone 11 together with Claude, in single-file HTML and Three.js, hosted on GitHub Pages. "+
 "Your manner: calm, composed and classy, like the race engineer of a classic Italian F1 team who is also a perfect English butler, but genuinely warm and friendly with him, like a trusted friend. Quick dry wit, never loud. Be interactive: when it helps the conversation move, end with one short natural follow-up question, and celebrate his wins briefly. "+
-"Speak like team radio: short, clear, precise. Address him as J.Nazreen, and occasionally boss. You are his co-builder and sparring partner. Reason carefully: when a question needs thinking, work it through and give the answer first, then the key reason. "+
+"Speak like team radio: short, clear, precise. Address him as Sir, never as boss. You are his co-builder and sparring partner. Reason carefully: when a question needs thinking, work it through and give the answer first, then the key reason. "+
 "Be honest. If an idea has holes, say so calmly and offer a better line. Never flatter. "+
 "LANGUAGE: reply in the language he used, English, Bahasa Malaysia or Mandarin Chinese. If he mixes languages, Malaysian rojak style, mirror that. Write Mandarin in Chinese characters. "+
 "Your replies are spoken aloud on a phone: default to one or two short sentences, no markdown, no lists, no emojis. Go longer only when he asks for depth.";
@@ -409,6 +426,7 @@ function syncCur(){cfg.key=cleanId(keys[cfg.prov]);cfg.model=cleanId(models[cfg.
 syncCur();
 var soul=ld("jv_soul",DEFAULT_SOUL);
 if(ld("jv_soulv","")!=="6"){soul=DEFAULT_SOUL;sv("jv_soul",soul);sv("jv_soulv","6")}
+if(soul.indexOf("Address him as J.Nazreen, and occasionally boss.")>-1){soul=soul.replace("Address him as J.Nazreen, and occasionally boss.","Address him as Sir, never as boss.");sv("jv_soul",soul)}
 var notes=ld("jv_notes",""), linksTxt=ld("jv_links",DEFAULT_LINKS), placesTxt=ld("jv_places","");
 var hist=[]; try{hist=JSON.parse(ld("jv_hist","[]"))||[]}catch(e){hist=[]}
 var tasks=[]; try{tasks=JSON.parse(ld("jv_tasks","[]"))||[]}catch(e){tasks=[]}
@@ -907,7 +925,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v8.2";
+var VER="v8.3";
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -933,12 +951,12 @@ function parseLinks(){
    .filter(function(x){return x.name&&/^https?:\/\//i.test(x.url)});
 }
 function openTasks(){return tasks.map(function(t,i){return{t:t.t,d:t.d,n:i+1}}).filter(function(x){return !x.d})}
-function maxT(){return deepNow?(cfg.prov==="groq"?3000:1500):(cfg.mode==="code"?1500:450)}
+function maxT(){return deepNow?(cfg.prov==="groq"?3000:1500):(cfg.mode==="code"?1500:(cfg.prov==="groq"?1000:450))}
 function addTimer(ms,label){
   var o={end:Date.now()+ms,label:label||""};
   o.tid=setTimeout(function(){
     timers=timers.filter(function(x){return x!==o});
-    var msg=o.label?"Reminder, boss: "+o.label+".":"Timer complete, boss.";
+    var msg=o.label?"Reminder, Sir: "+o.label+".":"Timer complete, Sir.";
     add("a",msg);beep();speak(msg);hud();
   },ms);
   timers.push(o);
@@ -1032,15 +1050,15 @@ function dt(){return dateK("en")}
 function part(){var h=new Date().getHours();return h<5?"night":h<12?"morning":h<18?"afternoon":"evening"}
 function greetK(k){
   var h=new Date().getHours();
-  if(k==="zh")return h<5?"夜深了，J.Nazreen":h<12?"早上好，J.Nazreen":h<18?"下午好，J.Nazreen":"晚上好，J.Nazreen";
-  if(k==="ms")return h<5?"Lewat malam, J.Nazreen":h<11?"Selamat pagi, J.Nazreen":h<15?"Selamat tengah hari, J.Nazreen":h<19?"Selamat petang, J.Nazreen":"Selamat malam, J.Nazreen";
-  if(k==="ru")return h<5?"Работаете допоздна, J.Nazreen":h<12?"Доброе утро, J.Nazreen":h<18?"Добрый день, J.Nazreen":"Добрый вечер, J.Nazreen";
-  if(k==="ja")return h<5?"夜遅くまでお疲れ様です、J.Nazreen":h<11?"おはようございます、J.Nazreen":h<18?"こんにちは、J.Nazreen":"こんばんは、J.Nazreen";
-  return h<5?"Burning the midnight oil, J.Nazreen":"Good "+part()+", J.Nazreen";
+  if(k==="zh")return h<5?"夜深了，先生":h<12?"早上好，先生":h<18?"下午好，先生":"晚上好，先生";
+  if(k==="ms")return h<5?"Lewat malam, Tuan":h<11?"Selamat pagi, Tuan":h<15?"Selamat tengah hari, Tuan":h<19?"Selamat petang, Tuan":"Selamat malam, Tuan";
+  if(k==="ru")return h<5?"Работаете допоздна, сэр":h<12?"Доброе утро, сэр":h<18?"Добрый день, сэр":"Добрый вечер, сэр";
+  if(k==="ja")return h<5?"夜遅くまでお疲れ様です、サー":h<11?"おはようございます、サー":h<18?"こんにちは、サー":"こんばんは、サー";
+  return h<5?"Burning the midnight oil, Sir":"Good "+part()+", Sir";
 }
 function greet(){return greetK("en")}
 function buildGreeting(w,k,wake){
-  var pre=wake?LT("Welcome home, J.Nazreen","Selamat pulang, J.Nazreen","欢迎回家，J.Nazreen",k,"С возвращением домой, J.Nazreen","おかえりなさい、J.Nazreen"):greetK(k);
+  var pre=wake?LT("Welcome home, Sir","Selamat pulang, Tuan","欢迎回家，先生",k,"С возвращением домой, сэр","おかえりなさい、サー"):greetK(k);
   var s=pre+LT(". It is "+timeK("en")+", "+dateK("en")+".",". Sekarang "+timeK("ms")+", "+dateK("ms")+".","。现在是"+timeK("zh")+"，"+dateK("zh")+"。",k,". Сейчас "+timeK("ru")+", "+dateK("ru")+".","。現在は"+timeK("ja")+"、"+dateK("ja")+"です。");
   if(w)s+=" "+wxShort(w,k);
   s+=" "+LT("All systems are green.","Semua sistem hijau.","所有系统正常。",k,"Все системы в норме.","全システム正常です。");
@@ -1066,12 +1084,12 @@ function wishK(k,h){
 }
 function startGreeting(w,k){
   var h=new Date().getHours(),pre=greetK(k);
-  var s=pre+LT(". It is "+timeK("en")+".",". Sekarang "+timeK("ms")+".","。现在是"+timeK("zh")+"。",k,". Сейчас "+timeK("ru")+".","。現在は"+timeK("ja")+"です。");
+  var s=pre+LT(". "+timeK("en")+".",". Pukul "+timeK("ms").replace(/^pukul /,"")+".","。"+timeK("zh")+"。",k,". "+timeK("ru")+".","。"+timeK("ja")+"。");
   if(w){
     var pl=placeName(w.place,k),d=wxDesc(w,k);
     s+=" "+LT("In "+pl+", "+w.t+" degrees and "+d+".","Di "+pl+", "+w.t+" darjah dan "+d+".",pl+"目前"+w.t+"度，"+d+"。",k,"В "+pl+" сейчас "+w.t+" градусов, "+d+".",pl+"は現在"+w.t+"度、"+d+"です。");
   }
-  return s+" "+randQuote(k)+" "+wishK(k,h);
+  return s+" "+wishK(k,h);
 }
 /* ---------- Waze ---------- */
 var pendingNav=false;
@@ -1162,7 +1180,7 @@ function special(text){
     if(!mem.length)return{sync:R(LT("Nothing yet. Tell me about yourself and I will remember the lasting parts.","Belum ada. Ceritakan tentang diri anda dan saya akan ingat.","还没有。多告诉我一些，我会记住重点。"))};
     return{sync:R(LT("Here is what I know. ","Ini yang saya tahu. ","这是我记得的。")+mem.slice(-8).map(function(x,i){return(i+1)+", "+x.t}).join(". "))};
   }
-  if(/^(forget everything( you learned)?|clear (your )?memory|wipe (your )?memory)$/.test(n)){mem=[];memSave();return{sync:R(LT("Memory wiped. Fresh start, boss.","Memori dipadam. Mula baru, bos.","记忆已清空，老板。"))}}
+  if(/^(forget everything( you learned)?|clear (your )?memory|wipe (your )?memory)$/.test(n)){mem=[];memSave();return{sync:R(LT("Memory wiped. Fresh start, Sir.","Memori dipadam. Mula baru, tuan.","记忆已清空，先生。"))}}
   var fm=n.match(/^forget (?:that |about |the )?(.{3,60})$/);
   if(fm&&!/^(it|that|this)$/.test(fm[1])){
     var key=fm[1],before=mem.length;mem=mem.filter(function(x){return x.t.toLowerCase().indexOf(key)<0});memSave();
@@ -1183,7 +1201,7 @@ function local(raw){
   nn=numify(n);
 
   m=body.match(/^remember(?: that)?[\s,:-]+(.+)/i);
-  if(m){memAdd(m[1].trim());return R(LT("Locked in, boss. I will remember that.","Baik, bos. Saya akan ingat.","记住了，老板。",null,"Запомнил, босс.","覚えました、ボス。"))}
+  if(m){memAdd(m[1].trim());return R(LT("Locked in, Sir. I will remember that.","Baik, tuan. Saya akan ingat.","记住了，先生。",null,"Запомнил, сэр.","覚えました、サー。"))}
 
   if(/^(read|show|list|what are) (me )?(my |the )?notes$/.test(n)||/^(my )?notes$/.test(n)){
     var ls=notes.split("\n").map(function(x){return x.replace(/^[-\s]+/,"").trim()}).filter(Boolean).slice(-5);
@@ -1195,7 +1213,7 @@ function local(raw){
   if(m){tasks.push({t:m[1].trim(),d:false});saveTasks();return R("Task "+tasks.length+" added: "+m[1].trim()+".")}
   if(/^(my tasks|list tasks|show tasks|show my tasks|read my tasks|what are my tasks|to do list|todo list|my to do list|f12 list|what is on my list)$/.test(n)){
     var ot=openTasks();
-    if(!ot.length)return R("No open tasks. Clean slate, boss.");
+    if(!ot.length)return R("No open tasks. Clean slate, Sir.");
     return R("You have "+ot.length+" open "+(ot.length>1?"tasks":"task")+". "+ot.slice(0,8).map(function(x){return x.n+", "+x.t}).join(". "));
   }
   m=nn.match(/^(?:done|finish|finished|complete|completed|tick off)\s+(?:task\s+)?(\d+)$/);
@@ -1204,24 +1222,24 @@ function local(raw){
 
   if(/^(stop|cancel|clear|kill|end) (my |the |all |every )?(timers?|alarms?|reminders?)/.test(nn)){
     var c=timers.length;timers.forEach(function(x){clearTimeout(x.tid)});timers=[];hud();
-    return R(c?"Done. "+c+(c>1?" timers":" timer")+" cancelled.":"No timers running, boss.");
+    return R(c?"Done. "+c+(c>1?" timers":" timer")+" cancelled.":"No timers running, Sir.");
   }
   if(/(timer status|how long (is )?(left|remaining)|time left|any timers|timers running|how much time)/.test(nn)){
     if(!timers.length)return R("No timers running.");
     return R("You have "+timers.map(function(x){return words(x.end-Date.now())+(x.label?" for "+x.label:"")}).join(", and ")+" left.");
   }
   if(/\balarm\b.*\d+\s*(am|pm|a m|p m)/.test(nn)||/wake me/.test(nn)){
-    return R("Clock alarms need the Clock app, boss. I can run countdown timers. Try: set a timer for 30 minutes.");
+    return R("Clock alarms need the Clock app, Sir. I can run countdown timers. Try: set a timer for 30 minutes.");
   }
   m=nn.match(/(\d+(?:\.\d+)?)\s*(seconds?|secs?|minutes?|mins?|hours?|hrs?)\b/);
   if(m&&/(timer|remind|countdown)/.test(nn)){
     var mult=/^h/.test(m[2])?3600000:/^m/.test(m[2])?60000:1000;
     var ms=Math.max(1000,Math.round(parseFloat(m[1])*mult));
-    if(ms>86400000)return R("That is over 24 hours. Pick something shorter, boss.");
+    if(ms>86400000)return R("That is over 24 hours. Pick something shorter, Sir.");
     var rest=nn.slice(nn.indexOf(m[0])+m[0].length),lm=/remind/.test(nn)?rest.match(/\bto\s+(.+)$/):null;
     var label=lm?lm[1]:"";
     addTimer(ms,label);hud();
-    return R("Timer set for "+words(ms)+(label?", to "+label:"")+". Keep me open until it goes off, boss.");
+    return R("Timer set for "+words(ms)+(label?", to "+label:"")+". Keep me open until it goes off, Sir.");
   }
 
   if(/^(calculate|compute|what is|what s|whats|how much is)\s/.test(nn)||/^[\d\s.+\-*\/x()%]+$/.test(nn)){
@@ -1259,22 +1277,22 @@ function local(raw){
   if(m){
     var L=parseLinks(),key=m[1].trim(),hit=null;
     L.forEach(function(x){var nm=x.name.toLowerCase();if(!hit&&(nm.indexOf(key)>-1||key.indexOf(nm)>-1))hit=x});
-    if(hit)return R("Here you go, boss. Tap to open "+hit.name+".",[hit]);
+    if(hit)return R("Here you go, Sir. Tap to open "+hit.name+".",[hit]);
     return R("I do not have that link yet. Add it in CONFIG under quick links.");
   }
 
-  if(/^(hi|hello|hey|yo|sup|wassup|good (morning|afternoon|evening|night)|whats up)( there| boss| bro| broski)?$/.test(n)){
-    return R(pick([greet()+". What are we building?","At your service, boss. "+(new Date().getHours()<5?"Late one tonight.":"Good "+part()+"."),"Online and ready, J.Nazreen."]));
+  if(/^(hi|hello|hey|yo|sup|wassup|good (morning|afternoon|evening|night)|whats up)( there| boss| sir| bro| broski)?$/.test(n)){
+    return R(pick([greet()+". What are we building?","At your service, Sir. "+(new Date().getHours()<5?"Late one tonight.":"Good "+part()+"."),"Online and ready, Sir."]));
   }
   if(/(who are you|what are you|your name)/.test(n)){return R("I am Jarvis, your personal system, built by you and Claude on an iPhone 11. Veni. Vidi. Vici.")}
-  if(/^(thanks|thank you|thankyou|appreciate it|cheers)( jarvis| boss| bro)?$/.test(n)){return R(pick(["Anytime, boss.","Always, J.Nazreen.","Do not mention it."]))}
+  if(/^(thanks|thank you|thankyou|appreciate it|cheers)( jarvis| boss| sir| bro)?$/.test(n)){return R(pick(["Anytime, Sir.","Always, Sir.","Do not mention it."]))}
   if(/^(status|system check|diagnostics|system status|status report)$/.test(n)){
     return R("All systems online. Version "+VER+". Brain is "+(cfg.key?PROV[cfg.prov].name:"local")+". "+openTasks().length+(openTasks().length===1?" open task, ":" open tasks, ")+timers.length+(timers.length===1?" timer running.":" timers running."));
   }
   if(/(motto|mantra|creed)/.test(n)){return R("Veni. Vidi. Vici. I came, I saw, I conquered.")}
   if(/\bjoke\b/.test(n)){
     return R(pick([
-      "Why did the rapper bring a ladder? To reach the next level, boss.",
+      "Why did the rapper bring a ladder? To reach the next level, Sir.",
       "Why do programmers prefer dark mode? Because light attracts bugs.",
       "I would tell you a UDP joke, but you might not get it.",
       "My battery and I have a lot in common. We both run low when it matters.",
@@ -1291,6 +1309,10 @@ function local(raw){
   }
   return null;
 }
+var PRECISION_NOTE="\n\nPRECISION RULES: Accuracy comes before speed or flair. Do not state a fact, number, date, name or quote unless you are confident; if unsure say you are not certain, give your best estimate and how to check it. Never invent sources, links, prices or statistics. Do arithmetic carefully and double-check it before speaking. Answer the exact question he asked, in his own terms, without drifting to a related topic. His words come from speech recognition and may contain mishearings, especially names and Malay or mixed-language terms: read for the most plausible meaning, and when two readings would change the answer, say which one you chose in a few words, or ask. Use the earlier conversation and what you know about him before asking him again. Give what was asked and no unrequested extras.";
+var ADDRESS_NOTE="\n\nADDRESS: Call him Sir (in Malay, Tuan). Never call him boss or bos. Use it naturally, not in every sentence.";
+var CORR_NOTE="\n\nHE MAY BE CORRECTING YOU. If his message corrects you: admit it in five words or fewer, no grovelling, restate the corrected fact exactly as he gave it, then answer again properly, and save the corrected fact with a [[remember: ...]] tag. If it is not a correction, ignore this.";
+var CORR_RE=/^\s*(no|nope|wrong|not that|that'?s (not|wrong|incorrect)|incorrect|actually|i said|i meant|i mean|bukan|salah|tak betul|不是|不对|错了|нет|неправильно|違う|ちがう)(\W|$)|(you('| a)?re wrong|that is wrong|that's not right|not what i (said|asked|meant))/i;
 function systemPrompt(){
   var s=soul+"\n\n"+(MODES[cfg.mode]||MODES.assist);
   if(notes.trim())s+="\n\nNOTES ABOUT NAZREEN (from him):\n"+notes.trim();
@@ -1301,6 +1323,7 @@ function systemPrompt(){
   if(mem.length)s+="\n\nWHAT YOU HAVE LEARNED ABOUT HIM (use it naturally, never recite it):\n"+mem.slice(-40).map(function(x){return"- "+x.t}).join("\n");
   if(cfg.learn!=="0")s+=MEM_NOTE;
   s+=(cfg.mode==="code"?"":(STYLE_NOTE[cfg.style]||STYLE_NOTE.crisp));
+  s+=PRECISION_NOTE+ADDRESS_NOTE;
   s+="\n\nNow: "+new Date().toString();
   return s;
 }
@@ -1360,7 +1383,8 @@ function streamBrain(msgs,sys,onDelta){
     url=base+"/chat/completions";
     headers["authorization"]="Bearer "+cfg.key;
     body={model:(cfg.prov==="groq"&&msgs.some(function(m){return m.img}))?cfg.vis:mdl(),max_tokens:maxT(),messages:[{role:"system",content:sys}].concat(vm(msgs,"oai")),stream:true};
-    if(cfg.prov==="groq"&&/gpt-oss/i.test(cfg.model))body.reasoning_effort=deepNow?"high":"low";
+    if(cfg.prov==="groq"&&/gpt-oss/i.test(cfg.model)){var lm=String((msgs[msgs.length-1]||{}).content||"");body.reasoning_effort=deepNow?"high":((lm.split(/\s+/).length<=5&&!/\d/.test(lm))?"low":"medium")}
+    body.temperature=deepNow?0.3:0.4;
     pickT=function(o){
       if(o.error)throw new Error(typeof o.error==="string"?o.error:(o.error.message||"Stream error"));
       var c=o.choices&&o.choices[0];
@@ -1489,7 +1513,7 @@ function paintConv(){$("talkBtn").classList.toggle("on",conv.on)}
 function convOn(){
   unlockSpeech();ctx();standbyPause();cancelSpeech();
   conv.on=true;conv.miss=0;paintConv();wlOn();curK=lkey();
-  var g=pick([LT("I'm all ears, J.Nazreen.","Saya mendengar, J.Nazreen.","我在听，请说。",null,"Слушаю вас, J.Nazreen.","お聞きしています、J.Nazreen。"),LT("Go ahead, I'm listening.","Silakan, saya mendengar.","请说，我在听。",null,"Говорите, я слушаю.","どうぞ、お話しください。")]);
+  var g=pick([LT("I'm all ears, Sir.","Saya mendengar, Tuan.","我在听，请说。",null,"Слушаю вас, сэр.","お聞きしています、サー。"),LT("Go ahead, I'm listening.","Silakan, saya mendengar.","请说，我在听。",null,"Говорите, я слушаю.","どうぞ、お話しください。")]);
   add("a",g);speak(g);bargeWatch();
   afterSpeech(function(){if(conv.on)startListen(true)});
 }
@@ -1870,13 +1894,13 @@ function send(text){
   }
   if(!cfg.key){
     add("u",text);hist.push({role:"user",content:text});
-    reply("I am in command mode, J.Nazreen, no brain linked. Say help to hear what I can do, or add a key in CONFIG for full conversation.");
+    reply("I am in command mode, Sir, no brain linked. Say help to hear what I can do, or add a key in CONFIG for full conversation.");
     return;
   }
   busy=true;
   hist.push({role:"user",content:text});
   add("u",text);
-  var msgs=hist.slice(-10);
+  var msgs=hist.slice(-14);
   while(msgs.length&&msgs[0].role!=="user")msgs.shift();
   if(liveWanted(text)){
     setState("think","searching the web...");
@@ -1898,7 +1922,7 @@ function runStream(msgs){
   var bub=null,spoken=0,acc="";
   var hold=false;
   if(cfg.speak==="1"){speechBegin();hold=saverActive();if(deepNow)queueSpeech(fillerLine(),hold?{device:true}:null)}
-  streamBrain(msgs,systemPrompt()+(deepNow?DEEP_NOTE:"")+(msgs.some(function(m){return m.img})?VIS_NOTE:""),function(t,all){
+  streamBrain(msgs,systemPrompt()+(deepNow?DEEP_NOTE:"")+(CORR_RE.test(String((msgs[msgs.length-1]||{}).content||""))?CORR_NOTE:"")+(msgs.some(function(m){return m.img})?VIS_NOTE:""),function(t,all){
     acc=all;
     if(!bub){bub=add("a","");if(cfg.speak!=="1")setState("think","replying...")}
     fmt(bub,stripMem(all));$("log").scrollTop=$("log").scrollHeight;
@@ -2013,7 +2037,7 @@ function standbyWake(chunk,w){
   if(!w.home&&/(^|\W)yo(\W|$)/i.test(chunk)&&rest.length<3){add("s","// heard: yo jarvis");send("Yo Jarvis");return}
   if(!w.home&&rest.length>2){add("s","// heard: "+rest);send(rest);return}
   curK=lkey();
-  var ack=w.home?LT("Welcome home, J.Nazreen. All systems are green. What do you need?","Selamat pulang, J.Nazreen. Semua sistem hijau. Apa yang anda perlukan?","欢迎回家，J.Nazreen。所有系统正常。需要什么？",null,"С возвращением домой, J.Nazreen. Все системы в норме. Что вам нужно?","おかえりなさい、J.Nazreen。全システム正常です。ご用件は？"):pick([LT("Yes, J.Nazreen?","Ya, J.Nazreen?","请说，J.Nazreen。",null,"Да, J.Nazreen?","はい、J.Nazreen？"),LT("Listening.","Saya mendengar.","我在听。",null,"Слушаю.","聞いています。"),LT("At your service.","Sedia membantu.","随时为您效劳。",null,"К вашим услугам.","お任せください。")]);
+  var ack=w.home?LT("Welcome home, Sir. All systems are green. What do you need?","Selamat pulang, Tuan. Semua sistem hijau. Apa yang anda perlukan?","欢迎回家，先生。所有系统正常。需要什么？",null,"С возвращением домой, сэр. Все системы в норме. Что вам нужно?","おかえりなさい、サー。全システム正常です。ご用件は？"):pick([LT("Yes, Sir?","Ya, Tuan?","请说，先生。",null,"Да, сэр?","はい、サー？"),LT("Listening.","Saya mendengar.","我在听。",null,"Слушаю.","聞いています。"),LT("At your service.","Sedia membantu.","随时为您效劳。",null,"К вашим услугам.","お任せください。")]);
   add("a",ack);speak(ack);
   afterSpeech(function(){startListen(true)});
 }
@@ -2157,7 +2181,7 @@ $("voAll").addEventListener("click",function(){
     var row=document.createElement("div");row.className="vrow";
     var b=document.createElement("button");b.type="button";b.className="nm";b.textContent=v.name+" · "+v.lang+(v.localService===false?" · online":"");
     b.onclick=function(){
-      try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance("Good day, J.Nazreen. This is "+v.name+".");u.voice=v;u.lang=v.lang;u.rate=cfg.rate;u.pitch=cfg.pitch;speechSynthesis.speak(u)}catch(e){}
+      try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance("Good day, Sir. This is "+v.name+".");u.voice=v;u.lang=v.lang;u.rate=cfg.rate;u.pitch=cfg.pitch;speechSynthesis.speak(u)}catch(e){}
       var k=vkey(v);if(map[k]&&$(map[k])){$(map[k]).value=v.voiceURI;b.style.borderColor="var(--c)"}
     };
     row.appendChild(b);box.appendChild(row);
@@ -2165,7 +2189,7 @@ $("voAll").addEventListener("click",function(){
 });
 $("testVoice").addEventListener("click",function(){
   unlockSpeech();commitVoice();cancelSpeech();sp.muted=false;sp.dev=false;
-  queueSpeech("Good evening, J.Nazreen. All systems are green. Selamat petang, semua sistem sedia. 晚上好，所有系统正常。 Добрый вечер, все системы в норме. こんばんは、全システム正常です。",{force:true});
+  queueSpeech("Good evening, Sir. All systems are green. Selamat petang, semua sistem sedia. 晚上好，所有系统正常。 Добрый вечер, все системы в норме. こんばんは、全システム正常です。",{force:true});
 });
 $("jarvisPreset").addEventListener("click",function(){$("rate").value=0.95;$("pitch").value=0.82;paintSliders()});
 $("elCheck").addEventListener("click",function(){
@@ -2260,16 +2284,19 @@ $("wazeBtn").addEventListener("click",function(){
 /* ---------- boot: start lights ---------- */
 var wakeMode=false;
 try{wakeMode=new URLSearchParams(location.search).get("wake")==="1"}catch(e){}
-if(wakeMode){$("goBtn").textContent="YO JARVIS";$("bootSub").textContent="WELCOME BACK, J.NAZREEN"}
+if(wakeMode){$("goBtn").textContent="YO JARVIS"}
 var booted=false;
 $("goBtn").addEventListener("click",function(){
   if(booted)return;booted=true;
   ctx();unlockSpeech();
   $("goBtn").style.visibility="hidden";
+  var bst=$("bootStat"),blab=$("bootLab"),bbar=$("bootBar");bst.style.display="block";
+  var STEPS=["INITIALIZING","LOADING CORE","LINKING BRAIN","SYNCING SENSORS","SYSTEMS ONLINE"];
+  function bstat(n){blab.textContent=STEPS[n]+" \u00B7 "+((n+1)*20)+"%";bbar.style.width=((n+1)*20)+"%"}
   var gw=getWeather(false).then(function(w){return w},function(){return null});
   var lights=document.querySelectorAll("#lights i"),i=0;
   (function nx(){
-    if(i<lights.length){lights[i++].classList.add("on");setTimeout(nx,420)}
+    if(i<lights.length){bstat(i);lights[i++].classList.add("on");setTimeout(nx,420)}
     else{
       setTimeout(function(){
         Array.prototype.forEach.call(lights,function(l){l.classList.remove("on")});
@@ -2279,6 +2306,7 @@ $("goBtn").addEventListener("click",function(){
             curK=lkey();
             var g=startGreeting(w,curK);
             add("a",g);speak(g);
+            add("a","\u201C"+randQuote(curK)+"\u201D");
             if(wakeMode){conv.on=true;conv.miss=0;paintConv();wlOn();bargeWatch();afterSpeech(function(){if(conv.on)startListen(true)})}
             if(!w)gw.then(function(){paintWx()});
           },350);
