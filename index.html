@@ -925,7 +925,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v8.3";
+var VER="v8.4";
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1058,11 +1058,22 @@ function greetK(k){
 }
 function greet(){return greetK("en")}
 function buildGreeting(w,k,wake){
-  var pre=wake?LT("Welcome home, Sir","Selamat pulang, Tuan","欢迎回家，先生",k,"С возвращением домой, сэр","おかえりなさい、サー"):greetK(k);
+  var pre=(wake?LT("Welcome home, Sir","Selamat pulang, Tuan","欢迎回家，先生",k,"С возвращением домой, сэр","おかえりなさい、サー"):greetK(k)).replace(/[,\uff0c\u3001]\s?(Sir|Tuan|\u5148\u751f|\u0441\u044d\u0440|\u30b5\u30fc)$/,"");
   var s=pre+LT(". It is "+timeK("en")+", "+dateK("en")+".",". Sekarang "+timeK("ms")+", "+dateK("ms")+".","。现在是"+timeK("zh")+"，"+dateK("zh")+"。",k,". Сейчас "+timeK("ru")+", "+dateK("ru")+".","。現在は"+timeK("ja")+"、"+dateK("ja")+"です。");
   if(w)s+=" "+wxShort(w,k);
   s+=" "+LT("All systems are green.","Semua sistem hijau.","所有系统正常。",k,"Все системы в норме.","全システム正常です。");
-  return s;
+  return sirEnsure(s,k);
+}
+/* ---------- Sir at the end ---------- */
+var SIRW={en:"Sir",ms:"Tuan",zh:"\u5148\u751f",ru:"\u0441\u044d\u0440",ja:"\u30b5\u30fc"};
+var SIR_END=/(sir|tuan|\u5148\u751f|\u0441\u044d\u0440|\u30b5\u30fc)[\s.!?\u3002\uff01\uff1f"')\]]*$/i;
+function sirSep(k){return k==="zh"?"\uff0c":k==="ja"?"\u3001":", "}
+function sirEnsure(t,k){
+  t=String(t==null?"":t);var x=t.trim();
+  if(!x||x==="..."||/```/.test(x)||cfg.mode==="code"||SIR_END.test(x))return t;
+  k=k||curK;var w=SIRW[k]||"Sir",m=/([.!?\u2026\u3002\uff01\uff1f]+)(["')\]]*)\s*$/.exec(x);
+  if(m)return x.slice(0,m.index)+sirSep(k)+w+m[1]+m[2];
+  return x+sirSep(k)+w+((k==="zh"||k==="ja")?"\u3002":".");
 }
 /* ---------- short start-up greeting ---------- */
 var QUOTES={
@@ -1083,13 +1094,13 @@ function wishK(k,h){
   return(W[k]||W.en)[n];
 }
 function startGreeting(w,k){
-  var h=new Date().getHours(),pre=greetK(k);
+  var h=new Date().getHours(),pre=greetK(k).replace(/[,\uff0c\u3001]\s?(Sir|Tuan|\u5148\u751f|\u0441\u044d\u0440|\u30b5\u30fc)$/,"");
   var s=pre+LT(". "+timeK("en")+".",". Pukul "+timeK("ms").replace(/^pukul /,"")+".","。"+timeK("zh")+"。",k,". "+timeK("ru")+".","。"+timeK("ja")+"。");
   if(w){
     var pl=placeName(w.place,k),d=wxDesc(w,k);
     s+=" "+LT("In "+pl+", "+w.t+" degrees and "+d+".","Di "+pl+", "+w.t+" darjah dan "+d+".",pl+"目前"+w.t+"度，"+d+"。",k,"В "+pl+" сейчас "+w.t+" градусов, "+d+".",pl+"は現在"+w.t+"度、"+d+"です。");
   }
-  return s+" "+wishK(k,h);
+  return sirEnsure(s+" "+wishK(k,h),k);
 }
 /* ---------- Waze ---------- */
 var pendingNav=false;
@@ -1190,6 +1201,8 @@ function special(text){
   if(/(where am i|my (current )?location|share my location|send my location|where are we)/.test(n)||/(di mana saya|lokasi saya|saya kat mana|kat mana ni|lokasi semasa)/.test(n)||/(我在哪|我的位置|当前位置|分享位置)/.test(raw)||/(где я|моё местоположение|мое местоположение|где мы)/.test(n)||/(今どこ|現在地|私の位置|ここはどこ)/.test(raw))return{loc:true};
   if(n.split(" ").length<=8&&(/\b(klci|klse|bursa)\b|\b(stock|share) market\b|how('?s| is) the market|pasaran saham|股市|马股|биржа|株式市場/.test(n)||/(股市|马股|株式市場)/.test(raw)))return{mkt:true};
   if(/^(open |launch |go to |show |start )?(chio|chi o|trading lab|trading assistant)$/.test(n)){var cr=R(LT("Opening Chio, your trading maths assistant.","Membuka Chio, pembantu matematik dagangan anda.","正在打开Chio，您的交易数学助手。",null,"Открываю Chio, вашего помощника по математике трейдинга.","Chioを開きます。"),[{name:"Chio",url:"chio.html"}]);cr.nav="chio.html";return{sync:cr}}
+  var cyI=cryptoIntent(n);if(cyI)return{crypto:cyI};
+  if(paperIntent(n))return{paper:true};
   if(weatherIntent(raw,n))return{weather:true};
   return null;
 }
@@ -1310,7 +1323,7 @@ function local(raw){
   return null;
 }
 var PRECISION_NOTE="\n\nPRECISION RULES: Accuracy comes before speed or flair. Do not state a fact, number, date, name or quote unless you are confident; if unsure say you are not certain, give your best estimate and how to check it. Never invent sources, links, prices or statistics. Do arithmetic carefully and double-check it before speaking. Answer the exact question he asked, in his own terms, without drifting to a related topic. His words come from speech recognition and may contain mishearings, especially names and Malay or mixed-language terms: read for the most plausible meaning, and when two readings would change the answer, say which one you chose in a few words, or ask. Use the earlier conversation and what you know about him before asking him again. Give what was asked and no unrequested extras.";
-var ADDRESS_NOTE="\n\nADDRESS: Call him Sir (in Malay, Tuan). Never call him boss or bos. Use it naturally, not in every sentence.";
+var ADDRESS_NOTE="\n\nADDRESS: He is Sir (in Malay, Tuan). End every spoken reply with the word Sir as the very last word, for example: Done, Sir. or It is 391, Sir. Never call him boss or bos. Inside code blocks and code itself, leave it out.";
 var CORR_NOTE="\n\nHE MAY BE CORRECTING YOU. If his message corrects you: admit it in five words or fewer, no grovelling, restate the corrected fact exactly as he gave it, then answer again properly, and save the corrected fact with a [[remember: ...]] tag. If it is not a correction, ignore this.";
 var CORR_RE=/^\s*(no|nope|wrong|not that|that'?s (not|wrong|incorrect)|incorrect|actually|i said|i meant|i mean|bukan|salah|tak betul|不是|不对|错了|нет|неправильно|違う|ちがう)(\W|$)|(you('| a)?re wrong|that is wrong|that's not right|not what i (said|asked|meant))/i;
 function systemPrompt(){
@@ -1422,6 +1435,92 @@ function streamBrain(msgs,sys,onDelta){
     return pump();
   });
 }
+/* ---------- crypto and paper account (shared with Chio) ---------- */
+var COINS={bitcoin:"BTCUSDT",btc:"BTCUSDT",ethereum:"ETHUSDT",eth:"ETHUSDT",ether:"ETHUSDT",solana:"SOLUSDT",sol:"SOLUSDT",bnb:"BNBUSDT",xrp:"XRPUSDT",ripple:"XRPUSDT",doge:"DOGEUSDT",dogecoin:"DOGEUSDT",cardano:"ADAUSDT",ada:"ADAUSDT",avalanche:"AVAXUSDT",avax:"AVAXUSDT"};
+var CNAME={BTCUSDT:"Bitcoin",ETHUSDT:"Ethereum",SOLUSDT:"Solana",BNBUSDT:"BNB",XRPUSDT:"XRP",DOGEUSDT:"Dogecoin",ADAUSDT:"Cardano",AVAXUSDT:"Avalanche"};
+var BHOSTS=["https://data-api.binance.vision","https://api.binance.com","https://api1.binance.com"];
+function bfetch(path){
+  var i=0;
+  function nx(){
+    if(i>=BHOSTS.length)return Promise.reject(new Error("exchange unreachable"));
+    return withTO(fetch(BHOSTS[i++]+path).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}),8000).catch(nx);
+  }
+  return nx();
+}
+function cryptoIntent(n){
+  if(n.split(" ").length>8)return null;
+  var m=n.match(/\b(bitcoin|btc|ethereum|ether|eth|solana|sol|bnb|xrp|ripple|doge|dogecoin|cardano|ada|avalanche|avax)\b/);
+  if(!m)return null;
+  var c=m[1],core="(how( is|s| are)|whats|what is|check|show( me)?|tell me|give me|update on|status of|any news on)? ?(the )?(current |live |latest )?(price of |value of )?";
+  var re=new RegExp("^"+core+c+"( doing| price| now| today| update| status| value| right now| at)?( now| today| right now)?$");
+  if(re.test(n))return COINS[c];
+  if(new RegExp("^(how much is|how much for|what is|whats) (one |1 |a )?"+c+"( worth| now| today| right now)?$").test(n))return COINS[c];
+  if(new RegExp("^(harga|berapa harga) "+c+"( sekarang| hari ini)?$").test(n))return COINS[c];
+  return null;
+}
+function paperIntent(n){
+  if(n.split(" ").length>9)return false;
+  return /^(how( is|s)|whats|what is|check|show( me)?|tell me|give me|update on)? ?(my |the )?(paper|practice|trading|crypto) (account|portfolio|balance|trades|positions?|pnl|p l|profit)( doing| now| today| status| update)?$/.test(n)||/^(how( is|s)|whats|what is|check|show( me)?) (my )?(portfolio|paper pnl|paper trading)( doing| now| today)?$/.test(n);
+}
+function fxGet(){
+  var c=null;try{c=JSON.parse(ld("jt_fx","null"))}catch(e){}
+  if(c&&c.r>0&&Date.now()-c.t<12*3600000)return Promise.resolve(c.r);
+  var urls=["https://api.frankfurter.dev/v1/latest?base=USD&symbols=MYR","https://open.er-api.com/v6/latest/USD","https://api.frankfurter.app/latest?from=USD&to=MYR"],i=0;
+  function nx(){
+    if(i>=urls.length)return Promise.resolve(c&&c.r>0?c.r:0);
+    return withTO(fetch(urls[i++]).then(function(r){return r.json()}),7000).then(function(j){var r=j&&j.rates&&+j.rates.MYR;if(!(r>0))throw new Error("no rate");sv("jt_fx",JSON.stringify({r:r,t:Date.now()}));return r}).catch(nx);
+  }
+  return nx();
+}
+function getCoin(sym){
+  return bfetch("/api/v3/ticker/24hr?symbol="+sym).then(function(j){return{sym:sym,px:+j.lastPrice,pct:+j.priceChangePercent}}).catch(function(){
+    return withTO(fetch("https://api.bybit.com/v5/market/tickers?category=spot&symbol="+sym).then(function(r){return r.json()}),8000).then(function(j){var l=j&&j.result&&j.result.list&&j.result.list[0];if(!l)throw new Error("no data");return{sym:sym,px:+l.lastPrice,pct:+l.price24hPcnt*100}});
+  }).then(function(c){
+    if(!isFinite(c.px))throw new Error("bad price");
+    return fxGet().then(function(r){c.fx=r;return c});
+  }).catch(function(){return null});
+}
+function pxN(x){return x>=1000?fN(x,0):x>=1?fN(x,2):fN(x,4)}
+function coinSay(c,k,brief){
+  var nm=CNAME[c.sym]||c.sym.replace("USDT",""),up=c.pct>=0,a=fN(Math.abs(c.pct),1),p=pxN(c.px),rm=c.fx>0?pxN(c.px*c.fx):"";
+  if(brief)return LT(nm+", "+p+" dollars, "+(up?"up ":"down ")+a+" percent.",nm+", "+p+" dolar, "+(up?"naik ":"turun ")+a+" peratus.",nm+"现价"+p+"美元，"+(up?"上涨":"下跌")+a+"%。",k,nm+": "+p+" долларов, "+(up?"рост ":"снижение ")+a+" процента.",nm+"は"+p+"ドル、"+(up?"上昇":"下落")+a+"パーセントです。");
+  return LT(nm+" is at "+p+" dollars, "+(up?"up ":"down ")+a+" percent in the last 24 hours."+(rm?" That is about "+rm+" ringgit.":""),
+    nm+" berada pada "+p+" dolar, "+(up?"naik ":"turun ")+a+" peratus dalam 24 jam lepas."+(rm?" Kira-kira "+rm+" ringgit.":""),
+    nm+"现价"+p+"美元，24小时内"+(up?"上涨":"下跌")+a+"%。"+(rm?"约合"+rm+"令吉。":""),k,
+    nm+" сейчас "+p+" долларов, "+(up?"рост ":"снижение ")+a+" процента за 24 часа."+(rm?" Это примерно "+rm+" ринггит.":""),
+    nm+"は"+p+"ドル、24時間で"+(up?"上昇":"下落")+a+"パーセントです。"+(rm?"約"+rm+"リンギットです。":""));
+}
+function readPaper(){
+  var P=null;try{P=JSON.parse(ld("jt_paper","null"))}catch(e){}
+  return(P&&typeof P.cash==="number"&&P.start>0)?P:null;
+}
+function getPaper(){
+  var P=readPaper();if(!P)return Promise.resolve({none:true});
+  var syms=Object.keys(P.pos||{}),pr=syms.length?bfetch("/api/v3/ticker/price?symbols="+encodeURIComponent(JSON.stringify(syms))).then(function(rows){var o={};rows.forEach(function(r){o[r.symbol]=+r.price});return o}).catch(function(){return{}}):Promise.resolve({});
+  return Promise.all([pr,fxGet()]).then(function(a){
+    var px=a[0],fx=a[1],eq=P.cash,list=[];
+    syms.forEach(function(sy){
+      var p=P.pos[sy],x=isFinite(px[sy])?px[sy]:p.avg,cost=p.cost||p.avg*p.qty;
+      eq+=p.qty*x;list.push({sym:sy,qty:p.qty,pct:(x*0.9995*0.999*p.qty)/cost-1});
+    });
+    return{eq:eq,pct:eq/P.start-1,list:list,fx:fx,myr:ld("jt_cur","USDT")==="MYR"&&fx>0,none:false};
+  });
+}
+function paperAmt(p,k){return p.myr?pxN2(p.eq*p.fx)+LT(" ringgit"," ringgit","令吉",k,"ринггит","リンギット"):pxN2(p.eq)+LT(" dollars"," dolar","美元",k,"долларов","ドル")}
+function pxN2(x){return fN(x,0)}
+function paperSay(p,k,brief){
+  if(p.none)return LT("You have not started paper trading yet. Open Chio and make your first practice trade.","Anda belum mula dagangan kertas. Buka Chio dan buat dagangan latihan pertama.","您还没有开始模拟交易。请打开Chio进行第一笔练习交易。",k,"Вы ещё не начали бумажную торговлю. Откройте Chio и сделайте первую тренировочную сделку.","ペーパートレードはまだ始まっていません。Chioを開いて最初の練習取引をしてください。");
+  var up=p.pct>=0,a=fN(Math.abs(p.pct*100),2),amt=paperAmt(p,k);
+  var s=LT("Paper account, "+amt+", "+(up?"up ":"down ")+a+" percent since you started.","Akaun kertas, "+amt+", "+(up?"naik ":"turun ")+a+" peratus sejak anda mula.","模拟账户"+amt+"，自开始以来"+(up?"上涨":"下跌")+a+"%。",k,"Бумажный счёт: "+amt+", "+(up?"рост ":"снижение ")+a+" процента с начала.","ペーパー口座は"+amt+"、開始から"+(up?"上昇":"下落")+a+"パーセントです。");
+  if(brief)return s;
+  if(p.list.length){
+    s+=" "+p.list.slice(0,2).map(function(h){
+      var nm=CNAME[h.sym]||h.sym.replace("USDT",""),u=h.pct>=0,q=h.qty>=1?fN(h.qty,2):fN(h.qty,4);
+      return LT("You hold "+q+" "+nm+", "+(u?"up ":"down ")+fN(Math.abs(h.pct*100),1)+" percent.","Anda pegang "+q+" "+nm+", "+(u?"naik ":"turun ")+fN(Math.abs(h.pct*100),1)+" peratus.","您持有"+q+"个"+nm+"，"+(u?"上涨":"下跌")+fN(Math.abs(h.pct*100),1)+"%。",k,"У вас "+q+" "+nm+", "+(u?"рост ":"снижение ")+fN(Math.abs(h.pct*100),1)+" процента.",nm+"を"+q+"保有、"+(u?"上昇":"下落")+fN(Math.abs(h.pct*100),1)+"パーセントです。");
+    }).join(" ");
+  }else s+=" "+LT("No open positions.","Tiada kedudukan terbuka.","没有持仓。",k,"Открытых позиций нет.","ポジションはありません。");
+  return s;
+}
 /* ---------- live knowledge and briefing ---------- */
 var LIVE_NOTE="\n\nLIVE SEARCH: use fresh web results. Answer in two or three short spoken sentences. Name the source outlet in words, never read out web addresses.";
 var LIVE_ASK=/(^|\W)(search|look up|lookup|google|find out|browse)(\W|$)|搜索|查一下|上网查|(^|\W)cari(kan)?(\W|$)/i;
@@ -1451,10 +1550,14 @@ function newsPrompt(k){return LT("In one short sentence each, give the two bigge
 function briefing(k){
   var wp=withTO(getWeather(false),5000).catch(function(){return null});
   var hp=(liveSupported()&&cfg.live!=="off")?withTO(liveBrain([{role:"user",content:newsPrompt(k)}],"You are a concise news desk."+LIVE_NOTE),10000).catch(function(){return""}):Promise.resolve("");
-  return Promise.all([wp,hp]).then(function(r){
+  var mp=withTO(getMarket(false),5000).catch(function(){return null}),cp=withTO(getCoin("BTCUSDT"),6000).catch(function(){return null}),pp=withTO(getPaper(),6000).catch(function(){return null});
+  return Promise.all([wp,hp,mp,cp,pp]).then(function(r){
     var w=r[0],h=String(r[1]||"").replace(/\s+/g," ").trim(),ot=openTasks(),n=ot.length;
-    var s=buildGreeting(null,k,false).replace(/\s+(All systems are green\.|Semua sistem hijau\.|所有系统正常。|Все системы в норме\.|全システム正常です。)$/,"");
+    var s=buildGreeting(null,k,false).replace(/\s+(All systems are green|Semua sistem hijau|所有系统正常|Все системы в норме|全システム正常です)([,\uff0c\u3001]\s?(Sir|Tuan|\u5148\u751f|\u0441\u044d\u0440|\u30b5\u30fc))?[.\u3002]$/,"");
     if(w)s+=" "+wxShort(w,k);
+    if(r[2]&&r[2].lvl)s+=" "+mkSay(r[2]);
+    if(r[3])s+=" "+coinSay(r[3],k,true);
+    if(r[4]&&!r[4].none)s+=" "+paperSay(r[4],k,true);
     var items=ot.slice(0,3).map(function(x){return x.t}).join(k==="zh"||k==="ja"?"、":"; ");
     s+=" "+(n?LT("You have "+n+" open "+(n>1?"tasks":"task")+". "+items+".","Anda ada "+n+" tugasan terbuka. "+items+".","您有"+n+"项待办任务。"+items+"。",k,"У вас открытых задач: "+n+". "+items+".","未完了のタスクは"+n+"件です。"+items+"。"):LT("Your task list is clear.","Senarai tugasan anda kosong.","您没有待办任务。",k,"Список задач пуст.","タスクはありません。"));
     if(timers.length)s+=" "+LT("You have "+timers.length+" timer"+(timers.length>1?"s":"")+" running.","Ada "+timers.length+" pemasa sedang berjalan.","有"+timers.length+"个计时器正在运行。",k,"Запущено таймеров: "+timers.length+".","タイマーが"+timers.length+"件動作中です。");
@@ -1797,6 +1900,7 @@ var STYLE_NOTE={
 };
 function mdl(){return(deepNow&&cfg.deepModel)?cfg.deepModel:cfg.model}
 function reply(text,links){
+  text=sirEnsure(text);
   hist.push({role:"assistant",content:text});saveHist();
   add("a",text,links);speak(text);
 }
@@ -1861,6 +1965,20 @@ function send(text){
     if(sx.brief){
       busy=true;setState("think","preparing your briefing...");
       briefing(curK).then(function(t){busy=false;reply(t)}).catch(function(){busy=false;reply(buildGreeting(null,curK,false))});
+      return;
+    }
+    if(sx.crypto){
+      busy=true;setState("think","checking "+(CNAME[sx.crypto]||"crypto")+"...");
+      getCoin(sx.crypto).then(function(c){
+        busy=false;
+        if(!c){reply(LT("I cannot reach the crypto market right now.","Saya tidak dapat pasaran kripto sekarang.","目前无法获取加密货币市场数据。",null,"Сейчас нет данных по крипторынку.","暗号資産市場に接続できません。"));return}
+        reply(coinSay(c,curK),[{name:"Chio",url:"chio.html"}]);
+      });
+      return;
+    }
+    if(sx.paper){
+      busy=true;setState("think","checking your paper account...");
+      getPaper().then(function(p){busy=false;reply(paperSay(p,curK),p.none?null:[{name:"Chio",url:"chio.html"}])}).catch(function(){busy=false;reply(LT("I cannot reach the market to value your paper account.","Saya tidak dapat pasaran untuk menilai akaun kertas anda.","无法获取行情来估值您的模拟账户。",null,"Не могу получить котировки для оценки счёта.","市場に接続できず、口座を評価できません。"))});
       return;
     }
     if(sx.mkt){
@@ -1932,10 +2050,12 @@ function runStream(msgs){
   }).then(function(out){
     busy=false;
     memScan(out);out=stripMem(out||"").trim()||"...";
+    var fx0=sirEnsure(out),tail0=speakable(out);
+    if(fx0!==out){tail0=(spoken<tail0.length)?speakable(fx0):tail0+" "+(SIRW[curK]||"Sir")+".";out=fx0}
     if(!bub)bub=add("a","");
     fmt(bub,out);$("log").scrollTop=$("log").scrollHeight;
     hist.push({role:"assistant",content:out});saveHist();
-    speakFlush(speakable(out),spoken);
+    speakFlush(tail0,spoken);
     if(cfg.speak!=="1")idle();
   }).catch(function(e){
     busy=false;
