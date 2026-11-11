@@ -624,7 +624,7 @@ function fishFetch(text){
   }).then(function(b){
     if(!b||!b.size){var e=new Error("empty audio");e.prov="fish";throw e}
     return URL.createObjectURL(new Blob([b],{type:"audio/mpeg"}));
-  }).catch(function(e){if(!e.prov)e.prov="fish";throw e});
+  }).catch(function(e){if(!e.prov)e.prov="fish";if(!e.status&&!e.detail)e.detail=String(e&&e.message||e).slice(0,80);throw e});
 }
 function fishExplain(st,msg){
   var m=String(msg||"").toLowerCase();
@@ -655,7 +655,8 @@ function ttsFail(err){
   if((fatal&&!tts[wk])||(!fatal&&now-(tts.softAt||0)>60000)){
     if(fatal)tts[wk]=true;else tts.softAt=now;
     var nx=cloudProv(),why=pv==="fish"?fishExplain(st,err.message):elExplain(st,err.message);
-    add("e","Voice: "+why+(nx?" Switching to the "+(nx==="fish"?"Fish Audio":"ElevenLabs")+" voice.":" I am using the device voice"+(fatal?" until you fix it in CONFIG, then TEST VOICE.":" for now.")));
+    var sw=fatal&&nx&&nx!==pv;
+    add("e","Voice: "+why+(err.detail?" ("+err.detail+")":"")+(sw?" Switching to the "+(nx==="fish"?"Fish Audio":"ElevenLabs")+" voice.":" I am using the device voice"+(fatal?" until you fix it in CONFIG, then TEST VOICE.":" for now.")));
   }
 }
 function ttsEnqueue(seg,g){
@@ -973,7 +974,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v8.6";
+var VER="v8.7";
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -2382,8 +2383,22 @@ $("fiCheck").addEventListener("click",function(){
   fishFetch("Voice check. Jarvis online, Sir.").then(function(url){
     try{tts.audio.onended=null;tts.audio.src=url;tts.audio.play()}catch(e){}
     box.textContent="WORKING. You should hear the Fish Audio voice now. Pick Fish Audio as the engine (or keep ElevenLabs as main with this as the backup) and tap SAVE.";
-  }).catch(function(e){box.textContent="NOT WORKING. "+fishExplain(e.status,e.message)});
+  }).catch(function(e){
+    box.textContent="NOT WORKING. "+fishExplain(e.status,e.message)+(e.detail?" ("+e.detail+")":"");
+    if(!e.status&&cfg.fiRelay)fishProbe(box);
+  });
 });
+function fishProbe(box){
+  var R=cfg.fiRelay,out=["DIAGNOSIS:"];
+  function line(t){out.push(t);box.textContent=out.join("\n")}
+  box.textContent=out.join("\n")+"\nTesting...";
+  var json={"Content-Type":"application/json"},full={"Content-Type":"application/json","Authorization":"Bearer test","model":"s2.1-pro-free"};
+  fetch(R,{method:"POST",mode:"no-cors",body:"x"}).then(function(){line("1. Relay address reachable: YES")},function(){line("1. Relay address reachable: NO. The address is wrong or there is no internet. Copy it again from Cloudflare, it must end in workers.dev.")}).then(function(){
+    return fetch(R,{method:"POST",headers:json,body:"{}"}).then(function(r){line("2. Basic call: allowed (status "+r.status+")")},function(){line("2. Basic call: BLOCKED by the browser. The relay is not answering the browser check, or the page address does not match.")});
+  }).then(function(){
+    return fetch(R,{method:"POST",headers:full,body:"{}"}).then(function(r){line("3. Call with key headers: allowed (status "+r.status+", 401 is normal here)")},function(){line("3. Call with key headers: BLOCKED by the browser.")});
+  }).then(function(){line("This page address is "+location.origin+" . The relay only accepts https://juzzthinx.github.io")});
+}
 $("elFind").addEventListener("click",function(){
   var k=cleanId($("elKey").value),box=$("elList");
   if(!k){box.textContent="Paste your ElevenLabs key above first.";return}
