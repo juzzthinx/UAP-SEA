@@ -264,6 +264,8 @@ linear-gradient(#00d2be,#00d2be) bottom right/22px 1.5px no-repeat,linear-gradie
     <input id="fiKey" type="password" placeholder="paste Fish Audio key" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     <label>Voice ID (optional: the long code in a voice page address on fish.audio, leave empty for the default voice)</label>
     <input id="fiVoice" type="text" placeholder="paste a Fish Audio voice ID" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <label>Relay address (needed: Fish Audio does not accept calls straight from a web page)</label>
+    <input id="fiRelay" type="text" placeholder="https://jarvis-fish.yourname.workers.dev" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     <button type="button" class="mini" id="fiCheck">CHECK FISH VOICE</button>
     <div id="fiList" class="hint"></div>
     <label>Fish Audio model</label>
@@ -410,7 +412,7 @@ if(!PROV[cfg.prov])cfg.prov="claude";
 if(["en-US","ms-MY","zh-CN","ru-RU","ja-JP"].indexOf(cfg.lang)<0)cfg.lang="en-US";
 cfg.rate=parseFloat(ld("jv_rate","0.98"))||0.98;cfg.pitch=parseFloat(ld("jv_pitch","0.9"))||0.9;
 cfg.vo={en:ld("jv_vo_en",""),ms:ld("jv_vo_ms",""),zh:ld("jv_vo_zh",""),ru:ld("jv_vo_ru",""),ja:ld("jv_vo_ja","")};
-cfg.engine=ld("jv_engine","device");if(cfg.engine!=="eleven"&&cfg.engine!=="fish")cfg.engine="device";cfg.fiKey=cleanIdEarly(ld("jv_fikey",""));cfg.fiVoice=cleanIdEarly(ld("jv_fivoice",""));cfg.fiModel=ld("jv_fimodel","s2.1-pro-free");if(cfg.fiModel!=="s2.1-pro")cfg.fiModel="s2.1-pro-free";
+cfg.engine=ld("jv_engine","device");if(cfg.engine!=="eleven"&&cfg.engine!=="fish")cfg.engine="device";cfg.fiKey=cleanIdEarly(ld("jv_fikey",""));cfg.fiVoice=cleanIdEarly(ld("jv_fivoice",""));cfg.fiRelay=cleanIdEarly(ld("jv_firelay",""));cfg.fiModel=ld("jv_fimodel","s2.1-pro-free");if(cfg.fiModel!=="s2.1-pro")cfg.fiModel="s2.1-pro-free";
 cfg.elKey=cleanIdEarly(ld("jv_elkey",""));cfg.elVoice=cleanIdEarly(ld("jv_elvoice",""));cfg.elModel=ld("jv_elmodel","eleven_multilingual_v2");
 cfg.live=ld("jv_live","auto");if(["auto","say","off"].indexOf(cfg.live)<0)cfg.live="auto";cfg.liveModel=cleanIdEarly(ld("jv_livemodel","groq/compound-mini"))||"groq/compound-mini";
 cfg.wxLoc=ld("jv_wxloc","gps")==="kl"?"kl":"gps";cfg.wazeAuto=ld("jv_wazeauto","0")==="1"?"1":"0";
@@ -569,7 +571,7 @@ function ttsStop(){
 function cancelSpeech(mute){try{if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}ttsStop();sp.gen++;sp.pending=0;sp.streaming=false;sp.onIdle=null;if(mute)sp.muted=true}
 function speechBegin(){cancelSpeech();sp.said="";sp.dev=false;sp.muted=false;sp.streaming=true;sp.first=true}
 function elOK(){return !!(cfg.elKey&&cfg.elVoice&&!tts.bad)}
-function fiOK(){return !!(cfg.fiKey&&!tts.fbad)}
+function fiOK(){return !!(cfg.fiKey&&cfg.fiRelay&&!tts.fbad)}
 function cloudProv(){
   if(cfg.engine==="eleven")return elOK()?"eleven":(fiOK()?"fish":"");
   if(cfg.engine==="fish")return fiOK()?"fish":(elOK()?"eleven":"");
@@ -613,7 +615,7 @@ function fishFetch(text){
   var body={text:text,format:"mp3",mp3_bitrate:64,normalize:true};
   if(cfg.fiVoice)body.reference_id=cfg.fiVoice;
   if(Math.abs((cfg.rate||1)-1)>0.06)body.prosody={speed:Math.min(1.5,Math.max(0.6,cfg.rate))};
-  return fetch("https://api.fish.audio/v1/tts",{
+  return fetch(cfg.fiRelay||"https://api.fish.audio/v1/tts",{
     method:"POST",headers:{"Authorization":"Bearer "+cfg.fiKey,"Content-Type":"application/json","model":cfg.fiModel||"s2.1-pro-free"},
     body:JSON.stringify(body)
   }).then(function(r){
@@ -631,7 +633,7 @@ function fishExplain(st,msg){
   if(st===404||st===400||st===422)return"Fish Audio did not accept the request. Check the Voice ID (or clear it to use the default voice) and the model.";
   if(st===429)return"Fish Audio says too many requests at once. Wait a few seconds and try again.";
   if(st===503||st===500||st===502)return"Fish Audio is busy right now. Try again in a moment.";
-  if(!st)return"Could not reach Fish Audio. Check your internet. If the internet is fine, the browser may be blocking calls from this page to Fish Audio, and then it needs a small relay.";
+  if(!st)return cfg.fiRelay?"Could not reach your relay. Check the relay address (it should start with https:// and end with workers.dev) and your internet.":"Fish Audio does not accept calls straight from a web page, so Jarvis needs a small relay. Put your relay address in the Relay address box, then tap CHECK FISH VOICE again.";
   return"Fish Audio problem ("+st+").";
 }
 function elExplain(st,msg){
@@ -971,7 +973,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v8.5";
+var VER="v8.6";
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -2320,7 +2322,7 @@ function openSheet(){
   $("theme").value=theme;
   $("speakOn").value=cfg.speak;$("soul").value=soul;$("notes").value=notes;$("links").value=linksTxt;$("places").value=placesTxt;
   $("live").value=cfg.live;$("liveModel").value=cfg.liveModel;$("sil").value=cfg.sil;$("reason").value=cfg.reason;$("style").value=cfg.style;$("deepModel").value=cfg.deepModel;$("visModel").value=cfg.visRaw;$("learn").value=cfg.learn;$("barge").value=cfg.barge;$("memBox").value=mem.map(function(x){return x.t}).join("\n");$("auddKey").value=cfg.audd;$("bkMsg").textContent="";$("wxLoc").value=cfg.wxLoc;$("wazeAuto").value=cfg.wazeAuto;
-  $("mktOn").value=cfg.mkt;$("saver").value=cfg.saver;$("engine").value=cfg.engine;$("elKey").value=cfg.elKey;$("elVoice").value=cfg.elVoice;$("elModel").value=cfg.elModel;$("fiKey").value=cfg.fiKey;$("fiVoice").value=cfg.fiVoice;$("fiModel").value=cfg.fiModel;paintEngine();
+  $("mktOn").value=cfg.mkt;$("saver").value=cfg.saver;$("engine").value=cfg.engine;$("elKey").value=cfg.elKey;$("elVoice").value=cfg.elVoice;$("elModel").value=cfg.elModel;$("fiKey").value=cfg.fiKey;$("fiVoice").value=cfg.fiVoice;$("fiRelay").value=cfg.fiRelay;$("fiModel").value=cfg.fiModel;paintEngine();
   loadVoices();
   $("rate").value=cfg.rate;$("pitch").value=cfg.pitch;paintSliders();$("wakeUrl").value=wakeLink();
   $("sheet").classList.add("open");
@@ -2334,7 +2336,7 @@ function commitVoice(){
   sv("jv_vo_en",cfg.vo.en);sv("jv_vo_ms",cfg.vo.ms);sv("jv_vo_zh",cfg.vo.zh);sv("jv_vo_ru",cfg.vo.ru);sv("jv_vo_ja",cfg.vo.ja);
   cfg.engine=$("engine").value;cfg.elKey=cleanId($("elKey").value);cfg.elVoice=cleanId($("elVoice").value);cfg.elModel=$("elModel").value;
   sv("jv_engine",cfg.engine);sv("jv_elkey",cfg.elKey);sv("jv_elvoice",cfg.elVoice);sv("jv_elmodel",cfg.elModel);
-  cfg.fiKey=cleanId($("fiKey").value);cfg.fiVoice=cleanId($("fiVoice").value);cfg.fiModel=$("fiModel").value;sv("jv_fikey",cfg.fiKey);sv("jv_fivoice",cfg.fiVoice);sv("jv_fimodel",cfg.fiModel);
+  cfg.fiKey=cleanId($("fiKey").value);cfg.fiVoice=cleanId($("fiVoice").value);cfg.fiRelay=cleanId($("fiRelay").value);if(cfg.fiRelay&&!/^https:\/\//i.test(cfg.fiRelay))cfg.fiRelay="https://"+cfg.fiRelay.replace(/^http:\/\//i,"");cfg.fiModel=$("fiModel").value;sv("jv_firelay",cfg.fiRelay);sv("jv_fikey",cfg.fiKey);sv("jv_fivoice",cfg.fiVoice);sv("jv_fimodel",cfg.fiModel);
   cfg.rate=parseFloat($("rate").value)||0.98;cfg.pitch=parseFloat($("pitch").value)||0.9;sv("jv_rate",cfg.rate);sv("jv_pitch",cfg.pitch);
   cfg.saver=$("saver").value;sv("jv_saver",cfg.saver);
   tts.bad=false;tts.warned=false;tts.fbad=false;tts.wEl=false;tts.wFi=false;
