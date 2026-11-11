@@ -243,6 +243,7 @@ linear-gradient(#00d2be,#00d2be) bottom right/22px 1.5px no-repeat,linear-gradie
   <select id="engine">
     <option value="device">Device voices (free)</option>
     <option value="eleven">ElevenLabs (best quality, needs key)</option>
+    <option value="fish">Fish Audio (second engine, needs key)</option>
   </select>
   <div id="elBox" style="display:none">
     <label>ElevenLabs API key</label>
@@ -257,6 +258,17 @@ linear-gradient(#00d2be,#00d2be) bottom right/22px 1.5px no-repeat,linear-gradie
     <label>Model</label>
     <select id="elModel"><option value="eleven_flash_v2_5">Flash v2.5 (fastest, recommended)</option><option value="eleven_multilingual_v2">Multilingual v2 (richest, slower)</option></select>
     <div class="hint">Speaks English, Bahasa Malaysia and Mandarin in one voice. If it ever fails, Jarvis falls back to the device voice.</div>
+  </div>
+  <div id="fiBox" style="display:none">
+    <label>Fish Audio API key</label>
+    <input id="fiKey" type="password" placeholder="paste Fish Audio key" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <label>Voice ID (optional: the long code in a voice page address on fish.audio, leave empty for the default voice)</label>
+    <input id="fiVoice" type="text" placeholder="paste a Fish Audio voice ID" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <button type="button" class="mini" id="fiCheck">CHECK FISH VOICE</button>
+    <div id="fiList" class="hint"></div>
+    <label>Fish Audio model</label>
+    <select id="fiModel"><option value="s2.1-pro-free">S2.1 Pro Free (free developer tier)</option><option value="s2.1-pro">S2.1 Pro (paid, billed per use)</option></select>
+    <div class="hint">Set both ElevenLabs and Fish Audio and Jarvis switches to the other voice by itself if one fails or runs out. Whichever engine you pick above is tried first.</div>
   </div>
   <div id="devBox">
     <label>Device voice &middot; English</label><select id="voEn"></select>
@@ -398,7 +410,7 @@ if(!PROV[cfg.prov])cfg.prov="claude";
 if(["en-US","ms-MY","zh-CN","ru-RU","ja-JP"].indexOf(cfg.lang)<0)cfg.lang="en-US";
 cfg.rate=parseFloat(ld("jv_rate","0.98"))||0.98;cfg.pitch=parseFloat(ld("jv_pitch","0.9"))||0.9;
 cfg.vo={en:ld("jv_vo_en",""),ms:ld("jv_vo_ms",""),zh:ld("jv_vo_zh",""),ru:ld("jv_vo_ru",""),ja:ld("jv_vo_ja","")};
-cfg.engine=ld("jv_engine","device");if(cfg.engine!=="eleven")cfg.engine="device";
+cfg.engine=ld("jv_engine","device");if(cfg.engine!=="eleven"&&cfg.engine!=="fish")cfg.engine="device";cfg.fiKey=cleanIdEarly(ld("jv_fikey",""));cfg.fiVoice=cleanIdEarly(ld("jv_fivoice",""));cfg.fiModel=ld("jv_fimodel","s2.1-pro-free");if(cfg.fiModel!=="s2.1-pro")cfg.fiModel="s2.1-pro-free";
 cfg.elKey=cleanIdEarly(ld("jv_elkey",""));cfg.elVoice=cleanIdEarly(ld("jv_elvoice",""));cfg.elModel=ld("jv_elmodel","eleven_multilingual_v2");
 cfg.live=ld("jv_live","auto");if(["auto","say","off"].indexOf(cfg.live)<0)cfg.live="auto";cfg.liveModel=cleanIdEarly(ld("jv_livemodel","groq/compound-mini"))||"groq/compound-mini";
 cfg.wxLoc=ld("jv_wxloc","gps")==="kl"?"kl":"gps";cfg.wazeAuto=ld("jv_wazeauto","0")==="1"?"1":"0";
@@ -556,7 +568,14 @@ function ttsStop(){
 }
 function cancelSpeech(mute){try{if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}ttsStop();sp.gen++;sp.pending=0;sp.streaming=false;sp.onIdle=null;if(mute)sp.muted=true}
 function speechBegin(){cancelSpeech();sp.said="";sp.dev=false;sp.muted=false;sp.streaming=true;sp.first=true}
-function isEleven(){return cfg.engine==="eleven"&&cfg.elKey&&cfg.elVoice&&!tts.bad}
+function elOK(){return !!(cfg.elKey&&cfg.elVoice&&!tts.bad)}
+function fiOK(){return !!(cfg.fiKey&&!tts.fbad)}
+function cloudProv(){
+  if(cfg.engine==="eleven")return elOK()?"eleven":(fiOK()?"fish":"");
+  if(cfg.engine==="fish")return fiOK()?"fish":(elOK()?"eleven":"");
+  return"";
+}
+function isEleven(){return cloudProv()!==""}
 function segs(t){
   var raw=t.match(/[^.!?…。！？\n]+[.!?…。！？]*\s*/g)||[t],out=[];
   raw.forEach(function(s){
@@ -580,14 +599,40 @@ function devSpeakOne(seg,g,cb,o){
     speechSynthesis.speak(u);
   }catch(e){fin()}
 }
-function ttsFetch(text){
+function ttsFetch(text){return cloudProv()==="fish"?fishFetch(text):elFetch(text)}
+function elFetch(text){
   return fetch("https://api.elevenlabs.io/v1/text-to-speech/"+encodeURIComponent(cfg.elVoice)+"?output_format=mp3_44100_64",{
     method:"POST",headers:{"xi-api-key":cfg.elKey,"content-type":"application/json","accept":"audio/mpeg"},
     body:JSON.stringify({text:text,model_id:cfg.elModel,voice_settings:{stability:0.55,similarity_boost:0.78,style:0.12,use_speaker_boost:true,speed:Math.min(1.2,Math.max(0.7,cfg.rate))}})
   }).then(function(r){
-    if(!r.ok)return r.text().then(function(b){var e=new Error("ElevenLabs "+r.status+": "+String(b).slice(0,300));e.status=r.status;throw e});
+    if(!r.ok)return r.text().then(function(b){var e=new Error("ElevenLabs "+r.status+": "+String(b).slice(0,300));e.status=r.status;e.prov="eleven";throw e});
     return r.blob();
-  }).then(function(b){return URL.createObjectURL(b)});
+  }).then(function(b){return URL.createObjectURL(b)}).catch(function(e){if(!e.prov)e.prov="eleven";throw e});
+}
+function fishFetch(text){
+  var body={text:text,format:"mp3",mp3_bitrate:64,normalize:true};
+  if(cfg.fiVoice)body.reference_id=cfg.fiVoice;
+  if(Math.abs((cfg.rate||1)-1)>0.06)body.prosody={speed:Math.min(1.5,Math.max(0.6,cfg.rate))};
+  return fetch("https://api.fish.audio/v1/tts",{
+    method:"POST",headers:{"Authorization":"Bearer "+cfg.fiKey,"Content-Type":"application/json","model":cfg.fiModel||"s2.1-pro-free"},
+    body:JSON.stringify(body)
+  }).then(function(r){
+    if(!r.ok)return r.text().then(function(b){var e=new Error("Fish Audio "+r.status+": "+String(b).slice(0,300));e.status=r.status;e.prov="fish";throw e});
+    return r.blob();
+  }).then(function(b){
+    if(!b||!b.size){var e=new Error("empty audio");e.prov="fish";throw e}
+    return URL.createObjectURL(new Blob([b],{type:"audio/mpeg"}));
+  }).catch(function(e){if(!e.prov)e.prov="fish";throw e});
+}
+function fishExplain(st,msg){
+  var m=String(msg||"").toLowerCase();
+  if(st===401||/unauthor|invalid.*(key|token)/.test(m))return"The Fish Audio key is wrong or was removed. Make a new API key on fish.audio and paste it in the Fish Audio key box.";
+  if(st===402||/payment|credit|balance/.test(m))return"Fish Audio says payment or credit is needed. Make sure the model box says S2.1 Pro Free, or add credit on fish.audio.";
+  if(st===404||st===400||st===422)return"Fish Audio did not accept the request. Check the Voice ID (or clear it to use the default voice) and the model.";
+  if(st===429)return"Fish Audio says too many requests at once. Wait a few seconds and try again.";
+  if(st===503||st===500||st===502)return"Fish Audio is busy right now. Try again in a moment.";
+  if(!st)return"Could not reach Fish Audio. Check your internet. If the internet is fine, the browser may be blocking calls from this page to Fish Audio, and then it needs a small relay.";
+  return"Fish Audio problem ("+st+").";
 }
 function elExplain(st,msg){
   var m=String(msg||"").toLowerCase();
@@ -602,12 +647,13 @@ function elExplain(st,msg){
 }
 function ttsFail(err){
   if(!err)return;
-  var st=err.status,fatal=(st===401||st===402||st===403||st===422||st===404||st===400);
-  if(fatal)tts.bad=true;
-  var now=Date.now();
-  if((fatal&&!tts.warned)||(!fatal&&now-(tts.softAt||0)>60000)){
-    if(fatal)tts.warned=true;else tts.softAt=now;
-    add("e","Voice: "+elExplain(st,err.message)+" I am using the device voice"+(fatal?" until you fix it in CONFIG, then TEST VOICE.":" for now."));
+  var pv=err.prov||"eleven",st=err.status,fatal=(st===401||st===402||st===403||st===422||st===404||st===400);
+  if(fatal){if(pv==="fish")tts.fbad=true;else tts.bad=true}
+  var now=Date.now(),wk=pv==="fish"?"wFi":"wEl";
+  if((fatal&&!tts[wk])||(!fatal&&now-(tts.softAt||0)>60000)){
+    if(fatal)tts[wk]=true;else tts.softAt=now;
+    var nx=cloudProv(),why=pv==="fish"?fishExplain(st,err.message):elExplain(st,err.message);
+    add("e","Voice: "+why+(nx?" Switching to the "+(nx==="fish"?"Fish Audio":"ElevenLabs")+" voice.":" I am using the device voice"+(fatal?" until you fix it in CONFIG, then TEST VOICE.":" for now.")));
   }
 }
 function ttsEnqueue(seg,g){
@@ -633,7 +679,7 @@ function ttsNext(){
     var p=a.play();if(p&&p.catch)p.catch(function(){devSpeakOne(it.seg,it.g,fin)});
   });
 }
-function saverActive(){return cfg.engine==="eleven"&&(parseInt(cfg.saver,10)||0)>0&&isEleven()}
+function saverActive(){return cfg.engine==="eleven"&&cloudProv()==="eleven"&&(parseInt(cfg.saver,10)||0)>0}
 function queueSpeech(text,o){
   o=o||{};
   if(!window.speechSynthesis&&!isEleven())return;
@@ -925,7 +971,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v8.4";
+var VER="v8.5";
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -2274,12 +2320,12 @@ function openSheet(){
   $("theme").value=theme;
   $("speakOn").value=cfg.speak;$("soul").value=soul;$("notes").value=notes;$("links").value=linksTxt;$("places").value=placesTxt;
   $("live").value=cfg.live;$("liveModel").value=cfg.liveModel;$("sil").value=cfg.sil;$("reason").value=cfg.reason;$("style").value=cfg.style;$("deepModel").value=cfg.deepModel;$("visModel").value=cfg.visRaw;$("learn").value=cfg.learn;$("barge").value=cfg.barge;$("memBox").value=mem.map(function(x){return x.t}).join("\n");$("auddKey").value=cfg.audd;$("bkMsg").textContent="";$("wxLoc").value=cfg.wxLoc;$("wazeAuto").value=cfg.wazeAuto;
-  $("mktOn").value=cfg.mkt;$("saver").value=cfg.saver;$("engine").value=cfg.engine;$("elKey").value=cfg.elKey;$("elVoice").value=cfg.elVoice;$("elModel").value=cfg.elModel;paintEngine();
+  $("mktOn").value=cfg.mkt;$("saver").value=cfg.saver;$("engine").value=cfg.engine;$("elKey").value=cfg.elKey;$("elVoice").value=cfg.elVoice;$("elModel").value=cfg.elModel;$("fiKey").value=cfg.fiKey;$("fiVoice").value=cfg.fiVoice;$("fiModel").value=cfg.fiModel;paintEngine();
   loadVoices();
   $("rate").value=cfg.rate;$("pitch").value=cfg.pitch;paintSliders();$("wakeUrl").value=wakeLink();
   $("sheet").classList.add("open");
 }
-function paintEngine(){var e=$("engine").value==="eleven";$("elBox").style.display=e?"block":"none";$("devBox").style.display=e?"none":"block"}
+function paintEngine(){var v=$("engine").value,e=(v==="eleven"||v==="fish");$("elBox").style.display=e?"block":"none";$("fiBox").style.display=e?"block":"none";$("devBox").style.display=e?"none":"block"}
 $("engine").addEventListener("change",paintEngine);
 function paintSliders(){$("rateV").textContent=(+$("rate").value).toFixed(2);$("pitchV").textContent=(+$("pitch").value).toFixed(2)}
 $("rate").addEventListener("input",paintSliders);$("pitch").addEventListener("input",paintSliders);
@@ -2288,9 +2334,10 @@ function commitVoice(){
   sv("jv_vo_en",cfg.vo.en);sv("jv_vo_ms",cfg.vo.ms);sv("jv_vo_zh",cfg.vo.zh);sv("jv_vo_ru",cfg.vo.ru);sv("jv_vo_ja",cfg.vo.ja);
   cfg.engine=$("engine").value;cfg.elKey=cleanId($("elKey").value);cfg.elVoice=cleanId($("elVoice").value);cfg.elModel=$("elModel").value;
   sv("jv_engine",cfg.engine);sv("jv_elkey",cfg.elKey);sv("jv_elvoice",cfg.elVoice);sv("jv_elmodel",cfg.elModel);
+  cfg.fiKey=cleanId($("fiKey").value);cfg.fiVoice=cleanId($("fiVoice").value);cfg.fiModel=$("fiModel").value;sv("jv_fikey",cfg.fiKey);sv("jv_fivoice",cfg.fiVoice);sv("jv_fimodel",cfg.fiModel);
   cfg.rate=parseFloat($("rate").value)||0.98;cfg.pitch=parseFloat($("pitch").value)||0.9;sv("jv_rate",cfg.rate);sv("jv_pitch",cfg.pitch);
   cfg.saver=$("saver").value;sv("jv_saver",cfg.saver);
-  tts.bad=false;tts.warned=false;
+  tts.bad=false;tts.warned=false;tts.fbad=false;tts.wEl=false;tts.wFi=false;
 }
 $("voAll").addEventListener("click",function(){
   loadVoices();var box=$("voAllList");box.innerHTML="";
@@ -2316,7 +2363,7 @@ $("elCheck").addEventListener("click",function(){
   commitVoice();var box=$("elList");
   if(!cfg.elKey||!cfg.elVoice){box.textContent="Enter the ElevenLabs key and the Voice ID first, then tap CHECK VOICE.";return}
   box.textContent="Checking your voice...";ttsUnlock();
-  ttsFetch("Voice check. Jarvis online.").then(function(url){
+  elFetch("Voice check. Jarvis online.").then(function(url){
     try{tts.audio.onended=null;tts.audio.src=url;tts.audio.play()}catch(e){}
     box.textContent="WORKING. You should hear the voice now. If it sounds like the iPhone voice, set the engine to ElevenLabs and tap SAVE.";
     return fetch("https://api.elevenlabs.io/v1/user/subscription",{headers:{"xi-api-key":cfg.elKey}}).then(function(r){return r.ok?r.json():null}).then(function(j){
@@ -2325,6 +2372,15 @@ $("elCheck").addEventListener("click",function(){
   }).catch(function(e){
     box.textContent="NOT WORKING. "+elExplain(e.status,e.message);
   });
+});
+$("fiCheck").addEventListener("click",function(){
+  commitVoice();var box=$("fiList");
+  if(!cfg.fiKey){box.textContent="Paste the Fish Audio key first, then tap CHECK FISH VOICE.";return}
+  box.textContent="Checking Fish Audio...";ttsUnlock();
+  fishFetch("Voice check. Jarvis online, Sir.").then(function(url){
+    try{tts.audio.onended=null;tts.audio.src=url;tts.audio.play()}catch(e){}
+    box.textContent="WORKING. You should hear the Fish Audio voice now. Pick Fish Audio as the engine (or keep ElevenLabs as main with this as the backup) and tap SAVE.";
+  }).catch(function(e){box.textContent="NOT WORKING. "+fishExplain(e.status,e.message)});
 });
 $("elFind").addEventListener("click",function(){
   var k=cleanId($("elKey").value),box=$("elList");
