@@ -1012,7 +1012,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.3";var eyesLive=false;
+var VER="v9.4";var eyesLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1611,13 +1611,14 @@ function paperSay(p,k,brief){
   return s;
 }
 /* ---------- live knowledge and briefing ---------- */
-var FACT_NOTE="\n\nFACT RULES: You are a reliable, facts-driven assistant. Never invent titles, names, dates, numbers, credits, quotes, roles or sources. Only state what you actually know or what the search results say. If results are thin, conflicting or do not mention it, say so plainly in one sentence, for example: I could not verify that, Sir. A short honest answer beats a confident guess. Do not narrate your process (no Searching now, no Done). Do not repeat or reword your previous answer; if he asks the same thing again, add what is new or say nothing has changed in one sentence.";
+var FACT_NOTE="\n\nFACT RULES: You are a reliable, facts-driven assistant. Never invent titles, names, dates, numbers, credits, quotes, roles or sources. Only state what you actually know or what the search results say. If results are thin, conflicting or do not mention it, say so plainly in one sentence, for example: I could not verify that, Sir. A short honest answer beats a confident guess. RECOGNITION: if you do not clearly recognise a name, group, crew, place, song, film, brand or title, say you do not recognise it and ask him to tell you; never describe it from guesswork or from what the name sounds like. You can only say you searched or pulled results when a search was actually run for this answer. Do not narrate your process (no Searching now, no Done). Do not repeat or reword your previous answer; if he asks the same thing again, add what is new or say nothing has changed in one sentence.";
 var LIVE_NOTE="\n\nLIVE SEARCH: use fresh web results and rely only on them for names, titles, dates and numbers. Answer in two or three short spoken sentences. Name the source outlet in words, never read out web addresses. If the results do not clearly confirm the answer, say you could not verify it. Never fill gaps from guesswork."+FACT_NOTE;
 var LIVE_ASK=/(^|\W)(search|look up|lookup|google|find out|browse)(\W|$)|搜索|查一下|上网查|(^|\W)cari(kan)?(\W|$)/i;
 var LIVE_CUR=/(^|\W)(news|headlines?|breaking|latest|currently|right now|trending|stock price|share price|price of|exchange rate|who won|final score|berita|terkini|harga|kadar tukaran)(\W|$)|新闻|最新|股价|汇率|比分/i;
 function liveSupported(){return !!cfg.key&&(cfg.prov==="claude"||cfg.prov==="gemini"||cfg.prov==="groq")}
 var LIVE_FACT=/(^|\W)(who (is|was|are|were|plays|played|directed|made|won)|when (did|was|is|will)|how (many|much|old|tall|long) (is|was|are|did)|tell me about|credits|filmography|discography|biography|net worth|release date|cast of|ceo of|president of|prime minister of|population of|born in|died|how old is|what happened|is it true|fact check)(\W|$)/i;
-function liveWanted(t){return cfg.live!=="off"&&liveSupported()&&(LIVE_ASK.test(t)||(cfg.live==="auto"&&(LIVE_CUR.test(t)||LIVE_FACT.test(t))))}
+var LIVE_NAME=/^\s*(hey |ok |okay )?(jarvis[ ,]+)?(what|who)('s|’s| is| are| was| were)\s+(a |an |the )?[A-Z0-9][\w'’-]*/;
+function liveWanted(t){return cfg.live!=="off"&&liveSupported()&&(LIVE_ASK.test(t)||(cfg.live==="auto"&&(LIVE_CUR.test(t)||LIVE_FACT.test(t)||LIVE_NAME.test(t))))}
 function liveBrain(msgs,sys){return liveFull(msgs,sys).then(function(o){return o.text})}
 function liveFull(msgs,sys){
   var p=cfg.prov,url,headers={"content-type":"application/json"},body,pr;
@@ -1634,7 +1635,7 @@ function liveFull(msgs,sys){
   }else if(p==="groq"){
     url=PROV.groq.base+"/chat/completions";headers["authorization"]="Bearer "+cfg.key;
     body={model:cfg.liveModel||"groq/compound",messages:[{role:"system",content:sys}].concat(vm(msgs,"oai"))};
-    pr=post(url,headers,body).then(function(j){var m=(j.choices&&j.choices[0]&&j.choices[0].message)||{},src=[];try{(m.executed_tools||[]).forEach(function(t){((t.search_results||{}).results||[]).forEach(function(r){if(r&&r.url)src.push({title:r.title,url:r.url})})})}catch(e){}return{text:(m.content||"").trim(),src:src}});
+    pr=post(url,headers,body).then(function(j){var m=(j.choices&&j.choices[0]&&j.choices[0].message)||{},src=[];try{(m.executed_tools||[]).forEach(function(t){((t.search_results||{}).results||[]).forEach(function(r){if(r&&r.url)src.push({title:r.title,url:r.url,content:String(r.content||"").slice(0,500)})})})}catch(e){}return{text:(m.content||"").trim(),src:src}});
   }else return Promise.reject(new Error("this brain has no web search"));
   return withTO(pr,25000);
 }
@@ -2180,13 +2181,22 @@ function send(text){
   add("u",text);
   var msgs=hist.slice(-14);
   while(msgs.length&&msgs[0].role!=="user")msgs.shift();
-  if(liveWanted(text)){
+  var liveYes=false;try{if(YES_RE.test(norm(text))){var la=null;for(var hi=hist.length-2;hi>=0;hi--){if(hist[hi].role==="assistant"){la=String(hist[hi].content||"");break}}liveYes=!!la&&/\?\s*$/.test(la.trim().replace(/,?\s*sir\s*\?$/i,"?"))&&/(search|look (it |that )?up|pull (up )?(the )?(latest|results)|find out|check (it )?online|browse|the web)/i.test(la)}}catch(e){}
+  if(liveYes||liveWanted(text)){
     setState("think","searching the web...");
     liveFull(msgs,systemPrompt()+LIVE_NOTE).then(function(o){
       var out=String(o.text||"").trim().replace(/^(searching[^.\n]*\.{0,3}\s*)?(done\.?\s*)?/i,"").trim();if(!out)throw new Error("empty answer");
       var seen={},links=[];(o.src||[]).forEach(function(r){var h="";try{h=new URL(r.url).hostname.replace(/^www\./,"")}catch(e){return}if(seen[h]||links.length>=3)return;seen[h]=1;links.push({name:h,url:r.url})});
+      var vp=Promise.resolve(out);
+      if(cfg.prov==="groq"&&(o.src||[]).some(function(r){return r.content})){
+        var evd=o.src.slice(0,6).map(function(r,i){return(i+1)+". "+(r.title||"")+": "+(r.content||"")}).join("\n");
+        vp=withTO(post(PROV.groq.base+"/chat/completions",{"content-type":"application/json","authorization":"Bearer "+cfg.key},{model:cfg.model,temperature:0,max_tokens:40,messages:[{role:"system",content:"You are a strict fact checker. Reply with exactly one word."},{role:"user",content:"EVIDENCE:\n"+evd+"\n\nANSWER:\n"+out+"\n\nIs every specific claim in the ANSWER (names, titles, dates, numbers, what something is) directly supported by the EVIDENCE? Reply SUPPORTED or UNSUPPORTED."}]}),9000).then(function(j){var v=String((j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||"");if(/UNSUPPORTED/i.test(v)){var tt=o.src.slice(0,2).map(function(r){return r.title}).filter(Boolean).join(" and ");return"I could not verify that, Sir. "+(tt?"The nearest results I found were "+tt+", and they do not confirm it. ":"")+"If you tell me what it is, I will remember it."}return out}).catch(function(){return out});
+      }
+      add("s","// live: "+(o.src||[]).length+" sources");
+      return vp.then(function(out){
       if(!links.length)out=out.replace(/[\s,]*Sir[.!?]*$/i,"").replace(/[.!?]*$/,".")+" I could not attach a source to this, so treat it with care.";
       busy=false;reply(out,links.length?links:null);
+      });
     }).catch(function(e){
       add("s","// live search unavailable: "+String(e&&e.message||e).slice(0,90));
       runStream(msgs);
