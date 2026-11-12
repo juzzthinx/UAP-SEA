@@ -452,7 +452,7 @@ cfg.rate=parseFloat(ld("jv_rate","0.98"))||0.98;cfg.pitch=parseFloat(ld("jv_pitc
 cfg.vo={en:ld("jv_vo_en",""),ms:ld("jv_vo_ms",""),zh:ld("jv_vo_zh",""),ru:ld("jv_vo_ru",""),ja:ld("jv_vo_ja","")};
 cfg.engine=ld("jv_engine","device");if(cfg.engine!=="eleven"&&cfg.engine!=="fish")cfg.engine="device";cfg.fiKey=cleanIdEarly(ld("jv_fikey",""));cfg.fiVoice=cleanIdEarly(ld("jv_fivoice",""));cfg.fiRelay=cleanIdEarly(ld("jv_firelay",""));cfg.fiModel=ld("jv_fimodel","s2.1-pro-free");if(cfg.fiModel!=="s2.1-pro")cfg.fiModel="s2.1-pro-free";
 cfg.elKey=cleanIdEarly(ld("jv_elkey",""));cfg.elVoice=cleanIdEarly(ld("jv_elvoice",""));cfg.elModel=ld("jv_elmodel","eleven_multilingual_v2");
-cfg.live=ld("jv_live","auto");if(["auto","say","off"].indexOf(cfg.live)<0)cfg.live="auto";cfg.liveModel=cleanIdEarly(ld("jv_livemodel","groq/compound-mini"))||"groq/compound-mini";
+cfg.live=ld("jv_live","auto");if(["auto","say","off"].indexOf(cfg.live)<0)cfg.live="auto";cfg.liveModel=cleanIdEarly(ld("jv_livemodel2","groq/compound"))||"groq/compound";
 cfg.wxLoc=ld("jv_wxloc","gps")==="kl"?"kl":"gps";cfg.wazeAuto=ld("jv_wazeauto","0")==="1"?"1":"0";
 var keys={},models={},baseCustom=ld("jv_base","");
 try{keys=JSON.parse(ld("jv_keys","{}"))||{}}catch(e){keys={}}
@@ -1012,7 +1012,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.2";var eyesLive=false;
+var VER="v9.3";var eyesLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1425,7 +1425,7 @@ function systemPrompt(){
   if(mem.length)s+="\n\nWHAT YOU HAVE LEARNED ABOUT HIM (use it naturally, never recite it):\n"+mem.slice(-40).map(function(x){return"- "+x.t}).join("\n");
   if(cfg.learn!=="0")s+=MEM_NOTE;
   s+=(cfg.mode==="code"?"":(STYLE_NOTE[cfg.style]||STYLE_NOTE.crisp));
-  s+=PRECISION_NOTE+ADDRESS_NOTE+ATTEND_NOTE;
+  s+=PRECISION_NOTE+FACT_NOTE+ADDRESS_NOTE+ATTEND_NOTE;
   s+="\n\nNow: "+new Date().toString();
   return s;
 }
@@ -1486,7 +1486,7 @@ function streamBrain(msgs,sys,onDelta){
     headers["authorization"]="Bearer "+cfg.key;
     body={model:(cfg.prov==="groq"&&msgs.some(function(m){return m.img}))?cfg.vis:mdl(),max_tokens:maxT(),messages:[{role:"system",content:sys}].concat(vm(msgs,"oai")),stream:true};
     if(cfg.prov==="groq"&&/gpt-oss/i.test(cfg.model)){var lm=String((msgs[msgs.length-1]||{}).content||"");body.reasoning_effort=deepNow?"high":((lm.split(/\s+/).length<=5&&!/\d/.test(lm))?"low":"medium")}
-    body.temperature=deepNow?0.3:0.4;
+    body.temperature=deepNow?0.2:0.25;
     pickT=function(o){
       if(o.error)throw new Error(typeof o.error==="string"?o.error:(o.error.message||"Stream error"));
       var c=o.choices&&o.choices[0];
@@ -1611,27 +1611,30 @@ function paperSay(p,k,brief){
   return s;
 }
 /* ---------- live knowledge and briefing ---------- */
-var LIVE_NOTE="\n\nLIVE SEARCH: use fresh web results. Answer in two or three short spoken sentences. Name the source outlet in words, never read out web addresses.";
+var FACT_NOTE="\n\nFACT RULES: You are a reliable, facts-driven assistant. Never invent titles, names, dates, numbers, credits, quotes, roles or sources. Only state what you actually know or what the search results say. If results are thin, conflicting or do not mention it, say so plainly in one sentence, for example: I could not verify that, Sir. A short honest answer beats a confident guess. Do not narrate your process (no Searching now, no Done). Do not repeat or reword your previous answer; if he asks the same thing again, add what is new or say nothing has changed in one sentence.";
+var LIVE_NOTE="\n\nLIVE SEARCH: use fresh web results and rely only on them for names, titles, dates and numbers. Answer in two or three short spoken sentences. Name the source outlet in words, never read out web addresses. If the results do not clearly confirm the answer, say you could not verify it. Never fill gaps from guesswork."+FACT_NOTE;
 var LIVE_ASK=/(^|\W)(search|look up|lookup|google|find out|browse)(\W|$)|搜索|查一下|上网查|(^|\W)cari(kan)?(\W|$)/i;
 var LIVE_CUR=/(^|\W)(news|headlines?|breaking|latest|currently|right now|trending|stock price|share price|price of|exchange rate|who won|final score|berita|terkini|harga|kadar tukaran)(\W|$)|新闻|最新|股价|汇率|比分/i;
 function liveSupported(){return !!cfg.key&&(cfg.prov==="claude"||cfg.prov==="gemini"||cfg.prov==="groq")}
-function liveWanted(t){return cfg.live!=="off"&&liveSupported()&&(LIVE_ASK.test(t)||(cfg.live==="auto"&&LIVE_CUR.test(t)))}
-function liveBrain(msgs,sys){
+var LIVE_FACT=/(^|\W)(who (is|was|are|were|plays|played|directed|made|won)|when (did|was|is|will)|how (many|much|old|tall|long) (is|was|are|did)|tell me about|credits|filmography|discography|biography|net worth|release date|cast of|ceo of|president of|prime minister of|population of|born in|died|how old is|what happened|is it true|fact check)(\W|$)/i;
+function liveWanted(t){return cfg.live!=="off"&&liveSupported()&&(LIVE_ASK.test(t)||(cfg.live==="auto"&&(LIVE_CUR.test(t)||LIVE_FACT.test(t))))}
+function liveBrain(msgs,sys){return liveFull(msgs,sys).then(function(o){return o.text})}
+function liveFull(msgs,sys){
   var p=cfg.prov,url,headers={"content-type":"application/json"},body,pr;
   if(p==="claude"){
     url="https://api.anthropic.com/v1/messages";
     headers["x-api-key"]=cfg.key;headers["anthropic-version"]="2023-06-01";headers["anthropic-dangerous-direct-browser-access"]="true";
     body={model:cfg.model,max_tokens:900,system:sys,messages:msgs,tools:[{type:"web_search_20250305",name:"web_search",max_uses:3}]};
-    pr=post(url,headers,body).then(function(j){return(j.content||[]).filter(function(b){return b.type==="text"}).map(function(b){return b.text}).join("").trim()});
+    pr=post(url,headers,body).then(function(j){var src=[];(j.content||[]).forEach(function(b){if(b.type==="web_search_tool_result"&&Array.isArray(b.content))b.content.forEach(function(r){if(r&&r.url)src.push({title:r.title,url:r.url})})});return{text:(j.content||[]).filter(function(b){return b.type==="text"}).map(function(b){return b.text}).join("").trim(),src:src}});
   }else if(p==="gemini"){
     url="https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(cfg.model)+":generateContent";
     headers["x-goog-api-key"]=cfg.key;
     body={systemInstruction:{parts:[{text:sys}]},contents:msgs.map(function(m){return{role:m.role==="assistant"?"model":"user",parts:m.img?[{inline_data:{mime_type:m.img.mime,data:m.img.b64}},{text:m.content}]:[{text:m.content}]}}),tools:[{google_search:{}}],generationConfig:{maxOutputTokens:900}};
-    pr=post(url,headers,body).then(function(j){var c=j.candidates&&j.candidates[0];return c&&c.content&&c.content.parts?c.content.parts.map(function(x){return x.text||""}).join("").trim():""});
+    pr=post(url,headers,body).then(function(j){var c=j.candidates&&j.candidates[0],src=[];try{((c.groundingMetadata||{}).groundingChunks||[]).forEach(function(g){if(g.web&&g.web.uri)src.push({title:g.web.title,url:g.web.uri})})}catch(e){}return{text:c&&c.content&&c.content.parts?c.content.parts.map(function(x){return x.text||""}).join("").trim():"",src:src}});
   }else if(p==="groq"){
     url=PROV.groq.base+"/chat/completions";headers["authorization"]="Bearer "+cfg.key;
-    body={model:cfg.liveModel||"groq/compound-mini",messages:[{role:"system",content:sys}].concat(vm(msgs,"oai"))};
-    pr=post(url,headers,body).then(function(j){return((j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content)||"").trim()});
+    body={model:cfg.liveModel||"groq/compound",messages:[{role:"system",content:sys}].concat(vm(msgs,"oai"))};
+    pr=post(url,headers,body).then(function(j){var m=(j.choices&&j.choices[0]&&j.choices[0].message)||{},src=[];try{(m.executed_tools||[]).forEach(function(t){((t.search_results||{}).results||[]).forEach(function(r){if(r&&r.url)src.push({title:r.title,url:r.url})})})}catch(e){}return{text:(m.content||"").trim(),src:src}});
   }else return Promise.reject(new Error("this brain has no web search"));
   return withTO(pr,25000);
 }
@@ -2039,7 +2042,7 @@ function wlOn(){try{if(navigator.wakeLock&&!wl)navigator.wakeLock.request("scree
 function wlOff(){try{if(wl){wl.release();wl=null}}catch(e){}}
 document.addEventListener("visibilitychange",function(){if(!document.hidden&&conv.on)wlOn()});
 /* ---------- sharper speech ---------- */
-var ATTEND_NOTE="\n\nATTENTIVE LIKE JARVIS IN IRON MAN: After you answer, when it would genuinely help, add ONE short offer of the next useful step, phrased as a question the way Jarvis would: Shall I run the analysis on that, Sir? or Would you like me to pull the numbers, Sir? Do this on roughly every second substantive reply, not on greetings, thanks, small talk, confirmations, errors or when he is clearly done. Offer only things you can actually do here: look something up live, work through the maths or an analysis, check Bitcoin or his Chio paper account, the KLSE market, the weather, set a route on Waze, find or identify a song, write or fix code, summarise, draft, or save something to his tasks or memory. Never repeat an offer he ignored or declined. If he answers yes, go ahead or similar, simply do it without asking again. Keep the offer under 14 words and never offer more than one.";
+var ATTEND_NOTE="\n\nATTENTIVE LIKE JARVIS IN IRON MAN: After you answer, when it would genuinely help, add ONE short offer of the next useful step, phrased as a question the way Jarvis would: Shall I run the analysis on that, Sir? or Would you like me to pull the numbers, Sir? Do this on roughly every second substantive reply, not on greetings, thanks, small talk, confirmations, errors or when he is clearly done. Offer only things you can actually do here: look something up live, work through the maths or an analysis, check Bitcoin or his Chio paper account, the KLSE market, the weather, set a route on Waze, find or identify a song, write or fix code, summarise, draft, or save something to his tasks or memory. Never repeat an offer he ignored or declined, never offer right after saying you could not verify or find something, and never offer the same thing twice in a row. If he answers yes, go ahead or similar, simply do it without asking again. Keep the offer under 14 words and never offer more than one.";
 var STYLE_NOTE={
   crisp:"\n\nSPEAKING CRAFT: You are heard, not read. Lead with the answer in the first sentence, then at most two supporting sentences unless he asks for depth. Be specific: real numbers, names and examples instead of generalities. Choose precise words and vary sentence length. No filler openers such as Certainly or Great question. No lists or markdown in spoken replies (code excepted). Say numbers and symbols the way a person would. When unsure, say so plainly, give your best estimate and what would settle it. If his question is ambiguous, answer the most likely reading, then ask one short clarifying question.",
   brief:"\n\nSPEAKING CRAFT: You are heard, not read. Answer in one or two sentences, answer first. Precise words, no filler, no lists or markdown. If unsure, say so in a few words.",
@@ -2179,9 +2182,11 @@ function send(text){
   while(msgs.length&&msgs[0].role!=="user")msgs.shift();
   if(liveWanted(text)){
     setState("think","searching the web...");
-    liveBrain(msgs,systemPrompt()+LIVE_NOTE).then(function(out){
-      out=(out||"").trim();if(!out)throw new Error("empty answer");
-      busy=false;add("a",out);hist.push({role:"assistant",content:out});saveHist();speak(out);
+    liveFull(msgs,systemPrompt()+LIVE_NOTE).then(function(o){
+      var out=String(o.text||"").trim().replace(/^(searching[^.\n]*\.{0,3}\s*)?(done\.?\s*)?/i,"").trim();if(!out)throw new Error("empty answer");
+      var seen={},links=[];(o.src||[]).forEach(function(r){var h="";try{h=new URL(r.url).hostname.replace(/^www\./,"")}catch(e){return}if(seen[h]||links.length>=3)return;seen[h]=1;links.push({name:h,url:r.url})});
+      if(!links.length)out=out.replace(/[\s,]*Sir[.!?]*$/i,"").replace(/[.!?]*$/,".")+" I could not attach a source to this, so treat it with care.";
+      busy=false;reply(out,links.length?links:null);
     }).catch(function(e){
       add("s","// live search unavailable: "+String(e&&e.message||e).slice(0,90));
       runStream(msgs);
@@ -2554,7 +2559,7 @@ $("save").addEventListener("click",function(){
   cfg.prov=$("prov").value;baseCustom=cleanId($("base").value);syncCur();
   theme=$("theme").value;sv("jv_theme",theme);
   cfg.speak=$("speakOn").value;commitVoice();
-  cfg.live=$("live").value;cfg.liveModel=cleanId($("liveModel").value)||"groq/compound-mini";sv("jv_live",cfg.live);sv("jv_livemodel",cfg.liveModel);cfg.sil=$("sil").value;sv("jv_sil2",cfg.sil);cfg.reason=$("reason").value;sv("jv_reason",cfg.reason);cfg.style=$("style").value;sv("jv_style",cfg.style);cfg.deepModel=cleanId($("deepModel").value);sv("jv_deepmodel",cfg.deepModel);cfg.mkt=$("mktOn").value;sv("jv_mkt",cfg.mkt);paintMkt();
+  cfg.live=$("live").value;cfg.liveModel=cleanId($("liveModel").value)||"groq/compound";sv("jv_live",cfg.live);sv("jv_livemodel2",cfg.liveModel);cfg.sil=$("sil").value;sv("jv_sil2",cfg.sil);cfg.reason=$("reason").value;sv("jv_reason",cfg.reason);cfg.style=$("style").value;sv("jv_style",cfg.style);cfg.deepModel=cleanId($("deepModel").value);sv("jv_deepmodel",cfg.deepModel);cfg.mkt=$("mktOn").value;sv("jv_mkt",cfg.mkt);paintMkt();
   cfg.visRaw=cleanId($("visModel").value);cfg.vis=cfg.visRaw||"qwen/qwen3.8-27b";sv("jv_vismodel",cfg.visRaw);
   cfg.learn=$("learn").value;sv("jv_learn",cfg.learn);cfg.barge=$("barge").value;sv("jv_barge",cfg.barge);
   (function(){var old=mem;mem=$("memBox").value.split("\n").map(function(x){return x.trim()}).filter(Boolean).map(function(t){var o=old.filter(function(x){return x.t===t})[0];return o||{t:t,ts:Date.now()}});memSave()})();
