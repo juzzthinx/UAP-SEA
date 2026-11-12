@@ -974,7 +974,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v8.8";
+var VER="v8.9";
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1120,6 +1120,8 @@ function sirSep(k){return k==="zh"?"\uff0c":k==="ja"?"\u3001":", "}
 function sirEnsure(t,k){
   t=String(t==null?"":t);var x=t.trim();
   if(!x||x==="..."||/```/.test(x)||cfg.mode==="code"||SIR_END.test(x))return t;
+  var ls=x.split(/(?<=[.!?\u2026\u3002\uff01\uff1f])\s+/).pop()||x;
+  if(/\b(sir|tuan)\b/i.test(ls)||/[:;]\s*$/.test(x)||/(https?:\/\/\S+|[\u{1F300}-\u{1FAFF}])\s*$/u.test(x)||(/[A-Za-z]/.test(ls)&&ls.split(/\s+/).length>24))return t;
   k=k||curK;var w=SIRW[k]||"Sir",m=/([.!?\u2026\u3002\uff01\uff1f]+)(["')\]]*)\s*$/.exec(x);
   if(m)return x.slice(0,m.index)+sirSep(k)+w+m[1]+m[2];
   return x+sirSep(k)+w+((k==="zh"||k==="ja")?"\u3002":".");
@@ -1372,7 +1374,7 @@ function local(raw){
   return null;
 }
 var PRECISION_NOTE="\n\nPRECISION RULES: Accuracy comes before speed or flair. Do not state a fact, number, date, name or quote unless you are confident; if unsure say you are not certain, give your best estimate and how to check it. Never invent sources, links, prices or statistics. Do arithmetic carefully and double-check it before speaking. Answer the exact question he asked, in his own terms, without drifting to a related topic. His words come from speech recognition and may contain mishearings, especially names and Malay or mixed-language terms: read for the most plausible meaning, and when two readings would change the answer, say which one you chose in a few words, or ask. Use the earlier conversation and what you know about him before asking him again. Give what was asked and no unrequested extras.";
-var ADDRESS_NOTE="\n\nADDRESS: He is Sir (in Malay, Tuan). End every spoken reply with the word Sir as the very last word, for example: Done, Sir. or It is 391, Sir. Never call him boss or bos. Inside code blocks and code itself, leave it out.";
+var ADDRESS_NOTE="\n\nADDRESS: He is Sir (in Malay, Tuan). Put Sir as the very last word of your final sentence whenever it suits that sentence, for example: Done, Sir. or It is 391, Sir. or Shall I run the numbers, Sir? If it would sound forced, place it earlier in the sentence instead. Never call him boss or bos. Inside code blocks and code itself, leave it out.";
 var CORR_NOTE="\n\nHE MAY BE CORRECTING YOU. If his message corrects you: admit it in five words or fewer, no grovelling, restate the corrected fact exactly as he gave it, then answer again properly, and save the corrected fact with a [[remember: ...]] tag. If it is not a correction, ignore this.";
 var CORR_RE=/^\s*(no|nope|wrong|not that|that'?s (not|wrong|incorrect)|incorrect|actually|i said|i meant|i mean|bukan|salah|tak betul|不是|不对|错了|нет|неправильно|違う|ちがう)(\W|$)|(you('| a)?re wrong|that is wrong|that's not right|not what i (said|asked|meant))/i;
 function systemPrompt(){
@@ -1385,7 +1387,7 @@ function systemPrompt(){
   if(mem.length)s+="\n\nWHAT YOU HAVE LEARNED ABOUT HIM (use it naturally, never recite it):\n"+mem.slice(-40).map(function(x){return"- "+x.t}).join("\n");
   if(cfg.learn!=="0")s+=MEM_NOTE;
   s+=(cfg.mode==="code"?"":(STYLE_NOTE[cfg.style]||STYLE_NOTE.crisp));
-  s+=PRECISION_NOTE+ADDRESS_NOTE;
+  s+=PRECISION_NOTE+ADDRESS_NOTE+ATTEND_NOTE;
   s+="\n\nNow: "+new Date().toString();
   return s;
 }
@@ -1942,6 +1944,7 @@ function wlOn(){try{if(navigator.wakeLock&&!wl)navigator.wakeLock.request("scree
 function wlOff(){try{if(wl){wl.release();wl=null}}catch(e){}}
 document.addEventListener("visibilitychange",function(){if(!document.hidden&&conv.on)wlOn()});
 /* ---------- sharper speech ---------- */
+var ATTEND_NOTE="\n\nATTENTIVE LIKE JARVIS IN IRON MAN: After you answer, when it would genuinely help, add ONE short offer of the next useful step, phrased as a question the way Jarvis would: Shall I run the analysis on that, Sir? or Would you like me to pull the numbers, Sir? Do this on roughly every second substantive reply, not on greetings, thanks, small talk, confirmations, errors or when he is clearly done. Offer only things you can actually do here: look something up live, work through the maths or an analysis, check Bitcoin or his Chio paper account, the KLSE market, the weather, set a route on Waze, find or identify a song, write or fix code, summarise, draft, or save something to his tasks or memory. Never repeat an offer he ignored or declined. If he answers yes, go ahead or similar, simply do it without asking again. Keep the offer under 14 words and never offer more than one.";
 var STYLE_NOTE={
   crisp:"\n\nSPEAKING CRAFT: You are heard, not read. Lead with the answer in the first sentence, then at most two supporting sentences unless he asks for depth. Be specific: real numbers, names and examples instead of generalities. Choose precise words and vary sentence length. No filler openers such as Certainly or Great question. No lists or markdown in spoken replies (code excepted). Say numbers and symbols the way a person would. When unsure, say so plainly, give your best estimate and what would settle it. If his question is ambiguous, answer the most likely reading, then ask one short clarifying question.",
   brief:"\n\nSPEAKING CRAFT: You are heard, not read. Answer in one or two sentences, answer first. Precise words, no filler, no lists or markdown. If unsure, say so in a few words.",
@@ -1958,10 +1961,15 @@ function userLang(text){
   if(k==="en"&&lkey()!=="en"&&text.split(/\s+/).length<=3)return lkey();
   return k;
 }
+var offer=null,YES_RE=/^(yes|yeah|yep|yup|sure|ok|okay|please|go ahead|do it|go on|why not|ya|boleh|baik|jom|teruskan|ya boleh|y)( please| sir| jarvis)*$/,NO_RE=/^(no|nope|nah|no thanks|not now|tak|tak nak|tidak|tak perlu|later)( thanks| sir| jarvis)*$/;
+function mkOffer(say,en,ms,zh,ru,ja){offer={say:say,t:Date.now()};return " "+LT(en,ms,zh,null,ru,ja)}
 function send(text){
   text=(text||"").trim();
   if(!text||busy)return;
   cancelSpeech();standbyPause();
+  if(offer){var o=offer;offer=null;if(Date.now()-o.t<120000){var on=norm(text);
+    if(YES_RE.test(on)){curK=userLang(text);text=o.say}
+    else if(NO_RE.test(on)){curK=userLang(text);add("u",text);hist.push({role:"user",content:text});reply(LT("Very well.","Baiklah.","好的。",null,"Хорошо.","承知しました。"));return}}}
   if(conv.on){
     if(STOP_RE.test(norm(text))){
       curK=userLang(text);add("u",text);convOff();
@@ -2021,13 +2029,13 @@ function send(text){
       getCoin(sx.crypto).then(function(c){
         busy=false;
         if(!c){reply(LT("I cannot reach the crypto market right now.","Saya tidak dapat pasaran kripto sekarang.","目前无法获取加密货币市场数据。",null,"Сейчас нет данных по крипторынку.","暗号資産市場に接続できません。"));return}
-        reply(coinSay(c,curK),[{name:"Chio",url:"chio.html"}]);
+        reply(coinSay(c,curK)+mkOffer("how is my paper account","Shall I check your paper account against that?","Mahu saya semak akaun kertas anda?","要我对照一下您的模拟账户吗？","Проверить ваш бумажный счёт?","ペーパー口座も確認しますか？"),[{name:"Chio",url:"chio.html"}]);
       });
       return;
     }
     if(sx.paper){
       busy=true;setState("think","checking your paper account...");
-      getPaper().then(function(p){busy=false;reply(paperSay(p,curK),p.none?null:[{name:"Chio",url:"chio.html"}])}).catch(function(){busy=false;reply(LT("I cannot reach the market to value your paper account.","Saya tidak dapat pasaran untuk menilai akaun kertas anda.","无法获取行情来估值您的模拟账户。",null,"Не могу получить котировки для оценки счёта.","市場に接続できず、口座を評価できません。"))});
+      getPaper().then(function(p){busy=false;reply(paperSay(p,curK)+(p.none?"":mkOffer("bitcoin price","Shall I pull up the Bitcoin price to compare?","Mahu saya semak harga Bitcoin?","要我查一下比特币价格吗？","Показать цену Bitcoin?","ビットコイン価格も見ますか？")),p.none?null:[{name:"Chio",url:"chio.html"}])}).catch(function(){busy=false;reply(LT("I cannot reach the market to value your paper account.","Saya tidak dapat pasaran untuk menilai akaun kertas anda.","无法获取行情来估值您的模拟账户。",null,"Не могу получить котировки для оценки счёта.","市場に接続できず、口座を評価できません。"))});
       return;
     }
     if(sx.mkt){
@@ -2035,7 +2043,7 @@ function send(text){
       getMarket(true).then(function(m){
         busy=false;
         if(!m){reply(LT("I cannot reach the market data right now.","Saya tidak dapat data pasaran sekarang.","目前无法获取市场数据。",null,"Сейчас нет данных по рынку.","市場データを取得できません。"));return}
-        reply(mkSay(m),[{name:"Yahoo Finance",url:"https://finance.yahoo.com/quote/%5EKLSE"}]);
+        reply(mkSay(m)+mkOffer("bitcoin price","Shall I check Bitcoin as well?","Mahu saya semak Bitcoin juga?","要我也查一下比特币吗？","Проверить и Bitcoin?","ビットコインも確認しますか？"),[{name:"Yahoo Finance",url:"https://finance.yahoo.com/quote/%5EKLSE"}]);
       });
       return;
     }
@@ -2043,7 +2051,7 @@ function send(text){
       busy=true;setState("think","checking the weather...");
       getWeather(true).then(function(w){
         busy=false;
-        if(w){reply(wxFull(w,curK))}
+        if(w){reply(wxFull(w,curK)+mkOffer("morning briefing","Shall I give you the full briefing?","Mahu saya bacakan laporan penuh?","要我播报完整简报吗？","Зачитать полную сводку?","ブリーフィングをお読みしましょうか？"))}
         else reply(LT("I cannot reach the weather service right now.","Saya tidak dapat menghubungi perkhidmatan cuaca sekarang.","目前无法连接天气服务。",null,"Сейчас не могу связаться с сервисом погоды.","現在、天気サービスに接続できません。"));
       });
       return;
