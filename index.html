@@ -172,16 +172,17 @@ linear-gradient(#00d2be,#00d2be) bottom right/22px 1.5px no-repeat,linear-gradie
 
 #eyes{position:fixed;inset:0;z-index:25;background:#000;display:none;overflow:hidden;color:var(--c)}
 #eyes.on{display:block}
+body.eyesOn>*:not(#eyes){visibility:hidden!important}
+body.eyesOn *{animation-play-state:paused}
+body.eyesOn #eyes *{animation-play-state:running}
 #eyes video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
 #eyes video.mir{transform:scaleX(-1)}
 #eyes .shade{position:absolute;inset:0;background:radial-gradient(70% 55% at 50% 44%,transparent 40%,rgba(0,0,0,.55) 100%);pointer-events:none}
 #eyes .scan{position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,var(--c),transparent);opacity:.55;animation:eScan 4.2s linear infinite;pointer-events:none;will-change:transform}
 @keyframes eScan{0%{transform:translateY(50px)}100%{transform:translateY(calc(100vh - 50px))}}
 #eyes .ringw{position:absolute;left:50%;top:44%;width:min(78vw,340px);aspect-ratio:1;transform:translate(-50%,-50%);cursor:pointer;-webkit-tap-highlight-color:transparent}
-#eyes svg{width:100%;height:100%;overflow:visible}
-#eyes .r1,#eyes .r2,#eyes .r3,#eyes .r4{will-change:transform,opacity}
+#eyes .rl{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;will-change:transform,opacity;transform:translateZ(0)}
 #eyes video{will-change:transform;transform:translateZ(0)}
-#eyes .r1,#eyes .r2,#eyes .r3,#eyes .r4{transform-origin:100px 100px}
 #eyes .r2{animation:eSpin 16s linear infinite}
 #eyes .r3{animation:eSpin 9s linear infinite reverse}
 #eyes .r4{animation:eSpin 3.4s linear infinite}
@@ -410,9 +411,9 @@ linear-gradient(#00d2be,#00d2be) bottom right/22px 1.5px no-repeat,linear-gradie
   <div id="bootSlot"><button class="go" id="goBtn">INITIALIZE</button><div id="bootStat"><span id="bootLab">INITIALIZING &middot; 0%</span><div class="bbar"><b id="bootBar"></b></div></div></div>
 </div>
 
-<div id="eyes"><video id="eyeVid" playsinline muted autoplay></video><div class="shade"></div><div class="scan"></div><div class="cn a"></div><div class="cn b"></div>
+<div id="eyes"><video id="eyeVid" playsinline muted autoplay></video><div class="cn a"></div><div class="cn b"></div>
 <div class="top"><span>VISUAL FEED</span><span id="eyeSt">LIVE</span></div>
-<div class="ringw" id="eyeRing"><svg viewBox="0 0 200 200"><g class="r1"><circle cx="100" cy="100" r="92" fill="none" stroke="currentColor" stroke-width="6" opacity=".9"/><circle cx="100" cy="100" r="64" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".85"/></g><g class="r2"><circle cx="100" cy="100" r="78" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="2 7" opacity=".7"/></g><g class="r3"><circle cx="100" cy="100" r="99" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="26 14 4 14" opacity=".55"/></g><g class="r4"><path d="M100 16 A84 84 0 0 1 184 100" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".85"/></g></svg>
+<div class="ringw" id="eyeRing"><svg class="rl r1" viewBox="0 0 200 200"><circle cx="100" cy="100" r="92" fill="none" stroke="currentColor" stroke-width="6" opacity=".9"/><circle cx="100" cy="100" r="64" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".85"/></svg><svg class="rl r2" viewBox="0 0 200 200"><circle cx="100" cy="100" r="78" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="2 7" opacity=".7"/></svg><svg class="rl r3" viewBox="0 0 200 200"><circle cx="100" cy="100" r="98" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="26 14 4 14" opacity=".55"/></svg><svg class="rl r4" viewBox="0 0 200 200"><path d="M100 16 A84 84 0 0 1 184 100" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".85"/></svg>
 <div class="tag">J.A.R.V.I.S<small id="eyeTag">WATCHING</small></div></div>
 <div class="cap" id="eyeCap"></div>
 <div class="tb"><button type="button" id="eyeTalk" class="hot">TALK</button><button type="button" id="eyeAsk">SCAN</button><button type="button" id="eyeFlip">FLIP</button><button type="button" id="eyePhoto">PHOTO</button><button type="button" id="eyeX">CLOSE</button></div></div>
@@ -1011,7 +1012,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.1";var eyesLive=false;
+var VER="v9.2";var eyesLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1851,12 +1852,12 @@ function askPhoto(img,q){
 var eyes={on:false,stream:null,face:"environment",poll:0};
 function eyesFrame(){
   var v=$("eyeVid");if(!eyes.on||!v||!v.videoWidth)return null;
-  try{return drawToJpeg(v,v.videoWidth,v.videoHeight,960)}catch(e){return null}
+  try{return drawToJpeg(v,v.videoWidth,v.videoHeight,800)}catch(e){return null}
 }
 function eyesStart(){
   var v=$("eyeVid");
   if(eyes.stream){try{eyes.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}eyes.stream=null}
-  return navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:eyes.face},width:{ideal:960},height:{ideal:540},frameRate:{ideal:24,max:30}},audio:false}).then(function(st){
+  return navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:eyes.face},width:{ideal:640},height:{ideal:480},frameRate:{ideal:24,max:24}},audio:false}).then(function(st){
     eyes.stream=st;v.srcObject=st;v.className=eyes.face==="user"?"mir":"";
     return v.play().catch(function(){});
   });
@@ -1865,7 +1866,7 @@ function eyesOpen(){
   if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){$("imgPick").click();return}
   unlockSpeech();ctx();standbyPause();
   eyesStart().then(function(){
-    eyes.on=true;eyesLive=true;$("eyes").classList.add("on");$("eyeCap").textContent="";
+    eyes.on=true;eyesLive=true;document.body.classList.add("eyesOn");$("eyes").classList.add("on");$("eyeCap").textContent="";
     clearInterval(eyes.poll);eyes.poll=setInterval(eyesTick,450);
     if(!cfg.key)$("eyeCap").textContent="Add a brain key in CONFIG so I can describe what I see.";
   }).catch(function(e){
@@ -1875,7 +1876,7 @@ function eyesOpen(){
   });
 }
 function eyesClose(){
-  eyes.on=false;eyesLive=false;clearInterval(eyes.poll);$("eyes").classList.remove("on","think","listen","speak");
+  eyes.on=false;eyesLive=false;document.body.classList.remove("eyesOn");clearInterval(eyes.poll);$("eyes").classList.remove("on","think","listen","speak");
   if(eyes.stream){try{eyes.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}eyes.stream=null}
   try{$("eyeVid").srcObject=null}catch(e){}
   bargeAbort();idle();
