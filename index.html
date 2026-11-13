@@ -1015,7 +1015,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.5";var lastEndSir=false;var eyesLive=false;
+var VER="v9.6";var lastEndSir=false;var eyesLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1623,7 +1623,7 @@ function paperSay(p,k,brief){
   return s;
 }
 /* ---------- live knowledge and briefing ---------- */
-var FACT_NOTE="\n\nFACT RULES: You are a reliable, facts-driven assistant. Never invent titles, names, dates, numbers, credits, quotes, roles or sources. Only state what you actually know or what the search results say. If results are thin, conflicting or do not mention it, say so plainly in one sentence, for example: I could not verify that, Sir. A short honest answer beats a confident guess. RECOGNITION: if you do not clearly recognise a name, group, crew, place, song, film, brand or title, say you do not recognise it and ask him to tell you; never describe it from guesswork or from what the name sounds like. You can only say you searched or pulled results when a search was actually run for this answer. Do not narrate your process (no Searching now, no Done). Do not repeat or reword your previous answer; if he asks the same thing again, add what is new or say nothing has changed in one sentence.";
+var FACT_NOTE="\n\nFACT RULES: You are a reliable, facts-driven assistant. Never invent titles, names, dates, numbers, credits, quotes, roles or sources. Only state what you actually know or what the search results say. If results are thin, conflicting or do not mention it, say so plainly in one sentence, for example: I could not verify that, Sir. A short honest answer beats a confident guess. PLACES AND ROUTES: Malaysian place names are often misheard by speech recognition. Never insert the word Sir or any other word into a place name; if a name looks slightly off, use the closest real Malaysian place and move on. You cannot measure distances, drive times, traffic or directions from memory, so never state kilometres, minutes or road names for a route. Say Waze will give the exact route and offer to open it. RECOGNITION: if you do not clearly recognise a name, group, crew, place, song, film, brand or title, say you do not recognise it and ask him to tell you; never describe it from guesswork or from what the name sounds like. You can only say you searched or pulled results when a search was actually run for this answer. Do not narrate your process (no Searching now, no Done). Do not repeat or reword your previous answer; if he asks the same thing again, add what is new or say nothing has changed in one sentence.";
 var LIVE_NOTE="\n\nLIVE SEARCH: use fresh web results and rely only on them for names, titles, dates and numbers. Answer in two or three short spoken sentences. Name the source outlet in words, never read out web addresses. If the results do not clearly confirm the answer, say you could not verify it. Never fill gaps from guesswork."+FACT_NOTE;
 var LIVE_ASK=/(^|\W)(search|look up|lookup|google|find out|browse)(\W|$)|搜索|查一下|上网查|(^|\W)cari(kan)?(\W|$)/i;
 var LIVE_CUR=/(^|\W)(news|headlines?|breaking|latest|currently|right now|trending|stock price|share price|price of|exchange rate|who won|final score|berita|terkini|harga|kadar tukaran)(\W|$)|新闻|最新|股价|汇率|比分/i;
@@ -2100,11 +2100,37 @@ function userLang(text){
   if(k==="en"&&lkey()!=="en"&&text.split(/\s+/).length<=3)return lkey();
   return k;
 }
+
+/* ---------- place name repair (speech often splits or mishears Malaysian names) ---------- */
+var PLACES="Wangsa Maju|Setapak|Cheras|Kepong|Bangsar|Mont Kiara|Sri Petaling|Bukit Jalil|Sentul|Segambut|Titiwangsa|Ampang|Kajang|Puchong|Subang Jaya|Shah Alam|Petaling Jaya|Klang|Rawang|Gombak|Batu Caves|Kanching|Kuchai Lama|Taman Tun Dr Ismail|Damansara|Kota Damansara|Mutiara Damansara|Bandar Utama|Cyberjaya|Putrajaya|Sepang|Sungai Buloh|Selayang|Sri Hartamas|Brickfields|Pudu|Bukit Bintang|Chow Kit|Kampung Baru|Keramat|Pantai Dalam|Taman Melawati|Taman Desa|Sungai Besi|Seri Kembangan|Serdang|Bangi|Semenyih|Hulu Langat|Genting Highlands|Bentong|Seremban|Senaling|Johor Bahru|Skudai|Iskandar Puteri|Pasir Gudang|Kulai|Muar|Batu Pahat|Melaka|Ipoh|Penang|George Town|Kota Kinabalu|Kuching|Langkawi|Kuantan|Kuala Terengganu|Kota Bharu|Alor Setar|Taiping|Bukit Jelutong|Setia Alam|Bandar Sunway|Ara Damansara|Sri Damansara|Jinjang|Desa Petaling|Taman Connaught|Bukit Damansara|Bukit Tunku|Kuala Lumpur|Sungai Pusu|Sungai Pisang|Sungai Tua|Sungai Chua|Sungai Rasau|Sungai Ramal|Sungai Long|Jalan Ipoh|Jalan Ampang|Jalan Klang Lama|Menara Kuala Lumpur|Petronas Twin Towers|KLCC".split("|");
+var PL_KEYS=PLACES.map(function(n){return n.toLowerCase().replace(/[^a-z]/g,"")});
+function lev(a,b){var m=a.length,n=b.length,d=[],i,j;for(i=0;i<=m;i++){d[i]=[i]}for(j=1;j<=n;j++)d[0][j]=j;for(i=1;i<=m;i++)for(j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n]}
+function fixPlaces(text){
+  var parts=String(text).split(/(\s+)/),w=[],i;for(i=0;i<parts.length;i+=2)w.push(parts[i]);
+  var out=[],k=0;
+  while(k<w.length){
+    var done=false;
+    for(var n=Math.min(4,w.length-k);n>=1&&!done;n--){
+      var win=w.slice(k,k+n),core=win.join("").toLowerCase().replace(/[^a-z]/g,"");
+      if(core.length<7||win.some(function(x){return !/^[A-Za-z'’-]+[.,!?]?$/.test(x)}))continue;
+      for(var q=0;q<PL_KEYS.length;q++){
+        var key=PL_KEYS[q];if(key.length<7||key[0]!==core[0]||Math.abs(key.length-core.length)>2)continue;
+        var d=lev(core,key);if(d===0){break}
+        if(d<=(key.length>=10?2:1)){
+          var tail=(win[win.length-1].match(/[.,!?]+$/)||[""])[0];
+          out.push(PLACES[q]+tail);k+=n;done=true;break}
+      }
+    }
+    if(!done){out.push(w[k]);k++}
+  }
+  return out.join(" ");
+}
 var offer=null,YES_RE=/^(yes|yeah|yep|yup|sure|ok|okay|please|go ahead|do it|go on|why not|ya|boleh|baik|jom|teruskan|ya boleh|y)( please| sir| jarvis)*$/,NO_RE=/^(no|nope|nah|no thanks|not now|tak|tak nak|tidak|tak perlu|later)( thanks| sir| jarvis)*$/;
 function mkOffer(say,en,ms,zh,ru,ja){offer={say:say,t:Date.now()};return " "+LT(en,ms,zh,null,ru,ja)}
 function send(text){
   text=(text||"").trim();
   if(!text||busy)return;
+  try{text=fixPlaces(text)}catch(e){}
   cancelSpeech();standbyPause();
   if(offer){var o=offer;offer=null;if(Date.now()-o.t<120000){var on=norm(text);
     if(eyes.on){}else if(YES_RE.test(on)){curK=userLang(text);text=o.say}
