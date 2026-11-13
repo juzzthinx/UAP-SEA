@@ -220,6 +220,22 @@ body[data-st=speak] .ringx .r1{animation:pPulse .6s ease-in-out infinite}body[da
 @media (max-height:800px){.orbw{width:160px;height:160px;margin:20px 0 28px}}
 @media (max-height:700px){.orbw{width:136px;height:136px;margin:18px 0 26px}}
 @media (prefers-reduced-motion:reduce){.ringx .rl{animation:none}}
+
+#gest{position:fixed;inset:0;z-index:24;background:#000;display:none;overflow:hidden;color:var(--c)}
+#gest.on{display:block}
+body.gestOn>*:not(#gest):not(#eyes){visibility:hidden!important}
+#gVid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1) translateZ(0);opacity:.55;background:#000}
+#gRing{position:absolute;left:0;top:0;transform-origin:50% 50%;will-change:transform,opacity;transition:opacity .35s ease;pointer-events:auto}
+#gRing.gone{opacity:0;pointer-events:none}
+.gdot{position:absolute;left:0;top:0;width:26px;height:26px;margin:-13px 0 0 -13px;border:2px solid var(--c);border-radius:50%;opacity:0;transition:opacity .15s;pointer-events:none;will-change:transform;box-shadow:0 0 10px var(--c)}
+.gdot::after{content:"";position:absolute;inset:8px;background:var(--c);border-radius:50%}
+.gdot.on{opacity:.9}
+.gtop{position:absolute;left:24px;right:24px;top:18px;display:flex;justify-content:space-between;font:600 10px/1 "Michroma",ui-monospace,monospace;letter-spacing:.3em;color:var(--c);pointer-events:none}
+.ghint{position:absolute;left:0;right:0;top:56px;text-align:center;font:500 12px/1.6 "Barlow",sans-serif;letter-spacing:.06em;color:#dffcf8;text-shadow:0 1px 8px #000;pointer-events:none;padding:0 40px}
+.gcap{position:absolute;left:8%;right:8%;bottom:96px;max-height:22vh;overflow:hidden;text-align:center;color:#fff;font-size:19px;line-height:1.45;text-shadow:0 1px 8px #000,0 0 16px #000;pointer-events:none}
+.gtb{position:absolute;left:0;right:0;bottom:24px;display:flex;gap:10px;justify-content:center}
+.gtb button{background:rgba(0,0,0,.72);border:1px solid var(--c);color:var(--c);border-radius:24px;padding:13px 22px;font:600 11px/1 "Michroma",ui-monospace,monospace;letter-spacing:.18em}
+.gtb button.hot{background:var(--c);color:var(--on)}
 </style>
 </head>
 <body>
@@ -240,7 +256,7 @@ body[data-st=speak] .ringx .r1{animation:pPulse .6s ease-in-out infinite}body[da
 <div class="mkt" id="mkt" role="button" title="Tap to refresh the KLCI"><span class="k">KLCI</span><span class="v" id="mkV">--</span><span class="c" id="mkC"></span><span class="s" id="mkS"></span></div>
 <div class="chips">
   <div class="seg" id="langs"><button data-l="en-US">EN</button><button data-l="ms-MY">BM</button><button data-l="zh-CN">&#20013;&#25991;</button><button data-l="ru-RU">RU</button><button data-l="ja-JP">JP</button></div>
-  <div class="acts"><button type="button" class="pill" id="wazeBtn">WAZE</button><button type="button" class="pill" id="talkBtn">TALK</button><button type="button" class="pill" id="stbyBtn">STANDBY</button></div>
+  <div class="acts"><button type="button" class="pill" id="gestBtn">HANDS</button><button type="button" class="pill" id="wazeBtn">WAZE</button><button type="button" class="pill" id="talkBtn">TALK</button><button type="button" class="pill" id="stbyBtn">STANDBY</button></div>
 </div>
 <div class="modes" id="modes">
   <button data-m="assist" class="on">ASSIST</button>
@@ -437,6 +453,9 @@ body[data-st=speak] .ringx .r1{animation:pPulse .6s ease-in-out infinite}body[da
 <div class="cap" id="eyeCap"></div>
 <div class="chp"><button type="button" data-q="read">READ</button><button type="button" data-q="tr">TRANSLATE</button><button type="button" data-q="ex">EXPLAIN</button></div>
 <div class="tb"><button type="button" id="eyeTalk" class="hot">TALK</button><button type="button" id="eyeAsk">SCAN</button><button type="button" id="eyeFlip">FLIP</button><button type="button" id="eyePhoto">PHOTO</button><button type="button" id="eyeX">CLOSE</button></div></div>
+<div id="gest"><video id="gVid" playsinline muted autoplay></video><div class="gdot" id="gd0"></div><div class="gdot" id="gd1"></div><div id="gRing"></div>
+<div class="gtop"><span>HAND CONTROL</span><span id="gSt">STARTING</span></div><div class="ghint" id="gHint"></div><div class="gcap" id="gCap"></div>
+<div class="gtb"><button type="button" id="gTalk" class="hot">TALK</button><button type="button" id="gReset">RESET</button><button type="button" id="gExit">EXIT</button></div></div>
 <script>
 (function(){
 "use strict";
@@ -782,11 +801,12 @@ var vc={ink:"#141414",red:"#d50000",dim:"#8b8680"};
 var vcv=$("viz"),vg=null,vsz=0,vRAF=0;
 function rgba(hex,a){var h=String(hex).trim().replace("#","");if(h.length===3)h=h.replace(/./g,"$&$&");var n=parseInt(h,16);if(isNaN(n))n=0;return"rgba("+((n>>16)&255)+","+((n>>8)&255)+","+(n&255)+","+a+")"}
 function vizColors(){var s=getComputedStyle(document.documentElement);vc.ink=s.getPropertyValue("--t").trim()||vc.ink;vc.red=s.getPropertyValue("--c").trim()||vc.red;vc.dim=s.getPropertyValue("--dim").trim()||vc.dim;var n=document.documentElement.getAttribute("data-theme")==="night";vc.glow=n?10:0;vc.add=n;vc.hi=n?"#e9fffb":vc.red}
-function vizSize(){var dpr=Math.min(window.devicePixelRatio||1,2),w=vcv.clientWidth||170;vsz=w;vcv.width=Math.round(w*dpr);vcv.height=Math.round(w*dpr);vg=vcv.getContext("2d");vg.__dpr=dpr;vg.setTransform(dpr,0,0,dpr,0,0)}
+function vizSize(){var dpr=gestLive?1:Math.min(window.devicePixelRatio||1,2),w=vcv.clientWidth||170;vsz=w;vcv.width=Math.round(w*dpr);vcv.height=Math.round(w*dpr);vg=vcv.getContext("2d");vg.__dpr=dpr;vg.setTransform(dpr,0,0,dpr,0,0)}
 var VN=96;
 function vizFrame(ts){
   vRAF=requestAnimationFrame(vizFrame);
   if(!vg||eyesLive)return;
+  if(gestLive&&ts-(viz.lastG||0)<30)return;viz.lastG=ts;
   var t=ts/1000,dt=Math.min(0.05,Math.max(0.001,t-(viz.t0||t)));viz.t0=t;
   var W=vsz,cx=W/2,cy=W/2,R=W*0.27,st=viz.state,g=vg,i,TAU=6.2832;
   var w=viz.w||(viz.w={l:0,t:0,s:0,b:0}),k=1-Math.exp(-dt*7);
@@ -1003,7 +1023,7 @@ function wxMoon(g,x,y,r,t){
 }
 function wxFrame(ts){
   wxRAF=requestAnimationFrame(wxFrame);
-  if(!wxg||eyesLive)return;
+  if(!wxg||eyesLive||gestLive)return;
   var g=wxg,W=wxcv.clientWidth||54,t=ts/1000,k=wx?wx.kind:"load",day=wx?wx.day:true,cx=W/2,cy=W/2,ink=wxC.ink,red=wxC.red,i;
   g.clearRect(0,0,W,W);g.lineCap="round";
   var dx=Math.sin(t*0.6)*2;
@@ -1032,7 +1052,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.7";var lastEndSir=false;var eyesLive=false;
+var VER="v9.8";var lastEndSir=false;var eyesLive=false,gestLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1880,6 +1900,122 @@ function askPhoto(img,q){
   msgs[msgs.length-1]=Object.assign({},msgs[msgs.length-1],{content:q,img:img});
   deepNow=false;runStream(msgs);
 }
+
+function camGet(face,w,h,fps){
+  var tries=[{video:{facingMode:{ideal:face},width:{ideal:w},height:{ideal:h},frameRate:{ideal:fps,max:fps}},audio:false},{video:{facingMode:{ideal:face}},audio:false},{video:true,audio:false}],i=0;
+  function go(){return navigator.mediaDevices.getUserMedia(tries[i]).catch(function(e){
+    if(++i<tries.length&&/NotReadable|Overconstrained|Abort|Type|Constraint/i.test(String(e&&e.name)))return new Promise(function(r){setTimeout(r,400)}).then(go);
+    throw e})}
+  return go();
+}
+/* ---------- HANDS: gesture control of the ring (MediaPipe hand tracking) ---------- */
+var gest={gap:60,lastT:-1,on:false,stream:null,lm:null,raf:0,lastDet:0,x:0,y:0,s:1,tx:0,ty:0,ts:1,vis:true,fistT:0,openT:0,hideAt:0,lastHand:0,base:380,poll:0,cap:""};
+var G_BUNDLES=["https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs","https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm","https://unpkg.com/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs"];
+var G_WASM="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm";
+var G_MODEL="https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task";
+function gMap(nx,ny){
+  var v=$("gVid"),W=innerWidth,H=innerHeight,vw=v.videoWidth||640,vh=v.videoHeight||480,sc=Math.max(W/vw,H/vh),dw=vw*sc,dh=vh*sc;
+  return{x:(W-dw)/2+(1-nx)*dw,y:(H-dh)/2+ny*dh};
+}
+function gInfo(lm){
+  function d(a,b){var dx=a.x-b.x,dy=a.y-b.y;return Math.sqrt(dx*dx+dy*dy)}
+  var w=lm[0],ext=0;[[8,6],[12,10],[16,14],[20,18]].forEach(function(p){if(d(lm[p[0]],w)>d(lm[p[1]],w)*1.12)ext++});
+  var ids=[0,5,9,13,17],cx=0,cy=0;ids.forEach(function(i){cx+=lm[i].x;cy+=lm[i].y});
+  return{ext:ext,cx:cx/5,cy:cy/5};
+}
+function gPlace(x,y,snap){gest.tx=x;gest.ty=y;if(snap){gest.x=x;gest.y=y}}
+function gHide(){gest.vis=false;gest.hideAt=performance.now();gest.fistT=0;gest.openT=0;$("gRing").classList.add("gone");gest.ts=0.05;$("gHint").textContent="Ring hidden. Open your palm to bring me back."}
+function gShow(x,y){gest.vis=true;gest.openT=0;gPlace(x,y,true);gest.ts=gest.s<0.2?1:gest.s;if(gest.s<0.2)gest.s=0.4;$("gRing").classList.remove("gone");$("gHint").textContent="One open hand moves me. Two hands make me bigger or smaller. A fist hides me."}
+function gProcess(res){
+  var now=performance.now(),hs=(res&&res.landmarks)||[],info=hs.map(gInfo),W=innerWidth,H=innerHeight;
+  [0,1].forEach(function(i){var d=$("gd"+i);if(info[i]){var p=gMap(info[i].cx,info[i].cy);d.style.transform="translate("+p.x+"px,"+p.y+"px)";d.classList.add("on")}else d.classList.remove("on")});
+  if(!info.length){gest.fistT=0;gest.openT=0;if(now-gest.lastHand>3000&&gest.vis)$("gHint").textContent="Show your hand to the camera.";return}
+  gest.lastHand=now;
+  var pts=info.map(function(h){return gMap(h.cx,h.cy)}),openI=[],fists=0;
+  info.forEach(function(h,i){if(h.ext>=3)openI.push(i);else if(h.ext<=1)fists++});
+  var opens=openI.length;
+  if(gest.vis){
+    if(fists>=1&&opens===0){if(!gest.fistT)gest.fistT=now;if(now-gest.fistT>550)gHide()}else gest.fistT=0;
+    if(opens===2){
+      var a=pts[openI[0]],b=pts[openI[1]],dist=Math.hypot(a.x-b.x,a.y-b.y);
+      var dia=Math.max(150,Math.min(Math.min(W,H)*1.15,dist*0.95));
+      gPlace((a.x+b.x)/2,(a.y+b.y)/2);gest.ts=dia/(gest.base*1.24);
+      $("gHint").textContent="Size "+Math.round(dia/Math.min(W,H)*100)+"%";
+    }else if(opens===1){var q=pts[openI[0]];gPlace(q.x,q.y)}
+  }else{
+    if(opens>=1&&now-gest.hideAt>1400){if(!gest.openT)gest.openT=now;if(now-gest.openT>700){var q2=pts[openI[0]];gShow(q2.x,q2.y)}}else gest.openT=0;
+  }
+  $("gSt").textContent=gest.vis?(opens===2?"TWO HANDS":opens===1?"MOVING":fists?"FIST":"TRACKING"):"HIDDEN";
+}
+function gFrame(ts){
+  if(!gest.on)return;gest.raf=requestAnimationFrame(gFrame);
+  var v=$("gVid");
+  if(gest.lm&&v.readyState>=2&&v.currentTime!==gest.lastT&&ts-gest.lastDet>gest.gap){
+    gest.lastDet=ts;gest.lastT=v.currentTime;var t0=performance.now();
+    try{gProcess(gest.lm.detectForVideo(v,t0))}catch(e){}
+    gest.gap=Math.max(50,Math.min(140,(performance.now()-t0)*1.8));
+  }
+  gest.x+=(gest.tx-gest.x)*0.3;gest.y+=(gest.ty-gest.y)*0.3;gest.s+=(gest.ts-gest.s)*0.18;
+  $("gRing").style.transform="translate3d("+(gest.x-gest.base/2)+"px,"+(gest.y-gest.base/2)+"px,0) scale("+gest.s+")";
+}
+function gLoad(){
+  if(gest.lm)return Promise.resolve(gest.lm);
+  var i=0;
+  function tryB(){
+    if(i>=G_BUNDLES.length)return Promise.reject(new Error("bundle"));
+    var u=G_BUNDLES[i++];
+    return import(u).then(function(m){return m}).catch(tryB);
+  }
+  return tryB().then(function(m){
+    var FR=m.FilesetResolver||(m.default&&m.default.FilesetResolver),HL=m.HandLandmarker||(m.default&&m.default.HandLandmarker);
+    return FR.forVisionTasks(G_WASM).then(function(fs){
+      function mk(del){return HL.createFromOptions(fs,{baseOptions:{modelAssetPath:G_MODEL,delegate:del},runningMode:"VIDEO",numHands:2,minHandDetectionConfidence:0.5,minHandPresenceConfidence:0.5,minTrackingConfidence:0.5})}
+      return mk("GPU").catch(function(){return mk("CPU")});
+    });
+  }).then(function(l){gest.lm=l;return l});
+}
+function gestOpen(){
+  if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){add("e","This browser cannot open the camera.");return}
+  unlockSpeech();ctx();standbyPause();
+  camGet("user",480,360,24).then(function(st){
+    gest.stream=st;var v=$("gVid");v.srcObject=st;v.play().catch(function(){});
+    var ow=document.querySelector(".orbw"),gr=$("gRing");gr.appendChild(ow);
+    gest.base=ow.offsetWidth||380;gr.style.width=gest.base+"px";gr.style.height=gest.base+"px";
+    gest.on=true;gestLive=true;try{vizSync()}catch(e){}document.body.classList.add("gestOn");$("gest").classList.add("on");
+    gest.vis=true;gest.s=1;gest.ts=1;gest.fistT=0;gest.openT=0;gr.classList.remove("gone");
+    gPlace(innerWidth/2,innerHeight/2,true);$("gCap").textContent="";
+    $("gHint").textContent="Loading hand tracking...";$("gSt").textContent="LOADING";
+    gest.lastHand=performance.now();gest.raf=requestAnimationFrame(gFrame);
+    clearInterval(gest.poll);gest.poll=setInterval(gCapTick,500);
+    gLoad().then(function(){$("gHint").textContent="One open hand moves me. Two hands make me bigger or smaller. A fist hides me.";$("gSt").textContent="TRACKING"}).catch(function(e){
+      $("gHint").textContent="Hand tracking could not load. Check your internet connection, then EXIT and try HANDS again.";$("gSt").textContent="OFFLINE"});
+  }).catch(function(e){
+    var n=String(e&&e.name||e);
+    add("e",/NotAllowed|Permission/i.test(n)?"The camera is blocked. In Chrome tap the lock icon in the address bar, allow Camera for this site, then try HANDS again.":/NotReadable/i.test(n)?"Another app or tab is using the camera. Close other apps and Chrome tabs that use it, then try HANDS again.":"I cannot open the front camera ("+n.slice(0,40)+").");
+  });
+}
+function gestClose(){
+  gest.on=false;gestLive=false;cancelAnimationFrame(gest.raf);clearInterval(gest.poll);
+  var ow=document.querySelector(".orbw"),st=document.querySelector(".stage");
+  if(ow&&st)st.insertBefore(ow,$("status"));
+  $("gRing").style.transform="";$("gest").classList.remove("on");document.body.classList.remove("gestOn");
+  if(gest.stream){try{gest.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}gest.stream=null}
+  try{$("gVid").srcObject=null}catch(e){}
+  [0,1].forEach(function(i){$("gd"+i).classList.remove("on")});
+  try{vizSync();wxSync()}catch(e){}
+  idle();
+}
+function gCapTick(){
+  if(document.hidden)return;
+  var ms=$("log").getElementsByClassName("a"),last=ms.length?ms[ms.length-1]:null;
+  if(last&&(busy||viz.state==="speak"||viz.state==="think")){var t=last.textContent||"";if(t!==gest.cap){gest.cap=t;$("gCap").textContent=t.slice(0,300)}}
+}
+$("gestBtn").addEventListener("click",gestOpen);
+$("gExit").addEventListener("click",gestClose);
+$("gReset").addEventListener("click",function(){gest.s=1;gest.ts=1;gShow(innerWidth/2,innerHeight/2)});
+$("gTalk").addEventListener("click",function(){if(busy)return;unlockSpeech();ctx();cancelSpeech();startListen()});
+window.__gestTest=function(res){gProcess(res)};
+
 
 /* ---------- live eyes: camera with ring HUD ---------- */
 var eyes={on:false,stream:null,face:"environment",poll:0};
