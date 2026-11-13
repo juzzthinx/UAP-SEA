@@ -193,7 +193,9 @@ body.eyesOn #eyes *{animation-play-state:running}
 @keyframes ePulse{50%{opacity:.45}}
 #eyes .tag{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;font:600 11px/1.3 "SF Mono",ui-monospace,Menlo,monospace;letter-spacing:.42em;text-indent:.42em;color:#fff;text-shadow:0 0 8px #000,0 0 12px var(--c);pointer-events:none}
 #eyes .tag small{text-shadow:0 0 6px #000,0 0 10px #000;display:block;margin-top:6px;font-size:8px;letter-spacing:.5em;color:var(--c)}
-#eyes .cap{position:absolute;left:16px;right:16px;bottom:calc(112px + env(safe-area-inset-bottom));max-height:26vh;overflow:auto;color:#fff;font-size:15px;line-height:1.45;text-align:center;text-shadow:0 1px 6px #000,0 0 14px #000}
+#eyes .cap{position:absolute;left:16px;right:16px;bottom:calc(122px + env(safe-area-inset-bottom));max-height:24vh;overflow:auto;color:#fff;font-size:15px;line-height:1.45;text-align:center;text-shadow:0 1px 6px #000,0 0 14px #000}
+#eyes .chp{position:absolute;left:0;right:0;bottom:calc(72px + env(safe-area-inset-bottom));display:flex;gap:8px;justify-content:center}
+#eyes .chp button{background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.55);color:#fff;border-radius:16px;padding:8px 13px;font:600 10px/1 "SF Mono",ui-monospace,Menlo,monospace;letter-spacing:.14em;white-space:nowrap}
 #eyes .tb{position:absolute;left:0;right:0;bottom:calc(22px + env(safe-area-inset-bottom));display:flex;gap:8px;justify-content:center;padding:0 12px}
 #eyes .tb button{white-space:nowrap;background:rgba(0,0,0,.72);border:1px solid var(--c);color:var(--c);border-radius:22px;padding:11px 14px;font:600 11px/1 "SF Mono",ui-monospace,Menlo,monospace;letter-spacing:.14em}
 #eyes .tb button.hot{background:var(--c);color:var(--on)}
@@ -416,6 +418,7 @@ body.eyesOn #eyes *{animation-play-state:running}
 <div class="ringw" id="eyeRing"><svg class="rl r1" viewBox="0 0 200 200"><circle cx="100" cy="100" r="92" fill="none" stroke="currentColor" stroke-width="6" opacity=".9"/><circle cx="100" cy="100" r="64" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".85"/></svg><svg class="rl r2" viewBox="0 0 200 200"><circle cx="100" cy="100" r="78" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="2 7" opacity=".7"/></svg><svg class="rl r3" viewBox="0 0 200 200"><circle cx="100" cy="100" r="98" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="26 14 4 14" opacity=".55"/></svg><svg class="rl r4" viewBox="0 0 200 200"><path d="M100 16 A84 84 0 0 1 184 100" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".85"/></svg>
 <div class="tag">J.A.R.V.I.S<small id="eyeTag">WATCHING</small></div></div>
 <div class="cap" id="eyeCap"></div>
+<div class="chp"><button type="button" data-q="read">READ</button><button type="button" data-q="tr">TRANSLATE</button><button type="button" data-q="ex">EXPLAIN</button></div>
 <div class="tb"><button type="button" id="eyeTalk" class="hot">TALK</button><button type="button" id="eyeAsk">SCAN</button><button type="button" id="eyeFlip">FLIP</button><button type="button" id="eyePhoto">PHOTO</button><button type="button" id="eyeX">CLOSE</button></div></div>
 <script>
 (function(){
@@ -514,7 +517,7 @@ function add(cls,text,links){
   $("log").appendChild(d);$("log").scrollTop=$("log").scrollHeight;return d;
 }
 function renderAll(){$("log").innerHTML="";if(!hist.length){add("s","Online. Say help to hear what I can do.")}hist.forEach(function(m){add(m.role==="user"?"u":"a",m.content)})}
-function saveHist(){hist=hist.slice(-24);sv("jv_hist",JSON.stringify(hist))}
+function saveHist(){hist=hist.slice(-32);sv("jv_hist",JSON.stringify(hist))}
 function saveTasks(){sv("jv_tasks",JSON.stringify(tasks))}
 
 /* ---------- audio ---------- */
@@ -1012,7 +1015,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.4";var eyesLive=false;
+var VER="v9.5";var lastEndSir=false;var eyesLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1155,9 +1158,16 @@ function buildGreeting(w,k,wake){
 var SIRW={en:"Sir",ms:"Tuan",zh:"\u5148\u751f",ru:"\u0441\u044d\u0440",ja:"\u30b5\u30fc"};
 var SIR_END=/(sir|tuan|\u5148\u751f|\u0441\u044d\u0440|\u30b5\u30fc)[\s.!?\u3002\uff01\uff1f"')\]]*$/i;
 function sirSep(k){return k==="zh"?"\uff0c":k==="ja"?"\u3001":", "}
-function sirEnsure(t,k){
+var CLOSERS=/(at your service|as you wish|consider it done|right away|whenever you are ready|whenever you.re ready|my pleasure|noted|standing by|good call|say the word|anytime|you got it|understood|as always|very well|of course)[\s.!?]*$/i;
+function sirEnsure(t,k,vary){
+  var o=sirEnsure0(t,k),x=String(o).trim(),ends=SIR_END.test(x);
+  if(ends&&vary&&lastEndSir&&(k||curK||"en")==="en"&&Math.random()<0.55){var d=x.replace(/,\s*Sir([.!?]+)$/i,"$1");if(d!==x){o=d;ends=false}}
+  lastEndSir=ends;return o;
+}
+function sirEnsure0(t,k){
   t=String(t==null?"":t);var x=t.trim();
-  if(!x||x==="..."||/```/.test(x)||cfg.mode==="code"||SIR_END.test(x))return t;
+  if(!x||x==="..."||/```/.test(x)||cfg.mode==="code"||SIR_END.test(x)||CLOSERS.test(x))return t;
+  if(lastEndSir&&Math.random()<0.5)return t;
   var ls=x.split(/(?<=[.!?\u2026\u3002\uff01\uff1f])\s+/).pop()||x;
   if(/\b(sir|tuan)\b/i.test(ls)||/[:;]\s*$/.test(x)||/(https?:\/\/\S+|[\u{1F300}-\u{1FAFF}])\s*$/u.test(x)||(/[A-Za-z]/.test(ls)&&ls.split(/\s+/).length>24))return t;
   k=k||curK;var w=SIRW[k]||"Sir",m=/([.!?\u2026\u3002\uff01\uff1f]+)(["')\]]*)\s*$/.exec(x);
@@ -1412,7 +1422,9 @@ function local(raw){
   return null;
 }
 var PRECISION_NOTE="\n\nPRECISION RULES: Accuracy comes before speed or flair. Do not state a fact, number, date, name or quote unless you are confident; if unsure say you are not certain, give your best estimate and how to check it. Never invent sources, links, prices or statistics. Do arithmetic carefully and double-check it before speaking. Answer the exact question he asked, in his own terms, without drifting to a related topic. His words come from speech recognition and may contain mishearings, especially names and Malay or mixed-language terms: read for the most plausible meaning, and when two readings would change the answer, say which one you chose in a few words, or ask. Use the earlier conversation and what you know about him before asking him again. Give what was asked and no unrequested extras.";
-var ADDRESS_NOTE="\n\nADDRESS: He is Sir (in Malay, Tuan). Put Sir as the very last word of your final sentence whenever it suits that sentence, for example: Done, Sir. or It is 391, Sir. or Shall I run the numbers, Sir? If it would sound forced, place it earlier in the sentence instead. Never call him boss or bos. Inside code blocks and code itself, leave it out.";
+var ADDRESS_NOTE="\n\nADDRESS AND SIGN-OFFS: He is Sir (in Malay, Tuan). Vary how you close a reply, like a real person, never the same ending every time. About half the time end with Sir where it fits the last sentence (Done, Sir. or Shall I run the numbers, Sir?). Other times close with a natural Jarvis-style line instead, such as: At your service. As you wish. Consider it done. Right away. Whenever you are ready. My pleasure. Noted. Standing by. Say the word. Good call. Or simply end cleanly with no sign-off. Pick what fits the moment and his mood, and never the same ending twice in a row. Never call him boss or bos. Inside code blocks and code itself, leave sign-offs out.";
+var CONVO_NOTE="\n\nCONVERSATION FLOW: Talk like a sharp, warm person, not a help desk. Use contractions and natural rhythm. React briefly to what he just said before the substance (a short, varied acknowledgement), and vary how you open: never start with the same word two replies in a row, and avoid stock openers like Certainly, Of course, Absolutely or Great question. Do not restate his question or announce what you are about to do. Build on the thread: refer back to things said earlier with it, that, as you said, instead of re-explaining. If he is brief, be brief; if he is thinking out loud, think with him. If he switches between English and Malay mid-sentence, answer in the same natural mix. When he corrects you, accept it in a few words and carry on with the right answer. One idea per sentence, and at most one natural follow-up question when it genuinely moves things forward.";
+function endNote(){try{for(var i=hist.length-2;i>=0;i--){if(hist[i].role==="assistant"){var w=String(hist[i].content||"").replace(/[\s]+/g," ").trim().split(" ").slice(-5).join(" ");return w?"\nYour previous reply ended with: \""+w+"\". Close this one differently.":""}}}catch(e){}return""}
 var CORR_NOTE="\n\nHE MAY BE CORRECTING YOU. If his message corrects you: admit it in five words or fewer, no grovelling, restate the corrected fact exactly as he gave it, then answer again properly, and save the corrected fact with a [[remember: ...]] tag. If it is not a correction, ignore this.";
 var CORR_RE=/^\s*(no|nope|wrong|not that|that'?s (not|wrong|incorrect)|incorrect|actually|i said|i meant|i mean|bukan|salah|tak betul|不是|不对|错了|нет|неправильно|違う|ちがう)(\W|$)|(you('| a)?re wrong|that is wrong|that's not right|not what i (said|asked|meant))/i;
 function systemPrompt(){
@@ -1425,7 +1437,7 @@ function systemPrompt(){
   if(mem.length)s+="\n\nWHAT YOU HAVE LEARNED ABOUT HIM (use it naturally, never recite it):\n"+mem.slice(-40).map(function(x){return"- "+x.t}).join("\n");
   if(cfg.learn!=="0")s+=MEM_NOTE;
   s+=(cfg.mode==="code"?"":(STYLE_NOTE[cfg.style]||STYLE_NOTE.crisp));
-  s+=PRECISION_NOTE+FACT_NOTE+ADDRESS_NOTE+ATTEND_NOTE;
+  s+=PRECISION_NOTE+FACT_NOTE+ADDRESS_NOTE+endNote()+CONVO_NOTE+ATTEND_NOTE;
   s+="\n\nNow: "+new Date().toString();
   return s;
 }
@@ -1854,9 +1866,9 @@ function askPhoto(img,q){
 
 /* ---------- live eyes: camera with ring HUD ---------- */
 var eyes={on:false,stream:null,face:"environment",poll:0};
-function eyesFrame(){
+function eyesFrame(mx){
   var v=$("eyeVid");if(!eyes.on||!v||!v.videoWidth)return null;
-  try{return drawToJpeg(v,v.videoWidth,v.videoHeight,800)}catch(e){return null}
+  try{return drawToJpeg(v,v.videoWidth,v.videoHeight,mx||800)}catch(e){return null}
 }
 function eyesStart(){
   var v=$("eyeVid");
@@ -1902,6 +1914,34 @@ function eyesSnapAsk(q){
   eyes.capT=Date.now();$("eyeCap").textContent="";
   askPhoto(img,q);
 }
+
+var EYE_Q={
+  read:"Read out the text you can see, exactly and in order, like reading it aloud to me. If there is a lot, read the most important parts and say briefly what you skipped. No commentary.",
+  tr:"Translate any text you can see into English. If it is already English, translate it into Malay. Give the translation first, then one short line on what it is (a sign, a menu, a label).",
+  ex:"Explain what this is, what it is for, and anything I should watch out for. Be brief and concrete."
+};
+function eyesHiFrame(){
+  var tr=eyes.stream&&eyes.stream.getVideoTracks&&eyes.stream.getVideoTracks()[0];
+  if(!tr||!tr.applyConstraints)return Promise.resolve(eyesFrame(1400));
+  return tr.applyConstraints({width:{ideal:1920},height:{ideal:1080}}).catch(function(){}).then(function(){
+    return new Promise(function(r){setTimeout(r,520)});
+  }).then(function(){
+    var f=eyesFrame(1400);
+    tr.applyConstraints({width:{ideal:640},height:{ideal:480},frameRate:{ideal:24,max:24}}).catch(function(){});
+    return f;
+  });
+}
+function eyesAction(k){
+  if(busy)return;unlockSpeech();ctx();cancelSpeech();
+  if(!cfg.key){$("eyeCap").textContent="Add a brain key in CONFIG so I can see.";return}
+  $("eyeCap").textContent="Hold steady, Sir...";
+  var q=EYE_Q[k];
+  (k==="ex"?Promise.resolve(eyesFrame(800)):eyesHiFrame()).then(function(img){
+    if(!img){$("eyeCap").textContent="The camera is not ready yet.";return}
+    eyes.capT=Date.now();eyes.cap="";askPhoto(img,q);
+  });
+}
+Array.prototype.forEach.call(document.querySelectorAll("#eyes .chp button"),function(b){b.addEventListener("click",function(){eyesAction(b.dataset.q)})});
 $("eyeRing").addEventListener("click",function(){if(busy)return;unlockSpeech();ctx();cancelSpeech();startListen()});
 $("eyeTalk").addEventListener("click",function(){if(busy)return;unlockSpeech();ctx();cancelSpeech();startListen()});
 $("eyeAsk").addEventListener("click",function(){if(busy)return;eyesSnapAsk("")});
@@ -2051,7 +2091,7 @@ var STYLE_NOTE={
 };
 function mdl(){return(deepNow&&cfg.deepModel)?cfg.deepModel:cfg.model}
 function reply(text,links){
-  text=sirEnsure(text);
+  text=sirEnsure(text,null,true);
   hist.push({role:"assistant",content:text});saveHist();
   add("a",text,links);speak(text);
 }
@@ -2179,7 +2219,7 @@ function send(text){
   busy=true;
   hist.push({role:"user",content:text});
   add("u",text);
-  var msgs=hist.slice(-14);
+  var msgs=hist.slice(-20);
   while(msgs.length&&msgs[0].role!=="user")msgs.shift();
   var liveYes=false;try{if(YES_RE.test(norm(text))){var la=null;for(var hi=hist.length-2;hi>=0;hi--){if(hist[hi].role==="assistant"){la=String(hist[hi].content||"");break}}liveYes=!!la&&/\?\s*$/.test(la.trim().replace(/,?\s*sir\s*\?$/i,"?"))&&/(search|look (it |that )?up|pull (up )?(the )?(latest|results)|find out|check (it )?online|browse|the web)/i.test(la)}}catch(e){}
   if(liveYes||liveWanted(text)){
