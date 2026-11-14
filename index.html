@@ -806,7 +806,10 @@ function speakFlush(all,from){
   var rem=all.slice(from);if(rem.trim())queueSpeech(rem);
   sp.streaming=false;if(sp.pending===0)speechDone();
 }
+/* iPhone keeps output quiet after the mic was used; tell iOS to switch back to loud playback */
+function asType(t){try{if(navigator.audioSession&&navigator.audioSession.type!==t)navigator.audioSession.type=t}catch(e){}}
 function unlockSpeech(){
+  asType("playback");
   try{if(window.speechSynthesis){var u=new SpeechSynthesisUtterance("");u.volume=0;speechSynthesis.speak(u)}}catch(e){}
   ttsUnlock();
 }
@@ -1067,7 +1070,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.9";var lastEndSir=false;var eyesLive=false,gestLive=false;
+var VER="v9.9.1";var lastEndSir=false;var eyesLive=false,gestLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -2040,12 +2043,13 @@ function fillerLine(){
 var SONG_RE=/(what('?s| is) (this|that) (song|track|music)|name (this|that) (song|track)|identify (this|the|that) (song|track|music)|shazam|what am i listening to|what('?s| is) playing)/;
 var SONG_RE2=/(lagu apa (ini|tu)|apa tajuk lagu|这是什么歌|这首歌叫什么|这是啥歌|что это за (песня|музыка|трек)|какая это песня|この曲は|何の曲|この歌は)/;
 function recordClip(ms){
+  asType("play-and-record");
   return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}}).then(function(stream){
     return new Promise(function(res,rej){
       var mr;try{mr=new MediaRecorder(stream)}catch(e){stream.getTracks().forEach(function(t){t.stop()});return rej(e)}
       var ch=[];
       mr.ondataavailable=function(e){if(e.data&&e.data.size)ch.push(e.data)};
-      mr.onstop=function(){stream.getTracks().forEach(function(t){t.stop()});res(new Blob(ch,{type:mr.mimeType||"audio/mp4"}))};
+      mr.onstop=function(){stream.getTracks().forEach(function(t){t.stop()});asType("playback");res(new Blob(ch,{type:mr.mimeType||"audio/mp4"}))};
       mr.start();setTimeout(function(){try{mr.stop()}catch(e){}},ms);
     });
   });
@@ -2818,6 +2822,7 @@ function startListen(quiet){
     if(sent)return;var tx=(lastTxt||"").trim();if(!tx)return;
     sent=true;clearTimeout(silT);listening=false;
     try{me.stop()}catch(e){}
+    asType("playback");
     tick();send(tx);
   }
   me=new SR();rec=me;
@@ -2833,18 +2838,19 @@ function startListen(quiet){
     if(lastTxt.trim()){var wc=lastTxt.trim().split(/\s+/).length,base=parseInt(cfg.sil,10)||1800;silT=setTimeout(fire,wc<4?base+700:base)}
   };
   me.onerror=function(e){
-    listening=false;clearTimeout(silT);
+    listening=false;clearTimeout(silT);asType("playback");
     if(conv.on&&(e.error==="not-allowed"||e.error==="service-not-allowed"))convOff();
     if(e.error==="not-allowed"||e.error==="service-not-allowed"){if(!quiet)add("e","Mic blocked. Settings > Safari > Microphone, and make sure Dictation is on in Settings > General > Keyboard.")}
     else if(!quiet&&e.error!=="no-speech"&&e.error!=="aborted"){add("e","Mic error: "+e.error)}
     idle();
   };
   me.onend=function(){
-    listening=false;clearTimeout(silT);
+    listening=false;clearTimeout(silT);asType("playback");
     if(sent)return;
     if(lastTxt.trim()){sent=true;send(lastTxt)}else if(!busy){if(conv.on)convMiss();else idle()}
   };
-  try{me.start()}catch(e){idle()}
+  asType("play-and-record");
+  try{me.start()}catch(e){asType("playback");idle()}
 }
 function standbyPause(){clearTimeout(standby.timer);var r=standby.rec;standby.rec=null;if(r){try{r.abort()}catch(e){}}}
 function standbySoon(){clearTimeout(standby.timer);standby.timer=setTimeout(standbyListen,500)}
