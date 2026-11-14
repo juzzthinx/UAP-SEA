@@ -404,10 +404,25 @@ body.gestOn>*:not(#gest):not(#eyes){visibility:hidden!important}
   <div class="hint">EYES sends photos to this model when your brain is Groq. Claude and Gemini use their own models.</div>
   <label>Auto-learning</label>
   <select id="learn"><option value="1">On: Jarvis remembers lasting facts you tell him</option><option value="0">Off</option></select>
-  <label>What Jarvis remembers (one per line, edit or delete freely)</label>
+  <label>What Jarvis remembers (one per line, edit or delete freely. Start a line with * to pin it forever)</label>
   <textarea id="memBox" class="sm"></textarea>
   <label>Barge-in (experimental)</label>
   <select id="barge"><option value="0">Off (tap the circle to interrupt)</option><option value="1">On in TALK mode: speak over Jarvis</option></select>
+
+  <h3>SYNC (PHONE AND TABLET)</h3>
+  <div class="hint">Keeps Jarvis's memory the same on all your devices. Everything is encrypted with your sync code before it leaves this device, so the cloud only ever holds scrambled data.</div>
+  <label>Sync address (your sync worker)</label>
+  <input id="syURL" type="text" placeholder="https://jarvissync.yourname.workers.dev" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <label>Sync code (the same on every device)</label>
+  <input id="syCode" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+  <button type="button" class="mini" id="syMake">MAKE A NEW CODE</button>
+  <label>Auto-sync memory</label>
+  <select id="syAuto"><option value="1">On: when Jarvis opens and after memory changes</option><option value="0">Off: only when I tap SYNC</option></select>
+  <button type="button" class="mini" id="syNow">SYNC MEMORY NOW</button>
+  <button type="button" class="mini" id="syPush">SEND SETTINGS TO CLOUD</button>
+  <button type="button" class="mini" id="syPull">GET SETTINGS FROM CLOUD</button>
+  <div class="hint" id="syMsg"></div>
+  <div class="hint">Settings means your keys, voice, links, notes and tasks. Say "sync" any time to sync memory by voice.</div>
 
   <h3>BACKUP</h3>
   <button type="button" class="mini" id="bkExport">DOWNLOAD BACKUP FILE</button>
@@ -1052,7 +1067,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.8";var lastEndSir=false;var eyesLive=false,gestLive=false;
+var VER="v9.9";var lastEndSir=false;var eyesLive=false,gestLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1325,15 +1340,16 @@ function special(text){
   if(/^(look at this|what do you see|scan this|see this|take a look|what is this|whats this|tengok ni|apa ni)$/.test(n)||/^(看看这个|这是什么)$/.test(raw))return{sync:R(LT("Tap EYES, snap the photo, and I will take a look.","Tekan EYES, ambil gambar, saya tengok.","点按EYES拍张照，我来看看。"))};
   if(/^(what do you (remember|know) about me|what have you learned( about me)?|show (me )?(your )?memory)$/.test(n)){
     if(!mem.length)return{sync:R(LT("Nothing yet. Tell me about yourself and I will remember the lasting parts.","Belum ada. Ceritakan tentang diri anda dan saya akan ingat.","还没有。多告诉我一些，我会记住重点。"))};
-    return{sync:R(LT("Here is what I know. ","Ini yang saya tahu. ","这是我记得的。")+mem.slice(-8).map(function(x,i){return(i+1)+", "+x.t}).join(". "))};
+    return{sync:R(LT("Here is what I know. ","Ini yang saya tahu. ","这是我记得的。")+mem.slice().sort(function(a,b){return(b.pin?1:0)-(a.pin?1:0)||(b.ts||0)-(a.ts||0)}).slice(0,8).map(function(x,i){return(i+1)+", "+x.t.replace(/[.!\s]+$/,"")}).join(". "))};
   }
-  if(/^(forget everything( you learned)?|clear (your )?memory|wipe (your )?memory)$/.test(n)){mem=[];memSave();return{sync:R(LT("Memory wiped. Fresh start, Sir.","Memori dipadam. Mula baru, tuan.","记忆已清空，先生。"))}}
-  var fm=n.match(/^forget (?:that |about |the )?(.{3,60})$/);
-  if(fm&&!/^(it|that|this)$/.test(fm[1])){
-    var key=fm[1],before=mem.length;mem=mem.filter(function(x){return x.t.toLowerCase().indexOf(key)<0});memSave();
-    var gone=before-mem.length;
-    return{sync:R(gone?LT("Forgotten. "+gone+(gone>1?" items":" item")+" removed.","Dilupakan. "+gone+" item dibuang.","已忘记，删除了"+gone+"条。"):LT("I had nothing stored about that.","Tiada yang disimpan tentang itu.","我没有存这方面的内容。"))};
+  if(/^(forget everything( you learned)?|clear (your )?memory|wipe (your )?memory)$/.test(n)){memWipe();return{sync:R(LT("Memory wiped. Fresh start, Sir.","Memori dipadam. Mula baru, tuan.","记忆已清空，先生。"))}}
+  var fm=n.match(/^(?:please )?(?:forget|lupa|lupakan) (?:that |about |the |tentang )?(.{3,60})$/);
+  if(fm&&!/^(it|that|this|about it|nothing|never ?mind|everything|all|all of it)$/.test(fm[1])){
+    var gone=memForget(fm[1]);
+    return{sync:R(gone?LT("Forgotten: "+gone,"Dilupakan: "+gone,"已忘记："+gone,null,"Забыл: "+gone,"忘れました："+gone):LT("I had nothing stored about that.","Tiada yang disimpan tentang itu.","我没有存这方面的内容。",null,"У меня ничего об этом не записано.","それについては何も保存していません。"))};
   }
+  if(/^(sync|sync up|sync memory|sync my memory|sync jarvis|sync my devices?|sinkron|sinkronkan( memori)?)$/.test(n))return{cloud:true};
+  var ci=chioIntent(n);if(ci&&ci!=="overview")return{chio:ci};
   if(/(where am i|my (current )?location|share my location|send my location|where are we)/.test(n)||/(di mana saya|lokasi saya|saya kat mana|kat mana ni|lokasi semasa)/.test(n)||/(我在哪|我的位置|当前位置|分享位置)/.test(raw)||/(где я|моё местоположение|мое местоположение|где мы)/.test(n)||/(今どこ|現在地|私の位置|ここはどこ)/.test(raw))return{loc:true};
   if(n.split(" ").length<=8&&(/\b(klci|klse|bursa)\b|\b(stock|share) market\b|how('?s| is) the market|pasaran saham|股市|马股|биржа|株式市場/.test(n)||/(股市|马股|株式市場)/.test(raw)))return{mkt:true};
   if(/^(open |launch |go to |show |start )?(chio|chi o|trading lab|trading assistant)$/.test(n)){var cr=R(LT("Opening Chio, your trading maths assistant.","Membuka Chio, pembantu matematik dagangan anda.","正在打开Chio，您的交易数学助手。",null,"Открываю Chio, вашего помощника по математике трейдинга.","Chioを開きます。"),[{name:"Chio",url:"chio.html"}]);cr.nav="chio.html";return{sync:cr}}
@@ -1349,8 +1365,19 @@ function local(raw){
   if(!n)return null;
   nn=numify(n);
 
-  m=body.match(/^remember(?: that)?[\s,:-]+(.+)/i);
-  if(m){memAdd(m[1].trim());return R(LT("Locked in, Sir. I will remember that.","Baik, tuan. Saya akan ingat.","记住了，先生。",null,"Запомнил, сэр.","覚えました、サー。"))}
+  m=body.match(/^(?:please\s+)?(?:remember|ingat(?:kan)?|keep in mind|note that|note down|don'?t forget)(?:\s+that|\s+bahawa|\s+yang)?[\s,:-]+(.+)/i);
+  if(m&&!/^(when|how|what|if|who|where|why|me\b)/i.test(m[1].trim())){
+    var ft=m[1].trim().replace(/[.!\s]+$/,"");
+    ft=/^to\s+/i.test(ft)?"Reminder: "+ft.replace(/^to\s+/i,""):toThird(ft);
+    memAdd(ft,true);
+    return R(memSay(Math.floor(Math.random()*3)));
+  }
+  m=body.match(/^(?:what do you (?:remember|know) about|what did i tell you about|apa (?:yang )?(?:awak|kamu) (?:ingat|tahu) (?:tentang|pasal))\s+(.+?)[?.!\s]*$/i);
+  if(m&&!/^(me|myself|us)$/i.test(m[1].trim())){
+    var fnd=memFind(m[1],5);
+    if(!fnd.length)return R(LT("I have nothing on that yet.","Saya belum ada apa-apa tentang itu.","这方面我还没有记录。",null,"Об этом у меня пока ничего нет.","それについてはまだ何もありません。"));
+    return R(LT("Here is what I have. ","Ini yang saya ada. ","这是我记得的。",null,"Вот что у меня есть. ","私が覚えているのは次の通りです。")+fnd.map(function(x,i){return(i+1)+", "+x.t.replace(/[.!\s]+$/,"")}).join(". ")+".");
+  }
 
   if(/^(read|show|list|what are) (me )?(my |the )?notes$/.test(n)||/^(my )?notes$/.test(n)){
     var ls=notes.split("\n").map(function(x){return x.replace(/^[-\s]+/,"").trim()}).filter(Boolean).slice(-5);
@@ -1471,7 +1498,8 @@ function systemPrompt(){
   if(ot.length)s+="\n\nHIS OPEN TASKS:\n"+ot.map(function(x){return x.n+". "+x.t}).join("\n");
   if(wx&&Date.now()-wx.ts<3*3600000)s+="\n\nCURRENT WEATHER"+(wx.place?" in "+wx.place:"")+": "+wx.t+"C, "+wxDesc(wx,"en")+", high "+wx.hi+", low "+wx.lo+", rain chance "+wx.pop+"%.";
   s+="\n\nHe currently has the listening language set to "+({en:"English",ms:"Bahasa Malaysia",zh:"Mandarin",ru:"Russian",ja:"Japanese"})[lkey()]+". Reply in whatever language his latest message is in (English, Bahasa Malaysia, Mandarin, Russian or Japanese).";
-  if(mem.length)s+="\n\nWHAT YOU HAVE LEARNED ABOUT HIM (use it naturally, never recite it):\n"+mem.slice(-40).map(function(x){return"- "+x.t}).join("\n");
+  var mp=memPrompt();if(mp)s+="\n\nWHAT YOU HAVE LEARNED ABOUT HIM (lines starting with * are things he told you to remember, so honour them; use it all naturally, never recite it):\n"+mp;
+  try{if(/trad|chio|paper|portfolio|crypto|bitcoin|btc|eth\b|position|stop loss|profit|loss|buy|sell|market|coin/i.test(lastUserText()))s+=chioCtx()}catch(e){}
   if(cfg.learn!=="0")s+=MEM_NOTE;
   s+=(cfg.mode==="code"?"":(STYLE_NOTE[cfg.style]||STYLE_NOTE.crisp));
   s+=PRECISION_NOTE+FACT_NOTE+ADDRESS_NOTE+endNote()+CONVO_NOTE+ATTEND_NOTE;
@@ -1659,6 +1687,93 @@ function paperSay(p,k,brief){
   }else s+=" "+LT("No open positions.","Tiada kedudukan terbuka.","没有持仓。",k,"Открытых позиций нет.","ポジションはありません。");
   return s;
 }
+/* ---------- Chio link v2: real answers from your paper trades ---------- */
+function L2(en,ms){return LT(en,ms,en,null,en,en)}
+function chioIntent(n){
+  if(n.split(" ").length>14)return null;
+  if(!/(trade|trades|trading|position|positions|portfolio|chio|paper|journal|drawdown|win rate|winrate|profit|loss|losses|holding|setup|setups|tag|tags|stats|peak)/.test(n))return null;
+  if(/(worst|biggest|largest) (paper )?(trade|loss)|(worst|biggest|largest) loss/.test(n))return"worst";
+  if(/(best|biggest|largest|top) (paper )?(trade|win)|(best|biggest|largest) win/.test(n))return"best";
+  if(/win ?rate|how many (of my )?(paper )?trades (did i |have i )?win|am i (winning|profitable)|profit factor|(my )?(trading |paper )?stats|(my )?trading performance/.test(n))return"stats";
+  if(/draw ?down|how far (down|off) (am i|from)|from (my )?peak/.test(n))return"dd";
+  if(/(last|latest|recent) (few |three |3 )?(paper )?trades?|what did i (just )?trade|trade history/.test(n))return"last";
+  if(/(open|current) (paper )?positions?|what am i (holding|in)|what do i (hold|have open)|my positions/.test(n))return"pos";
+  if(/(which|what|best|worst).*(setup|setups|tag|tags|strategy|strategies)|my (trading )?mistakes|trading journal|journal summary|what.*working/.test(n))return"tags";
+  return null;
+}
+function chioMoney(v){
+  var my=false,fx=0;try{if(ld("jt_cur","USDT")==="MYR"){var c=JSON.parse(ld("jt_fx","null"));if(c&&c.r>0){my=true;fx=c.r}}}catch(e){}
+  var a=Math.abs(my?v*fx:v),s=fN(a,(a>=100||a===Math.round(a))?0:2);
+  return s+(my?L2(" ringgit"," ringgit"):L2(" dollars"," dolar"));
+}
+function chioStats(P){
+  var tr=(P.trades||[]),sells=tr.filter(function(t){return t.side==="SELL"&&isFinite(t.pnl)});
+  var wins=sells.filter(function(t){return t.pnl>0}),loss=sells.filter(function(t){return t.pnl<=0});
+  var gw=wins.reduce(function(a,t){return a+t.pnl},0),gl=-loss.reduce(function(a,t){return a+t.pnl},0);
+  var best=null,worst=null;sells.forEach(function(t){if(!best||t.pnl>best.pnl)best=t;if(!worst||t.pnl<worst.pnl)worst=t});
+  var tags={};sells.forEach(function(t){var g=(t.tag||"").trim();if(!g)return;var o=tags[g]||(tags[g]={tag:g,n:0,w:0,sum:0});o.n++;if(t.pnl>0)o.w++;o.sum+=t.pnl});
+  var eq=(P.eq||[]).filter(function(x){return x&&isFinite(x.e)}),peak=-Infinity,mdd=0,cur=0;
+  eq.forEach(function(x){if(x.e>peak)peak=x.e;var d=peak>0?(peak-x.e)/peak:0;if(d>mdd)mdd=d;cur=d});
+  var last=eq.length?eq[eq.length-1].e:P.cash;
+  return{n:sells.length,wins:wins.length,wr:sells.length?wins.length/sells.length:0,real:sells.reduce(function(a,t){return a+t.pnl},0),
+    pf:gl>0?gw/gl:(gw>0?Infinity:0),avgW:wins.length?gw/wins.length:0,avgL:loss.length?gl/loss.length:0,best:best,worst:worst,
+    tags:Object.keys(tags).map(function(k){return tags[k]}),mdd:mdd,cur:cur,peak:peak>0?peak:last,last:last,all:tr,sells:sells};
+}
+function chioDate(t){try{return new Date(t).toLocaleDateString("en-GB",{day:"numeric",month:"long"})}catch(e){return""}}
+function chioSym(s){return CNAME[s]||String(s||"").replace("USDT","")}
+function chioTrade(t,k){
+  var nm=chioSym(t.s),up=t.pnl>0,pc=isFinite(t.r)?fN(Math.abs(t.r*100),1):"",why=t.why&&t.why!=="manual"?(t.why==="stop"?L2(", stopped out",", kena stop loss"):t.why==="target"?L2(", hit the target",", capai sasaran"):""):"";
+  var extra=t.tag?L2(", tagged "+t.tag,", tag "+t.tag):"";
+  var nt=(t.exit||t.note||"").trim();nt=nt?L2(". Your note says: "+nt.slice(0,90),". Nota anda: "+nt.slice(0,90)):"";
+  return L2(nm+" on "+chioDate(t.t)+", "+(up?"made ":"lost ")+chioMoney(t.pnl)+(pc?", "+pc+" percent":"")+why+extra+nt+".",
+            nm+" pada "+chioDate(t.t)+", "+(up?"untung ":"rugi ")+chioMoney(t.pnl)+(pc?", "+pc+" peratus":"")+why+extra+nt+".");
+}
+function chioSay(kind,P,pap){
+  var S=chioStats(P);
+  if(kind==="pos"){
+    var ks=Object.keys(P.pos||{});
+    if(!ks.length)return L2("You have no open positions right now.","Tiada kedudukan terbuka sekarang.");
+    var lm={};if(pap&&pap.list)pap.list.forEach(function(h){lm[h.sym]=h});
+    return ks.slice(0,4).map(function(s){var p=P.pos[s],h=lm[s],nm=chioSym(s),q=p.qty>=1?fN(p.qty,2):fN(p.qty,4);
+      var pl=h?L2(", "+(h.pct>=0?"up ":"down ")+fN(Math.abs(h.pct*100),1)+" percent",", "+(h.pct>=0?"naik ":"turun ")+fN(Math.abs(h.pct*100),1)+" peratus"):"";
+      var sl=p.sl>0?L2(", stop loss set",", ada stop loss"):L2(", no stop loss",", tiada stop loss");
+      return L2("You hold "+q+" "+nm+pl+sl+".","Anda pegang "+q+" "+nm+pl+sl+".")}).join(" ");
+  }
+  if(!S.n&&kind!=="dd")return L2("You have no closed trades yet, so there is nothing to measure. Close a position in Chio and I will have real numbers for you.","Anda belum tutup sebarang dagangan, jadi belum ada apa untuk diukur. Tutup satu kedudukan dalam Chio dan saya ada angka sebenar.");
+  if(kind==="worst")return L2("Your worst closed trade was ","Dagangan paling teruk anda ")+chioTrade(S.worst,"en");
+  if(kind==="best")return L2("Your best closed trade was ","Dagangan terbaik anda ")+chioTrade(S.best,"en");
+  if(kind==="last"){
+    var a=S.sells.slice(0,3);
+    return L2("Your last "+a.length+(a.length>1?" closed trades. ":" closed trade. "),"")+a.map(function(t){return chioTrade(t)}).join(" ");
+  }
+  if(kind==="dd"){
+    if(!(P.eq||[]).length)return L2("I do not have an equity history yet.","Belum ada sejarah ekuiti.");
+    var cd=S.cur*100,md=S.mdd*100;
+    return L2("Your account is "+(cd<0.05?"at its peak right now":fN(cd,1)+" percent below its peak")+". The deepest drop so far was "+fN(md,1)+" percent.",
+              "Akaun anda "+(cd<0.05?"berada di puncak sekarang":fN(cd,1)+" peratus di bawah puncak")+". Penurunan terdalam setakat ini "+fN(md,1)+" peratus.");
+  }
+  if(kind==="tags"){
+    var tg=S.tags.filter(function(o){return o.n>=2});
+    if(!tg.length)return L2("Tag your trades in the Chio journal and close a few, and I can tell you which setups work. Right now there are not enough tagged trades.","Letakkan tag pada dagangan dalam jurnal Chio dan tutup beberapa, saya boleh beritahu setup mana yang berkesan. Belum cukup dagangan bertag.");
+    tg.sort(function(a,b){return b.sum/b.n-a.sum/a.n});
+    var t1=tg[0],t2=tg[tg.length-1];
+    var s=L2("Your best tag is "+t1.tag+": "+t1.w+" wins in "+t1.n+" trades, "+(t1.sum>=0?"up ":"down ")+chioMoney(t1.sum)+" in total.","Tag terbaik anda "+t1.tag+": "+t1.w+" menang dalam "+t1.n+" dagangan, "+(t1.sum>=0?"untung ":"rugi ")+chioMoney(t1.sum)+" keseluruhan.");
+    if(tg.length>1&&t2.sum<0)s+=" "+L2("The weakest is "+t2.tag+": "+t2.w+" wins in "+t2.n+", "+chioMoney(t2.sum)+" lost.","Paling lemah "+t2.tag+": "+t2.w+" menang dalam "+t2.n+", rugi "+chioMoney(t2.sum)+".");
+    return s;
+  }
+  var pf=S.pf===Infinity?L2("no losing trades yet","belum ada dagangan rugi"):L2("profit factor "+fN(S.pf,2),"faktor untung "+fN(S.pf,2));
+  return L2("You have closed "+S.n+" trades and won "+S.wins+", a "+fN(S.wr*100,0)+" percent win rate. Realized "+(S.real>=0?"profit ":"loss ")+chioMoney(S.real)+", "+pf+". Average win "+chioMoney(S.avgW)+", average loss "+chioMoney(S.avgL)+".",
+            "Anda tutup "+S.n+" dagangan dan menang "+S.wins+", kadar menang "+fN(S.wr*100,0)+" peratus. "+(S.real>=0?"Untung ":"Rugi ")+"terealisasi "+chioMoney(S.real)+", "+pf+". Purata menang "+chioMoney(S.avgW)+", purata rugi "+chioMoney(S.avgL)+".");
+}
+function chioCtx(){
+  var P=readPaper();if(!P)return"";
+  var S=chioStats(P),ks=Object.keys(P.pos||{});
+  var s="\n\nHIS CHIO PAPER ACCOUNT (practice money, last saved snapshot, these numbers are exact, never invent others): started with "+fN(P.start,0)+" USDT, cash "+fN(P.cash,0)+", last recorded equity "+fN(S.last,0)+" USDT ("+fN((S.last/P.start-1)*100,1)+" percent since start).";
+  s+=ks.length?" Open: "+ks.slice(0,5).map(function(k){return chioSym(k)+" "+fN(P.pos[k].qty,P.pos[k].qty>=1?2:4)+(P.pos[k].sl>0?" (stop set)":" (no stop)")}).join(", ")+".":" No open positions.";
+  s+=S.n?" Closed trades "+S.n+", win rate "+fN(S.wr*100,0)+" percent, realized "+fN(S.real,0)+" USDT.":" No closed trades yet.";
+  if(S.mdd>0)s+=" Deepest drawdown "+fN(S.mdd*100,1)+" percent.";
+  return s+" It is practice money. Do not give financial advice or tell him to buy or sell; discuss risk and what the numbers show.";
+}
 /* ---------- live knowledge and briefing ---------- */
 var FACT_NOTE="\n\nFACT RULES: You are a reliable, facts-driven assistant. Never invent titles, names, dates, numbers, credits, quotes, roles or sources. Only state what you actually know or what the search results say. If results are thin, conflicting or do not mention it, say so plainly in one sentence, for example: I could not verify that, Sir. A short honest answer beats a confident guess. PLACES AND ROUTES: Malaysian place names are often misheard by speech recognition. Never insert the word Sir or any other word into a place name; if a name looks slightly off, use the closest real Malaysian place and move on. You cannot measure distances, drive times, traffic or directions from memory, so never state kilometres, minutes or road names for a route. Say Waze will give the exact route and offer to open it. RECOGNITION: if you do not clearly recognise a name, group, crew, place, song, film, brand or title, say you do not recognise it and ask him to tell you; never describe it from guesswork or from what the name sounds like. You can only say you searched or pulled results when a search was actually run for this answer. Do not narrate your process (no Searching now, no Done). Do not repeat or reword your previous answer; if he asks the same thing again, add what is new or say nothing has changed in one sentence.";
 var LIVE_NOTE="\n\nLIVE SEARCH: use fresh web results and rely only on them for names, titles, dates and numbers. Answer in two or three short spoken sentences. Name the source outlet in words, never read out web addresses. If the results do not clearly confirm the answer, say you could not verify it. Never fill gaps from guesswork."+FACT_NOTE;
@@ -1751,6 +1866,144 @@ $("bkPick").addEventListener("change",function(){
   var f=this.files&&this.files[0];if(!f)return;var fr=new FileReader();fr.onload=function(){restoreFrom(fr.result)};fr.readAsText(f);
 });
 
+/* ---------- SYNC: phone and tablet share memory (and optionally settings), encrypted ---------- */
+var SY={url:"",code:"",key:null,keyFor:"",busy:false,p:null,t:0,last:0,pullArm:0};
+function syClean(c){return String(c||"").toUpperCase().replace(/[^A-Z0-9]/g,"")}
+function syUrlClean(u){u=String(u||"").trim().replace(/\s+/g,"").replace(/\/+$/,"");if(!u)return"";if(!/^https?:\/\//i.test(u))u="https://"+u;return u.replace(/^http:\/\//i,"https://")}
+function syFmt(c){return String(c||"").replace(/(.{4})(?=.)/g,"$1-")}
+function syLoad(){SY.url=syUrlClean(ld("jv_syurl",""));SY.code=syClean(ld("jv_sycode",""))}
+function syOn(){return !!(SY.url&&SY.code.length>=12&&window.crypto&&crypto.subtle)}
+function syEnc8(s){return new TextEncoder().encode(s)}
+function syHex(buf){return Array.prototype.map.call(new Uint8Array(buf),function(b){return("0"+b.toString(16)).slice(-2)}).join("")}
+function syB64(buf){var a=new Uint8Array(buf),s="",i;for(i=0;i<a.length;i+=8192)s+=String.fromCharCode.apply(null,a.subarray(i,i+8192));return btoa(s)}
+function syUn64(s){var b=atob(s),a=new Uint8Array(b.length),i;for(i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a}
+function syId(kind){return crypto.subtle.digest("SHA-256",syEnc8("jarvis-sync|"+kind+"|"+SY.code)).then(syHex)}
+function syKey(){
+  if(SY.key&&SY.keyFor===SY.code)return Promise.resolve(SY.key);
+  return crypto.subtle.importKey("raw",syEnc8(SY.code),"PBKDF2",false,["deriveKey"]).then(function(k){
+    return crypto.subtle.deriveKey({name:"PBKDF2",salt:syEnc8("jarvis-sync-v1"),iterations:120000,hash:"SHA-256"},k,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+  }).then(function(k){SY.key=k;SY.keyFor=SY.code;return k});
+}
+function syEnc(obj){
+  return syKey().then(function(k){
+    var iv=crypto.getRandomValues(new Uint8Array(12));
+    return crypto.subtle.encrypt({name:"AES-GCM",iv:iv},k,syEnc8(JSON.stringify(obj))).then(function(ct){return{v:1,iv:syB64(iv),ct:syB64(ct),ts:Date.now()}});
+  });
+}
+function syDec(doc){
+  return syKey().then(function(k){
+    return crypto.subtle.decrypt({name:"AES-GCM",iv:syUn64(doc.iv)},k,syUn64(doc.ct));
+  }).then(function(buf){return JSON.parse(new TextDecoder().decode(buf))},function(){throw new Error("wrong-code")});
+}
+function syGet(kind){
+  return syId(kind).then(function(id){return fetch(SY.url+"/s/"+id,{cache:"no-store"})}).then(function(r){
+    if(r.status===404)return null;
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    return r.json();
+  }).then(function(doc){return doc&&doc.ct?syDec(doc):null});
+}
+function syPut(kind,obj){
+  return Promise.all([syId(kind),syEnc(obj)]).then(function(a){
+    return fetch(SY.url+"/s/"+a[0],{method:"PUT",headers:{"content-type":"text/plain"},body:JSON.stringify(a[1])});
+  }).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return true});
+}
+function syErr(e){
+  var m=String(e&&e.message||e);
+  if(m==="wrong-code")return"The sync code does not match what is stored. Check it is exactly the same on both devices.";
+  if(/KV|500/.test(m))return"The sync worker is running but its storage is not linked. In Cloudflare, bind the KV namespace to the worker with the name JV.";
+  if(/Failed to fetch|NetworkError|Load failed/i.test(m))return"I cannot reach the sync address. Check it starts with https:// and ends with workers.dev, and that you are online.";
+  return"Sync failed: "+m.slice(0,80);
+}
+function memSigOf(a,d){
+  var x=(a||[]).filter(function(i){return i&&i.t}).map(function(i){return memKey(i.t)+"|"+(i.ts||0)+"|"+(i.pin?1:0)}).sort().join(";");
+  var y=(d||[]).filter(function(i){return i&&i.k}).map(function(i){return i.k+"|"+i.ts}).sort().join(";");
+  return x+"##"+y;
+}
+function memMerge(rm,rd){
+  var map={},dels={};
+  (memDel||[]).concat(rd||[]).forEach(function(d){if(d&&d.k&&(!dels[d.k]||d.ts>dels[d.k]))dels[d.k]=d.ts});
+  mem.concat(rm||[]).forEach(function(x){
+    if(!x||!x.t)return;var k=memKey(x.t);if(!k)return;var c=map[k];
+    if(!c)map[k]={t:x.t,ts:x.ts||0,pin:!!x.pin};
+    else{if((x.ts||0)>c.ts){c.t=x.t;c.ts=x.ts||0}c.pin=c.pin||!!x.pin}
+  });
+  var out=[];Object.keys(map).forEach(function(k){var x=map[k];if(dels[k]&&dels[k]>=x.ts)return;out.push(x)});
+  mem=out;memDel=Object.keys(dels).map(function(k){return{k:k,ts:dels[k]}});
+  memSaveLocal();
+}
+function syncMem(){
+  if(!syOn())return Promise.resolve({off:true});
+  if(SY.busy&&SY.p)return SY.p;
+  SY.busy=true;
+  SY.p=syGet("m").then(function(r){
+    var had=mem.length,sigLocal=memSigOf(mem,memDel);
+    if(r)memMerge(r.mem,r.del);
+    var sigNow=memSigOf(mem,memDel),sigRemote=r?memSigOf(r.mem,r.del):"";
+    var pulled=sigNow!==sigLocal,res={pulled:pulled,added:Math.max(0,mem.length-had),total:mem.length,pushed:false};
+    if(sigNow!==sigRemote)return syPut("m",{mem:mem,del:memDel,at:Date.now()}).then(function(){res.pushed=true;return res});
+    return res;
+  }).then(function(res){SY.busy=false;SY.last=Date.now();sv("jv_syts",String(SY.last));syPaint();return res},function(e){SY.busy=false;throw e});
+  return SY.p;
+}
+function memAutoSync(){
+  if(!syOn()||ld("jv_syauto","1")==="0")return;
+  clearTimeout(SY.t);SY.t=setTimeout(function(){syncMem().catch(function(){})},4000);
+}
+function syCollect(){
+  var o={};try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf("jv_")===0&&!/^(jv_hist|jv_wx|jv_wxloc|jv_loc|jv_sycode|jv_syurl|jv_syts|jv_syauto|jv_mem|jv_memdel)$/.test(k))o[k]=localStorage.getItem(k)}}catch(e){}
+  return o;
+}
+function syPaint(){
+  var m=$("syMsg");if(!m)return;
+  var t=+ld("jv_syts","0");
+  m.textContent=syOn()?(t?"Last memory sync: "+new Date(t).toLocaleString():"Ready. Tap SYNC MEMORY NOW."):"Not set up yet. Enter the sync address and a sync code.";
+}
+function syFill(){
+  syLoad();var a=$("syURL"),b=$("syCode"),c=$("syAuto");if(!a)return;
+  a.value=SY.url;b.value=syFmt(ld("jv_sycode",""));c.value=ld("jv_syauto","1")==="0"?"0":"1";syPaint();
+}
+function sySaveInputs(){
+  var u=syUrlClean($("syURL").value),c=syClean($("syCode").value);
+  sv("jv_syurl",u);sv("jv_sycode",c);sv("jv_syauto",$("syAuto").value==="0"?"0":"1");syLoad();
+}
+function syMsg(t){var m=$("syMsg");if(m)m.textContent=t}
+function syMakeCode(){
+  var al="ABCDEFGHJKMNPQRSTUVWXYZ23456789",a=crypto.getRandomValues(new Uint8Array(16)),s="",i;
+  for(i=0;i<16;i++){s+=al.charAt(a[i]%al.length);if(i%4===3&&i<15)s+="-"}
+  return s;
+}
+if($("syMake")){
+  $("syMake").addEventListener("click",function(){
+    if($("syCode").value.trim()&&!confirm("Make a NEW code? Your other device must then use the new one."))return;
+    $("syCode").value=syMakeCode();sySaveInputs();syMsg("New code made. Type this exact code into your other device. Keep it private: it unlocks your synced data.");
+  });
+  ["syURL","syCode","syAuto"].forEach(function(id){$(id).addEventListener("change",sySaveInputs)});
+  $("syNow").addEventListener("click",function(){
+    sySaveInputs();if(!syOn()){syMsg("Enter the sync address and a sync code first.");return}
+    syMsg("Syncing...");
+    syncMem().then(function(r){syMsg("Memory synced. "+r.total+" items on file"+(r.added?", "+r.added+" new from your other device":"")+".")},function(e){syMsg(syErr(e))});
+  });
+  $("syPush").addEventListener("click",function(){
+    sySaveInputs();if(!syOn()){syMsg("Enter the sync address and a sync code first.");return}
+    syMsg("Sending settings...");
+    syPut("s",{data:syCollect(),at:Date.now()}).then(function(){syMsg("Settings sent to the cloud. On your other device, tap GET SETTINGS FROM CLOUD.")},function(e){syMsg(syErr(e))});
+  });
+  $("syPull").addEventListener("click",function(){
+    sySaveInputs();if(!syOn()){syMsg("Enter the sync address and a sync code first.");return}
+    var now=Date.now();
+    if(now-SY.pullArm>6000){SY.pullArm=now;syMsg("This replaces this device's settings (keys, voice, links, notes, tasks) with the cloud copy. Tap GET SETTINGS FROM CLOUD again to confirm.");return}
+    SY.pullArm=0;syMsg("Getting settings...");
+    syGet("s").then(function(r){
+      if(!r||!r.data){syMsg("Nothing in the cloud yet. On your other device tap SEND SETTINGS TO CLOUD first.");return}
+      var n=0;Object.keys(r.data).forEach(function(k){if(k.indexOf("jv_")===0&&typeof r.data[k]==="string"&&!/^(jv_sycode|jv_syurl|jv_hist|jv_mem|jv_memdel)$/.test(k)){sv(k,r.data[k]);n++}});
+      syMsg("Got "+n+" settings. Reloading...");setTimeout(function(){location.reload()},700);
+    },function(e){syMsg(syErr(e))});
+  });
+}
+syLoad();
+setTimeout(function(){if(syOn()&&ld("jv_syauto","1")!=="0")syncMem().catch(function(){})},2500);
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&syOn()&&ld("jv_syauto","1")!=="0"&&Date.now()-SY.last>60000)syncMem().then(function(r){if(r&&r.pulled)try{hud()}catch(e){}}).catch(function(){})});
+
 /* ---------- conversation mode ---------- */
 var conv={on:false,miss:0};
 var STOP_RE=/^(stand down|stop listening|stop|that is all|thats all|that will be all|thank you|thanks|goodbye|bye|bye bye|sudah|sudah la|tak apa|terima kasih|没事了|谢谢|谢谢你|不用了|хватит|стоп|спасибо|ありがとう|以上です|もういい)$/;
@@ -1842,8 +2095,72 @@ function trackQuery(raw,n){
 /* ---------- memory that grows ---------- */
 var MEM_NOTE="\n\nLEARNING: When he tells you something lasting about himself (a preference, routine, person, plan, project or fact), add at the very end of your reply, on its own, one tag like [[remember: short third-person fact]]. Only for durable facts he stated himself, one tag at most. Never store passwords, card numbers, health details or private details about other people. Never mention the tag, or that you are saving anything, unless he asks.";
 var VIS_NOTE="\n\nHe has shared a photo. Look at it carefully, read any text in it, and answer what he asks. Be brief and spoken-friendly. If it is unclear, say what you can see and ask one short question.";
-function memSave(){mem=mem.slice(-80);sv("jv_mem",JSON.stringify(mem))}
-function memAdd(t){t=String(t).replace(/\s+/g," ").trim().slice(0,160);if(t.length<4)return false;var k=t.toLowerCase();if(mem.some(function(x){return x.t.toLowerCase()===k}))return false;mem.push({t:t,ts:Date.now()});memSave();return true}
+/* ---------- memory v2: pins, fuzzy forget, relevance recall, tombstones for sync ---------- */
+var memDel=[];try{memDel=JSON.parse(ld("jv_memdel","[]"))||[]}catch(e){memDel=[]}if(!Array.isArray(memDel))memDel=[];
+var MEM_STOP={a:1,an:1,the:1,that:1,this:1,about:1,his:1,he:1,him:1,is:1,are:1,was:1,to:1,of:1,and:1,for:1,in:1,on:1,my:1,me:1,it:1,with:1,you:1,your:1,what:1,who:1,how:1,do:1,does:1,did:1,has:1,have:1,had:1,nazreen:1,sir:1,tuan:1,dia:1,yang:1,dan:1,ke:1,di:1,itu:1,ini:1,tentang:1,pasal:1};
+function memKey(t){return String(t).toLowerCase().replace(/[^a-z0-9À-￿]+/g," ").trim()}
+function memToks(t){var o={};memKey(t).split(" ").forEach(function(w){if(w.length>=3&&!MEM_STOP[w]){if(w.length>4)w=w.replace(/(ing|ed|es|s)$/,"");o[w]=1}});return o}
+function memScore(q,t){var a=memToks(q),b=memToks(t),n=0,m=0,k;for(k in a){n++;if(b[k])m++}return n?m/n:0}
+function memJac(x,y){var A=memToks(x),B=memToks(y),i=0,u=0,k;for(k in A){u++;if(B[k])i++}for(k in B)if(!A[k])u++;return u?i/u:0}
+function memSaveLocal(){
+  var pin=mem.filter(function(x){return x.pin}),rest=mem.filter(function(x){return !x.pin}).slice(-200);
+  mem=pin.concat(rest).sort(function(a,b){return(a.ts||0)-(b.ts||0)});
+  var cut=Date.now()-60*86400000;memDel=memDel.filter(function(d){return d&&d.k&&d.ts>cut}).slice(-300);
+  sv("jv_mem",JSON.stringify(mem));sv("jv_memdel",JSON.stringify(memDel));
+}
+function memSave(){memSaveLocal();try{memAutoSync()}catch(e){}}
+function memAdd(t,pin){
+  t=String(t).replace(/\s+/g," ").trim().slice(0,200);if(t.length<4)return false;
+  var k=memKey(t);
+  for(var i=0;i<mem.length;i++){var x=mem[i];
+    if(memKey(x.t)===k||memJac(x.t,t)>=.75){
+      if(memKey(x.t)===k&&(!pin||x.pin))return false;
+      if(t.length>=x.t.length)x.t=t;x.ts=Date.now();if(pin)x.pin=true;memSave();return true;
+    }}
+  mem.push({t:t,ts:Date.now(),pin:!!pin});memSave();return true;
+}
+function memForget(q){
+  q=String(q||"").trim();if(!q)return null;
+  var best=null,bs=0,ql=q.toLowerCase();
+  mem.forEach(function(x){var s=memScore(q,x.t);if(!s&&ql.length>=3&&x.t.toLowerCase().indexOf(ql)>-1)s=.6;if(s>bs){bs=s;best=x}});
+  if(!best||bs<.5)return null;
+  mem=mem.filter(function(x){return x!==best});memDel.push({k:memKey(best.t),ts:Date.now()});memSave();
+  return best.t;
+}
+function memWipe(){mem.forEach(function(x){memDel.push({k:memKey(x.t),ts:Date.now()})});mem=[];memSave()}
+function memReplace(list){
+  var old=mem,keep={};
+  var out=list.map(function(o){var k=memKey(o.t);keep[k]=1;var f=old.filter(function(x){return memKey(x.t)===k})[0];return f?{t:o.t,ts:f.ts||Date.now(),pin:!!o.pin}:{t:o.t,ts:Date.now(),pin:!!o.pin}});
+  old.forEach(function(x){var k=memKey(x.t);if(!keep[k])memDel.push({k:k,ts:Date.now()})});
+  mem=out;memSave();
+}
+function memFind(q,n){
+  var a=mem.map(function(x){var s=memScore(q,x.t);if(!s&&String(q).length>=3&&x.t.toLowerCase().indexOf(String(q).toLowerCase())>-1)s=.6;return{x:x,s:s}}).filter(function(o){return o.s>=.5});
+  a.sort(function(p,q2){return q2.s-p.s||(q2.x.ts||0)-(p.x.ts||0)});
+  return a.slice(0,n||5).map(function(o){return o.x});
+}
+function lastUserText(){for(var i=hist.length-1;i>=0;i--)if(hist[i]&&hist[i].role==="user")return String(hist[i].content||"");return""}
+function memPrompt(){
+  if(!mem.length)return"";
+  var q=lastUserText(),used={},out=[];
+  function take(x){var k=memKey(x.t);if(used[k]||out.length>=45)return;used[k]=1;out.push((x.pin?"* ":"- ")+x.t)}
+  mem.filter(function(x){return x.pin}).slice(-20).forEach(take);
+  if(q)mem.map(function(x){return{x:x,s:memScore(q,x.t)}}).filter(function(o){return o.s>0}).sort(function(a,b){return b.s-a.s}).slice(0,12).forEach(function(o){take(o.x)});
+  mem.slice(-15).forEach(take);
+  return out.join("\n");
+}
+function toThird(t){
+  t=String(t).trim().replace(/\bI['’]m\b/g,"he is").replace(/\bI am\b/g,"he is").replace(/\bI['’]ve\b/g,"he has").replace(/\bI have\b/g,"he has").replace(/\bI['’]ll\b/g,"he will").replace(/\bI['’]d\b/g,"he would").replace(/\bI\b/g,"he").replace(/\bmyself\b/gi,"himself").replace(/\bmine\b/gi,"his").replace(/\bmy\b/gi,"his").replace(/\bme\b/gi,"him");
+  return t.charAt(0).toUpperCase()+t.slice(1);
+}
+function memSay(i){
+  var en=["Locked in. I will remember that.","Noted, and on file.","Got it. I will keep that."],
+      ms=["Baik, tuan. Saya akan ingat.","Dicatat.","Baik, saya simpan."],
+      zh=["记住了，先生。","已记下。","好的，我记着了。"],
+      ru=["Запомнил, сэр.","Записал.","Принято."],
+      ja=["覚えました、サー。","メモしました。","承知しました。"];
+  return LT(en[i],ms[i],zh[i],null,ru[i],ja[i]);
+}
 function memScan(s){if(cfg.learn==="0")return;var re=/\[\[\s*remember\s*:\s*([^\]]+?)\s*\]\]/gi,m;s=String(s);while((m=re.exec(s)))memAdd(m[1])}
 function stripMem(s){s=String(s).replace(/\[\[\s*remember\s*:[^\]]*\]\]/gi,"");return s.replace(/\[\[[^\]]*$/,"").replace(/\[$/,"")}
 
@@ -2356,6 +2673,25 @@ function send(text){
       });
       return;
     }
+    if(sx.cloud){
+      busy=true;setState("think","syncing memory...");
+      syncMem().then(function(r){
+        busy=false;
+        if(r.off)reply(LT("Sync is not set up yet. Open CONFIG, SYNC, and add your sync address and code.","Sinkron belum disediakan. Buka CONFIG, SYNC, dan masukkan alamat dan kod sinkron.","同步尚未设置。请在设置的SYNC中填写同步地址和代码。",null,"Синхронизация не настроена. Откройте CONFIG, SYNC.","同期は未設定です。CONFIGのSYNCで設定してください。"));
+        else reply(LT("Memory synced. I have "+r.total+(r.total===1?" thing":" things")+" on file"+(r.added?", "+r.added+" new from your other device":"")+".","Memori disinkron. Saya ada "+r.total+" perkara"+(r.added?", "+r.added+" baharu dari peranti lain":"")+".","记忆已同步，共"+r.total+"条"+(r.added?"，其中"+r.added+"条来自另一台设备":"")+"。",null,"Память синхронизирована: "+r.total+" записей.","記憶を同期しました。"+r.total+"件です。"));
+      }).catch(function(e){busy=false;reply(syErr(e))});
+      return;
+    }
+    if(sx.chio){
+      busy=true;setState("think","reading your Chio account...");
+      var P0=readPaper();
+      if(!P0){busy=false;reply(paperSay({none:true},curK));return}
+      (sx.chio==="pos"?getPaper():Promise.resolve(null)).then(function(pap){
+        busy=false;
+        reply(chioSay(sx.chio,P0,pap)+(sx.chio==="worst"?mkOffer("my last trades","Shall I go through your last few trades?","Mahu saya semak beberapa dagangan terakhir?","要我看看最近几笔交易吗？","Разобрать последние сделки?","直近の取引を見ましょうか？"):""));
+      }).catch(function(){busy=false;reply(chioSay(sx.chio,P0,null))});
+      return;
+    }
     if(sx.paper){
       busy=true;setState("think","checking your paper account...");
       getPaper().then(function(p){busy=false;reply(paperSay(p,curK)+(p.none?"":mkOffer("bitcoin price","Shall I pull up the Bitcoin price to compare?","Mahu saya semak harga Bitcoin?","要我查一下比特币价格吗？","Показать цену Bitcoin?","ビットコイン価格も見ますか？")),p.none?null:[{name:"Chio",url:"chio.html"}])}).catch(function(){busy=false;reply(LT("I cannot reach the market to value your paper account.","Saya tidak dapat pasaran untuk menilai akaun kertas anda.","无法获取行情来估值您的模拟账户。",null,"Не могу получить котировки для оценки счёта.","市場に接続できず、口座を評価できません。"))});
@@ -2664,7 +3000,7 @@ function openSheet(){
   draft={keys:{},models:{}};shownProv=cfg.prov;$("prov").value=cfg.prov;$("base").value=baseCustom;loadProvFields(cfg.prov);
   $("theme").value=theme;
   $("speakOn").value=cfg.speak;$("soul").value=soul;$("notes").value=notes;$("links").value=linksTxt;$("places").value=placesTxt;
-  $("live").value=cfg.live;$("liveModel").value=cfg.liveModel;$("sil").value=cfg.sil;$("reason").value=cfg.reason;$("style").value=cfg.style;$("deepModel").value=cfg.deepModel;$("visModel").value=cfg.visRaw;$("learn").value=cfg.learn;$("barge").value=cfg.barge;$("memBox").value=mem.map(function(x){return x.t}).join("\n");$("auddKey").value=cfg.audd;$("bkMsg").textContent="";$("wxLoc").value=cfg.wxLoc;$("wazeAuto").value=cfg.wazeAuto;
+  $("live").value=cfg.live;$("liveModel").value=cfg.liveModel;$("sil").value=cfg.sil;$("reason").value=cfg.reason;$("style").value=cfg.style;$("deepModel").value=cfg.deepModel;$("visModel").value=cfg.visRaw;$("learn").value=cfg.learn;$("barge").value=cfg.barge;$("memBox").value=mem.map(function(x){return(x.pin?"* ":"")+x.t}).join("\n");syFill();$("auddKey").value=cfg.audd;$("bkMsg").textContent="";$("wxLoc").value=cfg.wxLoc;$("wazeAuto").value=cfg.wazeAuto;
   $("mktOn").value=cfg.mkt;$("saver").value=cfg.saver;$("engine").value=cfg.engine;$("elKey").value=cfg.elKey;$("elVoice").value=cfg.elVoice;$("elModel").value=cfg.elModel;$("fiKey").value=cfg.fiKey;$("fiVoice").value=cfg.fiVoice;$("fiRelay").value=cfg.fiRelay;$("fiModel").value=cfg.fiModel;paintEngine();
   loadVoices();
   $("rate").value=cfg.rate;$("pitch").value=cfg.pitch;paintSliders();$("wakeUrl").value=wakeLink();
@@ -2791,7 +3127,7 @@ $("save").addEventListener("click",function(){
   cfg.live=$("live").value;cfg.liveModel=cleanId($("liveModel").value)||"groq/compound";sv("jv_live",cfg.live);sv("jv_livemodel2",cfg.liveModel);cfg.sil=$("sil").value;sv("jv_sil2",cfg.sil);cfg.reason=$("reason").value;sv("jv_reason",cfg.reason);cfg.style=$("style").value;sv("jv_style",cfg.style);cfg.deepModel=cleanId($("deepModel").value);sv("jv_deepmodel",cfg.deepModel);cfg.mkt=$("mktOn").value;sv("jv_mkt",cfg.mkt);paintMkt();
   cfg.visRaw=cleanId($("visModel").value);cfg.vis=cfg.visRaw||"qwen/qwen3.8-27b";sv("jv_vismodel",cfg.visRaw);
   cfg.learn=$("learn").value;sv("jv_learn",cfg.learn);cfg.barge=$("barge").value;sv("jv_barge",cfg.barge);
-  (function(){var old=mem;mem=$("memBox").value.split("\n").map(function(x){return x.trim()}).filter(Boolean).map(function(t){var o=old.filter(function(x){return x.t===t})[0];return o||{t:t,ts:Date.now()}});memSave()})();
+  (function(){var L=$("memBox").value.split("\n").map(function(x){return x.trim()}).filter(Boolean).map(function(t){var p=/^\*\s*/.test(t);return{t:t.replace(/^\*\s*/,""),pin:p}}).filter(function(o){return o.t});memReplace(L);try{sySaveInputs()}catch(e){}})();
   cfg.audd=cleanId($("auddKey").value);sv("jv_audd",cfg.audd);cfg.wxLoc=$("wxLoc").value;cfg.wazeAuto=$("wazeAuto").value;sv("jv_wxloc",cfg.wxLoc);sv("jv_wazeauto",cfg.wazeAuto);
   soul=$("soul").value.trim()||DEFAULT_SOUL;notes=$("notes").value;linksTxt=$("links").value;placesTxt=$("places").value;
   sv("jv_keys",JSON.stringify(keys));sv("jv_models",JSON.stringify(models));sv("jv_prov",cfg.prov);sv("jv_base",baseCustom);sv("jv_speak",cfg.speak);
