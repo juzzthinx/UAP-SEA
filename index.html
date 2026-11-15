@@ -219,6 +219,23 @@ body[data-st=speak] .ringx .r1{animation:pPulse .6s ease-in-out infinite}body[da
 @keyframes pPulse{50%{opacity:.4}}
 @media (max-height:800px){.orbw{width:160px;height:160px;margin:20px 0 28px}}
 @media (max-height:700px){.orbw{width:136px;height:136px;margin:18px 0 26px}}
+.orbw{touch-action:none;-webkit-tap-highlight-color:transparent;transform:translate3d(var(--rx,0px),var(--ry,0px),0) scale(var(--rs,1))}
+body.gestOn #gRing .orbw{transform:none!important}
+.orbw{pointer-events:none}
+.orbw #orb,.orbw .rchip{pointer-events:auto}
+body.gestOn #gRing .orbw{pointer-events:auto}
+.ringx,.rchip{transition:opacity .35s ease}
+.orbw.rhide .ringx,.orbw.rhide .rchip{opacity:0!important;pointer-events:none}
+.rchip{position:absolute;width:58px;font:600 7px/1 "Michroma",ui-monospace,monospace;letter-spacing:.14em;color:var(--c);z-index:3;cursor:pointer;-webkit-user-select:none;user-select:none}
+.rchip b{display:block;margin-top:5px;font:600 12px/1 "Michroma",ui-monospace,monospace;letter-spacing:0;color:var(--t);white-space:nowrap}
+.rchip b.up{color:var(--c)}.rchip b.dn{color:var(--warn)}
+.rc1,.rc2{right:calc(100% + 28px);text-align:right;padding:6px 8px 6px 0;border-right:1px solid var(--c)}
+.rc3,.rc4{left:calc(100% + 28px);text-align:left;padding:6px 0 6px 8px;border-left:1px solid var(--c)}
+.rc1,.rc3{top:calc(50% - 58px)}.rc2,.rc4{top:calc(50% + 14px)}
+body.nochips .rchip{display:none}
+.orbw.rbig .rchip{opacity:0!important;pointer-events:none}
+header{position:relative;z-index:8}
+#gRing .rchip{display:none}
 @media (prefers-reduced-motion:reduce){.ringx .rl{animation:none}}
 
 #gest{position:fixed;inset:0;z-index:24;background:#000;display:none;overflow:hidden;color:var(--c)}
@@ -246,7 +263,7 @@ body.gestOn>*:not(#gest):not(#eyes){visibility:hidden!important}
 </header>
 <div class="hud"><span id="hL"></span><span id="hR"></span></div>
 <div class="stage">
-  <div class="orbw"><div class="ringx"><svg class="rl r1" viewBox="0 0 200 200"><circle cx="100" cy="100" r="95" fill="none" stroke="currentColor" stroke-width="5" opacity=".85"/><circle cx="100" cy="100" r="86" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".8"/></svg><svg class="rl r2" viewBox="0 0 200 200"><circle cx="100" cy="100" r="99" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 8" opacity=".7"/></svg><svg class="rl r3" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90.5" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="30 14 5 14" opacity=".55"/></svg><svg class="rl r4" viewBox="0 0 200 200"><path d="M100 4 A96 96 0 0 1 196 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".95"/><path d="M100 196 A96 96 0 0 1 4 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".6"/></svg></div><button type="button" id="orb" aria-label="Talk to Jarvis"><canvas id="viz"></canvas></button></div>
+  <div class="orbw"><div class="ringx"><svg class="rl r1" viewBox="0 0 200 200"><circle cx="100" cy="100" r="95" fill="none" stroke="currentColor" stroke-width="5" opacity=".85"/><circle cx="100" cy="100" r="86" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".8"/></svg><svg class="rl r2" viewBox="0 0 200 200"><circle cx="100" cy="100" r="99" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 8" opacity=".7"/></svg><svg class="rl r3" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90.5" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="30 14 5 14" opacity=".55"/></svg><svg class="rl r4" viewBox="0 0 200 200"><path d="M100 4 A96 96 0 0 1 196 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".95"/><path d="M100 196 A96 96 0 0 1 4 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".6"/></svg></div><button type="button" id="orb" aria-label="Talk to Jarvis"><canvas id="viz"></canvas></button><div class="rchip rc1" id="rc1" data-q="what time is it"><span>TIME</span><b id="rv1">--</b></div><div class="rchip rc2" id="rc2" data-q="what is the weather"><span>WEATHER</span><b id="rv2">--</b></div><div class="rchip rc3" id="rc3" data-q="how is the klci"><span>KLCI</span><b id="rv3">--</b></div><div class="rchip rc4" id="rc4" data-q="how is my paper trading"><span>CHIO P/L</span><b id="rv4">--</b></div></div>
   <div class="status" id="status">tap the circle to talk</div>
 </div>
 <div class="wx" id="wx" title="Tap to refresh weather">
@@ -408,6 +425,12 @@ body.gestOn>*:not(#gest):not(#eyes){visibility:hidden!important}
   <textarea id="memBox" class="sm"></textarea>
   <label>Barge-in (experimental)</label>
   <select id="barge"><option value="0">Off (tap the circle to interrupt)</option><option value="1">On in TALK mode: speak over Jarvis</option></select>
+
+  <h3>RING</h3>
+  <div class="hint">Drag the circle to move it. Pinch with two fingers to make it bigger or smaller. Hold your finger on it for a second to hide or show the ring and its data. Tap with two fingers to reset.</div>
+  <label>Data around the ring</label>
+  <select id="rcOn"><option value="1">On: time, weather, KLCI and Chio profit</option><option value="0">Off</option></select>
+  <button type="button" class="mini" id="rgReset">RESET RING</button>
 
   <h3>SYNC (PHONE AND TABLET)</h3>
   <div class="hint">Keeps Jarvis's memory the same on all your devices. Everything is encrypted with your sync code before it leaves this device, so the cloud only ever holds scrambled data.</div>
@@ -1070,7 +1093,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.9.1";var lastEndSir=false;var eyesLive=false,gestLive=false;
+var VER="v9.10";var lastEndSir=false;var eyesLive=false,gestLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1953,7 +1976,7 @@ function memAutoSync(){
   clearTimeout(SY.t);SY.t=setTimeout(function(){syncMem().catch(function(){})},4000);
 }
 function syCollect(){
-  var o={};try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf("jv_")===0&&!/^(jv_hist|jv_wx|jv_wxloc|jv_loc|jv_sycode|jv_syurl|jv_syts|jv_syauto|jv_mem|jv_memdel)$/.test(k))o[k]=localStorage.getItem(k)}}catch(e){}
+  var o={};try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf("jv_")===0&&!/^(jv_hist|jv_wx|jv_wxloc|jv_loc|jv_sycode|jv_syurl|jv_syts|jv_syauto|jv_mem|jv_memdel|jv_ringpos)$/.test(k))o[k]=localStorage.getItem(k)}}catch(e){}
   return o;
 }
 function syPaint(){
@@ -1998,7 +2021,7 @@ if($("syMake")){
     SY.pullArm=0;syMsg("Getting settings...");
     syGet("s").then(function(r){
       if(!r||!r.data){syMsg("Nothing in the cloud yet. On your other device tap SEND SETTINGS TO CLOUD first.");return}
-      var n=0;Object.keys(r.data).forEach(function(k){if(k.indexOf("jv_")===0&&typeof r.data[k]==="string"&&!/^(jv_sycode|jv_syurl|jv_hist|jv_mem|jv_memdel)$/.test(k)){sv(k,r.data[k]);n++}});
+      var n=0;Object.keys(r.data).forEach(function(k){if(k.indexOf("jv_")===0&&typeof r.data[k]==="string"&&!/^(jv_sycode|jv_syurl|jv_hist|jv_mem|jv_memdel|jv_ringpos)$/.test(k)){sv(k,r.data[k]);n++}});
       syMsg("Got "+n+" settings. Reloading...");setTimeout(function(){location.reload()},700);
     },function(e){syMsg(syErr(e))});
   });
@@ -2229,8 +2252,70 @@ function camGet(face,w,h,fps){
     throw e})}
   return go();
 }
+/* ---------- ring v2: data chips and touch control ---------- */
+function ringTick(){
+  try{
+    var d=new Date();$("rv1").textContent=("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);
+    var wt=$("wxT").textContent||"";$("rv2").textContent=/\d/.test(wt)?wt:"--";
+    var b3=$("rv3");if(mk&&typeof mk.pct==="number"){b3.textContent=(mk.pct>=0?"+":"-")+fN(Math.abs(mk.pct),2)+"%";b3.className=mk.pct>=0?"up":"dn"}else{b3.textContent="--";b3.className=""}
+    var b4=$("rv4"),P=readPaper();
+    if(P&&P.start>0){var eq=(P.eq||[]).filter(function(x){return x&&isFinite(x.e)}),last=eq.length?eq[eq.length-1].e:P.cash,pc=(last/P.start-1)*100;b4.textContent=(pc>=0?"+":"-")+fN(Math.abs(pc),1)+"%";b4.className=pc>=0?"up":"dn"}else{b4.textContent="--";b4.className=""}
+  }catch(e){}
+}
+[1,2,3,4].forEach(function(i){
+  $("rc"+i).addEventListener("click",function(){
+    if(busy)return;unlockSpeech();ctx();send(this.getAttribute("data-q"));
+  });
+});
+cfg.rchips=ld("jv_rchips","1")==="0"?"0":"1";
+document.body.classList.toggle("nochips",cfg.rchips==="0");
+function ringFill(){var e=$("rcOn");if(e)e.value=cfg.rchips}
+if($("rcOn"))$("rcOn").addEventListener("change",function(){cfg.rchips=this.value==="0"?"0":"1";sv("jv_rchips",cfg.rchips);document.body.classList.toggle("nochips",cfg.rchips==="0")});
+var rg={x:0,y:0,s:1,h:0,ptr:{},n:0,x0:0,y0:0,sx:0,sy:0,s0:1,d0:1,moved:false,pinch:false,twoMoved:false,lp:0,swallow:0};
+try{var rp0=JSON.parse(ld("jv_ringpos","null"));if(rp0){rg.x=+rp0.x||0;rg.y=+rp0.y||0;rg.s=Math.max(.5,Math.min(1.35,+rp0.s||1));rg.h=rp0.h?1:0}}catch(e){}
+function rgApply(){var o=document.querySelector(".orbw");if(!o)return;o.style.setProperty("--rx",rg.x+"px");o.style.setProperty("--ry",rg.y+"px");o.style.setProperty("--rs",rg.s);o.classList.toggle("rhide",!!rg.h);o.classList.toggle("rbig",rg.s>1.08)}
+function rgSave(){sv("jv_ringpos",JSON.stringify({x:Math.round(rg.x),y:Math.round(rg.y),s:+rg.s.toFixed(2),h:rg.h}))}
+function rgClamp(){
+  var o=document.querySelector(".orbw");if(!o)return;
+  var r=o.getBoundingClientRect(),cx=r.left+r.width/2-rg.x,cy=r.top+r.height/2-rg.y,W=innerWidth,H=innerHeight;
+  rg.x=Math.max(-cx+30,Math.min(W-cx-30,rg.x));rg.y=Math.max(-cy+70,Math.min(H-cy-50,rg.y));
+}
+function rgDist(){var k=Object.keys(rg.ptr);if(k.length<2)return 1;var a=rg.ptr[k[0]],b=rg.ptr[k[1]];return Math.max(20,Math.hypot(a.x-b.x,a.y-b.y))}
+(function(){
+  var ow=document.querySelector(".orbw");if(!ow)return;
+  rgApply();
+  ow.addEventListener("click",function(e){if(Date.now()<rg.swallow){e.stopPropagation();e.preventDefault()}},true);
+  ow.addEventListener("pointerdown",function(e){
+    if(gest.on||eyes.on)return;
+    rg.ptr[e.pointerId]={x:e.clientX,y:e.clientY};rg.n=Object.keys(rg.ptr).length;
+    if(rg.n===1){rg.x0=rg.x;rg.y0=rg.y;rg.sx=e.clientX;rg.sy=e.clientY;rg.moved=false;rg.pinch=false;rg.twoMoved=false;
+      clearTimeout(rg.lp);rg.lp=setTimeout(function(){if(!rg.moved&&!rg.pinch&&rg.n===1){rg.h=rg.h?0:1;rgApply();rgSave();rg.swallow=Date.now()+700;rg.lpDone=true}},650)}
+    else if(rg.n===2){rg.pinch=true;clearTimeout(rg.lp);rg.d0=rgDist();rg.s0=rg.s;rg.twoMoved=false}
+  });
+  window.addEventListener("pointermove",function(e){
+    if(!rg.ptr[e.pointerId])return;rg.ptr[e.pointerId]={x:e.clientX,y:e.clientY};
+    if(rg.n>=2){var d=rgDist();if(Math.abs(d-rg.d0)>14)rg.twoMoved=true;if(rg.twoMoved){rg.s=Math.max(.5,Math.min(1.35,rg.s0*d/rg.d0));rgClamp();rgApply()}return}
+    if(rg.pinch)return;
+    var dx=e.clientX-rg.sx,dy=e.clientY-rg.sy;
+    if(!rg.moved&&Math.hypot(dx,dy)>10){rg.moved=true;clearTimeout(rg.lp)}
+    if(rg.moved){rg.x=rg.x0+dx;rg.y=rg.y0+dy;rgClamp();rgApply()}
+  });
+  function up(e){
+    if(!rg.ptr[e.pointerId])return;delete rg.ptr[e.pointerId];rg.n=Object.keys(rg.ptr).length;
+    if(rg.n>0)return;
+    clearTimeout(rg.lp);
+    if(rg.pinch&&!rg.twoMoved){rg.x=0;rg.y=0;rg.s=1;rg.h=0;rgApply();rgSave();rg.swallow=Date.now()+500}
+    else if(rg.moved||rg.pinch){rg.swallow=Date.now()+400;rgSave()}
+    rg.moved=false;rg.pinch=false;rg.lpDone=false;
+  }
+  window.addEventListener("pointerup",up);window.addEventListener("pointercancel",up);
+  if($("rgReset"))$("rgReset").addEventListener("click",function(){rg.x=0;rg.y=0;rg.s=1;rg.h=0;rgApply();rgSave()});
+})();
+setTimeout(ringTick,1200);setTimeout(ringTick,6000);setInterval(ringTick,15000);
+document.addEventListener("visibilitychange",function(){if(!document.hidden)ringTick()});
+
 /* ---------- HANDS: gesture control of the ring (MediaPipe hand tracking) ---------- */
-var gest={gap:60,lastT:-1,on:false,stream:null,lm:null,raf:0,lastDet:0,x:0,y:0,s:1,tx:0,ty:0,ts:1,vis:true,fistT:0,openT:0,hideAt:0,lastHand:0,base:380,poll:0,cap:""};
+var gest={gap:60,lastT:-1,on:false,stream:null,lm:null,raf:0,lastDet:0,x:0,y:0,s:1,tx:0,ty:0,ts:1,vis:true,fistT:0,openT:0,hideAt:0,lastHand:0,base:380,poll:0,cap:"",thK:null,thT:0,thDone:0};
 var G_BUNDLES=["https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs","https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm","https://unpkg.com/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs"];
 var G_WASM="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm";
 var G_MODEL="https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task";
@@ -2242,18 +2327,33 @@ function gInfo(lm){
   function d(a,b){var dx=a.x-b.x,dy=a.y-b.y;return Math.sqrt(dx*dx+dy*dy)}
   var w=lm[0],ext=0;[[8,6],[12,10],[16,14],[20,18]].forEach(function(p){if(d(lm[p[0]],w)>d(lm[p[1]],w)*1.12)ext++});
   var ids=[0,5,9,13,17],cx=0,cy=0;ids.forEach(function(i){cx+=lm[i].x;cy+=lm[i].y});
-  return{ext:ext,cx:cx/5,cy:cy/5};
+  var th=null;
+  if(ext===0){
+    var sz=d(lm[0],lm[9])||0.1,ty=lm[4].y,mn=Math.min(lm[5].y,lm[9].y,lm[13].y,lm[17].y),mxy=Math.max(lm[5].y,lm[9].y,lm[13].y,lm[17].y);
+    var vert=Math.abs(lm[4].y-lm[2].y)>Math.abs(lm[4].x-lm[2].x)*1.1;
+    if(vert&&ty<mn-0.55*sz)th="up";else if(vert&&ty>mxy+0.55*sz)th="down";
+  }
+  return{ext:ext,cx:cx/5,cy:cy/5,th:th};
 }
 function gPlace(x,y,snap){gest.tx=x;gest.ty=y;if(snap){gest.x=x;gest.y=y}}
 function gHide(){gest.vis=false;gest.hideAt=performance.now();gest.fistT=0;gest.openT=0;$("gRing").classList.add("gone");gest.ts=0.05;$("gHint").textContent="Ring hidden. Open your palm to bring me back."}
-function gShow(x,y){gest.vis=true;gest.openT=0;gPlace(x,y,true);gest.ts=gest.s<0.2?1:gest.s;if(gest.s<0.2)gest.s=0.4;$("gRing").classList.remove("gone");$("gHint").textContent="One open hand moves me. Two hands make me bigger or smaller. A fist hides me."}
+function gShow(x,y){gest.vis=true;gest.openT=0;gPlace(x,y,true);gest.ts=gest.s<0.2?1:gest.s;if(gest.s<0.2)gest.s=0.4;$("gRing").classList.remove("gone");$("gHint").textContent="One open hand moves me. Two hands make me bigger or smaller. A fist hides me. Thumbs up means yes, thumbs down means no."}
+function gThumb(k){
+  var pend=offer&&Date.now()-offer.t<120000;
+  if(!pend){$("gHint").textContent=k==="up"?"Thumbs up. Nothing to confirm right now.":"Thumbs down. Nothing to decline right now.";return}
+  if(busy)return;
+  $("gHint").textContent=k==="up"?"Yes, Sir.":"Not now.";
+  send(k==="up"?"yes":"no");
+}
 function gProcess(res){
   var now=performance.now(),hs=(res&&res.landmarks)||[],info=hs.map(gInfo),W=innerWidth,H=innerHeight;
   [0,1].forEach(function(i){var d=$("gd"+i);if(info[i]){var p=gMap(info[i].cx,info[i].cy);d.style.transform="translate("+p.x+"px,"+p.y+"px)";d.classList.add("on")}else d.classList.remove("on")});
   if(!info.length){gest.fistT=0;gest.openT=0;if(now-gest.lastHand>3000&&gest.vis)$("gHint").textContent="Show your hand to the camera.";return}
   gest.lastHand=now;
-  var pts=info.map(function(h){return gMap(h.cx,h.cy)}),openI=[],fists=0;
-  info.forEach(function(h,i){if(h.ext>=3)openI.push(i);else if(h.ext<=1)fists++});
+  var pts=info.map(function(h){return gMap(h.cx,h.cy)}),openI=[],fists=0,thumbs=[];
+  info.forEach(function(h,i){if(h.th)thumbs.push(h.th);else if(h.ext>=3)openI.push(i);else if(h.ext<=1)fists++});
+  var th0=thumbs[0]||null;
+  if(th0){if(gest.thK!==th0){gest.thK=th0;gest.thT=now}else if(now-gest.thT>650&&now-gest.thDone>2500){gest.thDone=now;gThumb(th0)}}else gest.thK=null;
   var opens=openI.length;
   if(gest.vis){
     if(fists>=1&&opens===0){if(!gest.fistT)gest.fistT=now;if(now-gest.fistT>550)gHide()}else gest.fistT=0;
@@ -2266,7 +2366,7 @@ function gProcess(res){
   }else{
     if(opens>=1&&now-gest.hideAt>1400){if(!gest.openT)gest.openT=now;if(now-gest.openT>700){var q2=pts[openI[0]];gShow(q2.x,q2.y)}}else gest.openT=0;
   }
-  $("gSt").textContent=gest.vis?(opens===2?"TWO HANDS":opens===1?"MOVING":fists?"FIST":"TRACKING"):"HIDDEN";
+  $("gSt").textContent=gest.vis?(opens===2?"TWO HANDS":opens===1?"MOVING":th0?(th0==="up"?"THUMBS UP":"THUMBS DOWN"):fists?"FIST":"TRACKING"):"HIDDEN";
 }
 function gFrame(ts){
   if(!gest.on)return;gest.raf=requestAnimationFrame(gFrame);
@@ -2308,7 +2408,7 @@ function gestOpen(){
     $("gHint").textContent="Loading hand tracking...";$("gSt").textContent="LOADING";
     gest.lastHand=performance.now();gest.raf=requestAnimationFrame(gFrame);
     clearInterval(gest.poll);gest.poll=setInterval(gCapTick,500);
-    gLoad().then(function(){$("gHint").textContent="One open hand moves me. Two hands make me bigger or smaller. A fist hides me.";$("gSt").textContent="TRACKING"}).catch(function(e){
+    gLoad().then(function(){$("gHint").textContent="One open hand moves me. Two hands make me bigger or smaller. A fist hides me. Thumbs up means yes, thumbs down means no.";$("gSt").textContent="TRACKING"}).catch(function(e){
       $("gHint").textContent="Hand tracking could not load. Check your internet connection, then EXIT and try HANDS again.";$("gSt").textContent="OFFLINE"});
   }).catch(function(e){
     var n=String(e&&e.name||e);
@@ -3006,7 +3106,7 @@ function openSheet(){
   draft={keys:{},models:{}};shownProv=cfg.prov;$("prov").value=cfg.prov;$("base").value=baseCustom;loadProvFields(cfg.prov);
   $("theme").value=theme;
   $("speakOn").value=cfg.speak;$("soul").value=soul;$("notes").value=notes;$("links").value=linksTxt;$("places").value=placesTxt;
-  $("live").value=cfg.live;$("liveModel").value=cfg.liveModel;$("sil").value=cfg.sil;$("reason").value=cfg.reason;$("style").value=cfg.style;$("deepModel").value=cfg.deepModel;$("visModel").value=cfg.visRaw;$("learn").value=cfg.learn;$("barge").value=cfg.barge;$("memBox").value=mem.map(function(x){return(x.pin?"* ":"")+x.t}).join("\n");syFill();$("auddKey").value=cfg.audd;$("bkMsg").textContent="";$("wxLoc").value=cfg.wxLoc;$("wazeAuto").value=cfg.wazeAuto;
+  $("live").value=cfg.live;$("liveModel").value=cfg.liveModel;$("sil").value=cfg.sil;$("reason").value=cfg.reason;$("style").value=cfg.style;$("deepModel").value=cfg.deepModel;$("visModel").value=cfg.visRaw;$("learn").value=cfg.learn;$("barge").value=cfg.barge;$("memBox").value=mem.map(function(x){return(x.pin?"* ":"")+x.t}).join("\n");syFill();try{ringFill()}catch(e){}$("auddKey").value=cfg.audd;$("bkMsg").textContent="";$("wxLoc").value=cfg.wxLoc;$("wazeAuto").value=cfg.wazeAuto;
   $("mktOn").value=cfg.mkt;$("saver").value=cfg.saver;$("engine").value=cfg.engine;$("elKey").value=cfg.elKey;$("elVoice").value=cfg.elVoice;$("elModel").value=cfg.elModel;$("fiKey").value=cfg.fiKey;$("fiVoice").value=cfg.fiVoice;$("fiRelay").value=cfg.fiRelay;$("fiModel").value=cfg.fiModel;paintEngine();
   loadVoices();
   $("rate").value=cfg.rate;$("pitch").value=cfg.pitch;paintSliders();$("wakeUrl").value=wakeLink();
