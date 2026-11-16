@@ -236,6 +236,23 @@ body.nochips .rchip{display:none}
 .orbw.rbig .rchip{opacity:0!important;pointer-events:none}
 header{position:relative;z-index:8}
 #gRing .rchip{display:none}
+.rmh{position:absolute;left:calc(94.5% - 13px);top:calc(5.5% - 13px);width:26px;height:26px;border-radius:50%;border:1px solid var(--c);background:rgba(5,12,14,.85);z-index:6;pointer-events:auto;display:flex;align-items:center;justify-content:center;color:var(--c);font:600 15px/1 "Michroma",ui-monospace,monospace;touch-action:none;cursor:pointer;transition:opacity .35s ease;box-shadow:0 0 10px rgba(0,229,200,.25);-webkit-user-select:none;user-select:none}
+.rmh::before{content:"+";display:block;transition:transform .25s ease}
+.orbw.rmo .rmh::before{transform:rotate(45deg)}
+.orbw.rhide .rmh{opacity:0;pointer-events:none}
+.rmi{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;padding:0;border-radius:50%;border:1px solid var(--c);background:rgba(4,12,14,.9);color:var(--c);font:600 7px/1 "Michroma",ui-monospace,monospace;letter-spacing:.1em;display:flex;align-items:center;justify-content:center;text-align:center;z-index:6;opacity:0;pointer-events:none;transform:translate(0,0) scale(.2);transition:transform .3s cubic-bezier(.2,.9,.3,1.25) var(--dl,0s),opacity .2s ease var(--dl,0s),background .15s,color .15s;-webkit-user-select:none;user-select:none;touch-action:none;box-shadow:0 0 12px rgba(0,229,200,.2)}
+.orbw.rmo .rmi{opacity:1;pointer-events:auto;transform:translate(var(--mx,0px),var(--my,0px)) scale(1)}
+.orbw.rhide .rmi{opacity:0!important;pointer-events:none!important}
+.rmi.on{background:var(--c);color:#02100e}
+.orbw.rmo #orb{opacity:.3;transition:opacity .25s ease}
+.orbw.rmo .rchip{opacity:.15!important}
+#gRing .rmh,#gRing .rmi{display:none}
+.rip{position:fixed;left:0;top:0;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;border:1.5px solid var(--c);pointer-events:none;z-index:60;opacity:0;animation:ripO .75s ease-out forwards}
+.rip.b{animation-delay:.12s}
+@keyframes ripO{0%{transform:translate3d(var(--px),var(--py),0) scale(.4);opacity:.85}100%{transform:translate3d(var(--px),var(--py),0) scale(7);opacity:0}}
+.ringx{translate:var(--lx,0px) var(--ly,0px);transition:translate .4s cubic-bezier(.2,.8,.2,1),opacity .35s ease}
+body.nofx .rip{display:none}
+@media (prefers-reduced-motion:reduce){.rip{display:none}}
 @media (prefers-reduced-motion:reduce){.ringx .rl{animation:none}}
 
 #gest{position:fixed;inset:0;z-index:24;background:#000;display:none;overflow:hidden;color:var(--c)}
@@ -263,7 +280,7 @@ body.gestOn>*:not(#gest):not(#eyes){visibility:hidden!important}
 </header>
 <div class="hud"><span id="hL"></span><span id="hR"></span></div>
 <div class="stage">
-  <div class="orbw"><div class="ringx"><svg class="rl r1" viewBox="0 0 200 200"><circle cx="100" cy="100" r="95" fill="none" stroke="currentColor" stroke-width="5" opacity=".85"/><circle cx="100" cy="100" r="86" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".8"/></svg><svg class="rl r2" viewBox="0 0 200 200"><circle cx="100" cy="100" r="99" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 8" opacity=".7"/></svg><svg class="rl r3" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90.5" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="30 14 5 14" opacity=".55"/></svg><svg class="rl r4" viewBox="0 0 200 200"><path d="M100 4 A96 96 0 0 1 196 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".95"/><path d="M100 196 A96 96 0 0 1 4 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".6"/></svg></div><button type="button" id="orb" aria-label="Talk to Jarvis"><canvas id="viz"></canvas></button><div class="rchip rc1" id="rc1" data-q="what time is it"><span>TIME</span><b id="rv1">--</b></div><div class="rchip rc2" id="rc2" data-q="what is the weather"><span>WEATHER</span><b id="rv2">--</b></div><div class="rchip rc3" id="rc3" data-q="how is the klci"><span>KLCI</span><b id="rv3">--</b></div><div class="rchip rc4" id="rc4" data-q="how is my paper trading"><span>CHIO P/L</span><b id="rv4">--</b></div></div>
+  <div class="orbw"><div class="ringx"><svg class="rl r1" viewBox="0 0 200 200"><circle cx="100" cy="100" r="95" fill="none" stroke="currentColor" stroke-width="5" opacity=".85"/><circle cx="100" cy="100" r="86" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".8"/></svg><svg class="rl r2" viewBox="0 0 200 200"><circle cx="100" cy="100" r="99" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 8" opacity=".7"/></svg><svg class="rl r3" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90.5" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="30 14 5 14" opacity=".55"/></svg><svg class="rl r4" viewBox="0 0 200 200"><path d="M100 4 A96 96 0 0 1 196 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".95"/><path d="M100 196 A96 96 0 0 1 4 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".6"/></svg></div><button type="button" id="orb" aria-label="Talk to Jarvis"><canvas id="viz"></canvas></button><div class="rchip rc1" id="rc1" data-q="what time is it"><span>TIME</span><b id="rv1">--</b></div><div class="rchip rc2" id="rc2" data-q="what is the weather"><span>WEATHER</span><b id="rv2">--</b></div><div class="rchip rc3" id="rc3" data-q="how is the klci"><span>KLCI</span><b id="rv3">--</b></div><div class="rchip rc4" id="rc4" data-q="how is my paper trading"><span>CHIO P/L</span><b id="rv4">--</b></div><div class="rmh" id="rmh"></div><button type="button" class="rmi" data-a="eyes">EYES</button><button type="button" class="rmi" data-a="hands">HANDS</button><button type="button" class="rmi" data-a="chio">CHIO</button><button type="button" class="rmi" data-a="tasks">TASKS</button><button type="button" class="rmi" data-a="waze">WAZE</button><button type="button" class="rmi" data-a="talk">TALK</button></div>
   <div class="status" id="status">tap the circle to talk</div>
 </div>
 <div class="wx" id="wx" title="Tap to refresh weather">
@@ -427,9 +444,11 @@ body.gestOn>*:not(#gest):not(#eyes){visibility:hidden!important}
   <select id="barge"><option value="0">Off (tap the circle to interrupt)</option><option value="1">On in TALK mode: speak over Jarvis</option></select>
 
   <h3>RING</h3>
-  <div class="hint">Drag the circle to move it. Pinch with two fingers to make it bigger or smaller. Hold your finger on it for a second to hide or show the ring and its data. Tap with two fingers to reset.</div>
+  <div class="hint">Drag the circle to move it. Pinch with two fingers to make it bigger or smaller. Hold your finger on it for a second to hide or show the ring and its data. Tap with two fingers to reset. Flick it and it glides. Tap the small + on the ring for quick buttons.</div>
   <label>Data around the ring</label>
   <select id="rcOn"><option value="1">On: time, weather, KLCI and Chio profit</option><option value="0">Off</option></select>
+  <label>Touch effects</label>
+  <select id="rfOn"><option value="1">On: ripples, glide and snap</option><option value="0">Off</option></select>
   <button type="button" class="mini" id="rgReset">RESET RING</button>
 
   <h3>SYNC (PHONE AND TABLET)</h3>
@@ -1093,7 +1112,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.10";var lastEndSir=false;var eyesLive=false,gestLive=false;
+var VER="v9.11";var lastEndSir=false;var eyesLive=false,gestLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -2269,9 +2288,9 @@ function ringTick(){
 });
 cfg.rchips=ld("jv_rchips","1")==="0"?"0":"1";
 document.body.classList.toggle("nochips",cfg.rchips==="0");
-function ringFill(){var e=$("rcOn");if(e)e.value=cfg.rchips}
+function ringFill(){var e=$("rcOn");if(e)e.value=cfg.rchips;var f=$("rfOn");if(f)f.value=FX.on?"1":"0"}
 if($("rcOn"))$("rcOn").addEventListener("change",function(){cfg.rchips=this.value==="0"?"0":"1";sv("jv_rchips",cfg.rchips);document.body.classList.toggle("nochips",cfg.rchips==="0")});
-var rg={x:0,y:0,s:1,h:0,ptr:{},n:0,x0:0,y0:0,sx:0,sy:0,s0:1,d0:1,moved:false,pinch:false,twoMoved:false,lp:0,swallow:0};
+var rg={hist:[],x:0,y:0,s:1,h:0,ptr:{},n:0,x0:0,y0:0,sx:0,sy:0,s0:1,d0:1,moved:false,pinch:false,twoMoved:false,lp:0,swallow:0};
 try{var rp0=JSON.parse(ld("jv_ringpos","null"));if(rp0){rg.x=+rp0.x||0;rg.y=+rp0.y||0;rg.s=Math.max(.5,Math.min(1.35,+rp0.s||1));rg.h=rp0.h?1:0}}catch(e){}
 function rgApply(){var o=document.querySelector(".orbw");if(!o)return;o.style.setProperty("--rx",rg.x+"px");o.style.setProperty("--ry",rg.y+"px");o.style.setProperty("--rs",rg.s);o.classList.toggle("rhide",!!rg.h);o.classList.toggle("rbig",rg.s>1.08)}
 function rgSave(){sv("jv_ringpos",JSON.stringify({x:Math.round(rg.x),y:Math.round(rg.y),s:+rg.s.toFixed(2),h:rg.h}))}
@@ -2287,6 +2306,8 @@ function rgDist(){var k=Object.keys(rg.ptr);if(k.length<2)return 1;var a=rg.ptr[
   ow.addEventListener("click",function(e){if(Date.now()<rg.swallow){e.stopPropagation();e.preventDefault()}},true);
   ow.addEventListener("pointerdown",function(e){
     if(gest.on||eyes.on)return;
+    if(e.target.closest&&e.target.closest(".rmh,.rmi"))return;
+    glideStop();rg.hist=[];
     rg.ptr[e.pointerId]={x:e.clientX,y:e.clientY};rg.n=Object.keys(rg.ptr).length;
     if(rg.n===1){rg.x0=rg.x;rg.y0=rg.y;rg.sx=e.clientX;rg.sy=e.clientY;rg.moved=false;rg.pinch=false;rg.twoMoved=false;
       clearTimeout(rg.lp);rg.lp=setTimeout(function(){if(!rg.moved&&!rg.pinch&&rg.n===1){rg.h=rg.h?0:1;rgApply();rgSave();rg.swallow=Date.now()+700;rg.lpDone=true}},650)}
@@ -2298,14 +2319,14 @@ function rgDist(){var k=Object.keys(rg.ptr);if(k.length<2)return 1;var a=rg.ptr[
     if(rg.pinch)return;
     var dx=e.clientX-rg.sx,dy=e.clientY-rg.sy;
     if(!rg.moved&&Math.hypot(dx,dy)>10){rg.moved=true;clearTimeout(rg.lp)}
-    if(rg.moved){rg.x=rg.x0+dx;rg.y=rg.y0+dy;rgClamp();rgApply()}
+    if(rg.moved){rg.x=rg.x0+dx;rg.y=rg.y0+dy;rgClamp();rgApply();var nt=performance.now();rg.hist.push({t:nt,x:rg.x,y:rg.y});while(rg.hist.length>2&&nt-rg.hist[0].t>110)rg.hist.shift()}
   });
   function up(e){
     if(!rg.ptr[e.pointerId])return;delete rg.ptr[e.pointerId];rg.n=Object.keys(rg.ptr).length;
     if(rg.n>0)return;
     clearTimeout(rg.lp);
     if(rg.pinch&&!rg.twoMoved){rg.x=0;rg.y=0;rg.s=1;rg.h=0;rgApply();rgSave();rg.swallow=Date.now()+500}
-    else if(rg.moved||rg.pinch){rg.swallow=Date.now()+400;rgSave()}
+    else if(rg.moved||rg.pinch){rg.swallow=Date.now()+400;if(rg.moved&&!rg.pinch&&FX.on)glideStart();else rgSave()}
     rg.moved=false;rg.pinch=false;rg.lpDone=false;
   }
   window.addEventListener("pointerup",up);window.addEventListener("pointercancel",up);
@@ -2313,6 +2334,106 @@ function rgDist(){var k=Object.keys(rg.ptr);if(k.length<2)return 1;var a=rg.ptr[
 })();
 setTimeout(ringTick,1200);setTimeout(ringTick,6000);setInterval(ringTick,15000);
 document.addEventListener("visibilitychange",function(){if(!document.hidden)ringTick()});
+
+/* ---------- ring v3: radial menu, flick and glide, touch ripples ---------- */
+var FX={on:ld("jv_fx","1")!=="0"};
+document.body.classList.toggle("nofx",!FX.on);
+if($("rfOn"))$("rfOn").addEventListener("change",function(){FX.on=this.value!=="0";sv("jv_fx",FX.on?"1":"0");document.body.classList.toggle("nofx",!FX.on)});
+var gl={raf:0};
+function glideStop(){if(gl.raf){cancelAnimationFrame(gl.raf);gl.raf=0}}
+function rgBounds(){
+  var o=document.querySelector(".orbw"),r=o.getBoundingClientRect(),cx=r.left+r.width/2-rg.x,cy=r.top+r.height/2-rg.y,W=innerWidth,H=innerHeight;
+  return{x0:-cx+30,x1:W-cx-30,y0:-cy+70,y1:H-cy-50,cx:cx,cy:cy,W:W,H:H,ow:o.offsetWidth};
+}
+function rgDocks(B){
+  var R=B.ow*.63*rg.s,xs=[0],ys=[0],d=[];
+  var xl=R+8-B.cx,xr=B.W-R-8-B.cx;if(xl<-12)xs.push(xl);if(xr>12)xs.push(xr);
+  var yt=70+R-B.cy,yb=B.H-R-170-B.cy;if(yt<-12)ys.push(yt);if(yb>12)ys.push(yb);
+  xs.forEach(function(x){ys.forEach(function(y){if(x>=B.x0&&x<=B.x1&&y>=B.y0&&y<=B.y1)d.push({x:x,y:y})})});
+  return d;
+}
+function snapStart(B){
+  var best=null,bd=1e9;
+  rgDocks(B).forEach(function(d){var q=Math.hypot(d.x-rg.x,d.y-rg.y);if(q<bd){bd=q;best=d}});
+  if(!best||bd>90){rgSave();return}
+  var x0=rg.x,y0=rg.y,t0=performance.now(),D=280;
+  function st(t){
+    if(gest.on||eyes.on){gl.raf=0;return}
+    var k=Math.min(1,(t-t0)/D),e=1-Math.pow(1-k,3);
+    rg.x=x0+(best.x-x0)*e;rg.y=y0+(best.y-y0)*e;rgApply();
+    if(k<1)gl.raf=requestAnimationFrame(st);else{gl.raf=0;rgSave()}
+  }
+  gl.raf=requestAnimationFrame(st);
+}
+function glideStart(){
+  var h=rg.hist,n=h.length;rg.hist=[];
+  if(n<2){rgSave();return}
+  var a=h[0],b=h[n-1],dt=b.t-a.t;
+  if(dt<8||performance.now()-b.t>90){rgSave();return}
+  var vx=(b.x-a.x)/dt,vy=(b.y-a.y)/dt;
+  if(Math.hypot(vx,vy)<0.5){rgSave();return}
+  vx=Math.max(-2.2,Math.min(2.2,vx));vy=Math.max(-2.2,Math.min(2.2,vy));
+  var B=rgBounds(),last=performance.now();
+  function step(t){
+    if(gest.on||eyes.on){gl.raf=0;return}
+    var d=Math.min(32,t-last);last=t;
+    rg.x+=vx*d;rg.y+=vy*d;
+    if(rg.x<B.x0){rg.x=B.x0;vx=Math.abs(vx)*.55}else if(rg.x>B.x1){rg.x=B.x1;vx=-Math.abs(vx)*.55}
+    if(rg.y<B.y0){rg.y=B.y0;vy=Math.abs(vy)*.55}else if(rg.y>B.y1){rg.y=B.y1;vy=-Math.abs(vy)*.55}
+    var f=Math.pow(.90,d/16.7);vx*=f;vy*=f;rgApply();
+    if(Math.hypot(vx,vy)<0.03){gl.raf=0;snapStart(B);return}
+    gl.raf=requestAnimationFrame(step);
+  }
+  gl.raf=requestAnimationFrame(step);
+}
+var rm={open:false,drag:false,moved:false,sx:0,sy:0,on:null,was:false};
+function rmLayout(){
+  var o=document.querySelector(".orbw"),W=o.offsetWidth,Rm=W*.4,its=o.querySelectorAll(".rmi");
+  Array.prototype.forEach.call(its,function(el,i){var a=(-90+i*360/its.length)*Math.PI/180;el.style.setProperty("--mx",(Math.cos(a)*Rm).toFixed(1)+"px");el.style.setProperty("--my",(Math.sin(a)*Rm).toFixed(1)+"px");el.style.setProperty("--dl",(i*.03).toFixed(2)+"s")});
+}
+function rmHi(el){Array.prototype.forEach.call(document.querySelectorAll(".rmi"),function(x){x.classList.toggle("on",x===el)});rm.on=el}
+function rmSet(v){var o=document.querySelector(".orbw");if(!o)return;if(v&&!rm.open)rmLayout();rm.open=!!v;o.classList.toggle("rmo",rm.open);if(!rm.open)rmHi(null)}
+function rmGo(a){
+  rmSet(false);
+  if(a==="eyes")$("eyesBtn").click();
+  else if(a==="hands")$("gestBtn").click();
+  else if(a==="waze")$("wazeBtn").click();
+  else if(a==="talk")$("talkBtn").click();
+  else if(a==="tasks"){var t=document.querySelector('button[data-v="tasks"]');if(t)t.click()}
+  else if(a==="chio"){if(!busy){unlockSpeech();ctx();send("open chio")}}
+}
+(function(){
+  var h=$("rmh");if(!h)return;
+  h.addEventListener("pointerdown",function(e){e.preventDefault();e.stopPropagation();glideStop();rm.drag=true;rm.moved=false;rm.sx=e.clientX;rm.sy=e.clientY;rm.was=rm.open;if(!rm.open)rmSet(true)});
+  window.addEventListener("pointermove",function(e){
+    if(!rm.drag)return;
+    if(Math.hypot(e.clientX-rm.sx,e.clientY-rm.sy)>10)rm.moved=true;
+    if(rm.moved){var el=document.elementFromPoint(e.clientX,e.clientY);el=el&&el.closest?el.closest(".rmi"):null;if(el!==rm.on)rmHi(el)}
+  });
+  function up(){
+    if(!rm.drag)return;rm.drag=false;
+    if(rm.moved&&rm.on)rmGo(rm.on.getAttribute("data-a"));
+    else if(rm.moved)rmSet(false);
+    else if(rm.was)rmSet(false);
+    rm.moved=false;
+  }
+  window.addEventListener("pointerup",up);window.addEventListener("pointercancel",up);
+  Array.prototype.forEach.call(document.querySelectorAll(".rmi"),function(el){el.addEventListener("click",function(e){e.stopPropagation();rmGo(this.getAttribute("data-a"))})});
+  document.addEventListener("pointerdown",function(e){if(rm.open&&!(e.target.closest&&e.target.closest(".rmh,.rmi")))rmSet(false)},true);
+})();
+var rpN=0,lnT=0;
+document.addEventListener("pointerdown",function(e){
+  if(!FX.on||gest.on||eyes.on||rpN>=6)return;
+  [0,1].forEach(function(k){
+    var d=document.createElement("div");d.className="rip"+(k?" b":"");
+    d.style.setProperty("--px",e.clientX+"px");d.style.setProperty("--py",e.clientY+"px");
+    document.body.appendChild(d);rpN++;setTimeout(function(){d.remove();rpN--},950);
+  });
+  var o=document.querySelector(".orbw"),rx=document.querySelector(".ringx");
+  if(!o||!rx||(e.target.closest&&e.target.closest(".orbw")))return;
+  var r=o.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),dist=Math.hypot(dx,dy);
+  if(dist>40&&dist<460){var m=Math.min(9,3+dist/70),k2=m/dist;rx.style.setProperty("--lx",(dx*k2).toFixed(1)+"px");rx.style.setProperty("--ly",(dy*k2).toFixed(1)+"px");clearTimeout(lnT);lnT=setTimeout(function(){rx.style.setProperty("--lx","0px");rx.style.setProperty("--ly","0px")},260)}
+},true);
 
 /* ---------- HANDS: gesture control of the ring (MediaPipe hand tracking) ---------- */
 var gest={gap:60,lastT:-1,on:false,stream:null,lm:null,raf:0,lastDet:0,x:0,y:0,s:1,tx:0,ty:0,ts:1,vis:true,fistT:0,openT:0,hideAt:0,lastHand:0,base:380,poll:0,cap:"",thK:null,thT:0,thDone:0};
