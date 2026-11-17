@@ -273,6 +273,11 @@ body.gestOn>*:not(#gest):not(#eyes){visibility:hidden!important}
 
 #holo{position:fixed;inset:0;z-index:90;display:none;background:radial-gradient(ellipse at 50% 40%,rgba(0,44,48,.6),rgba(2,6,8,.98) 72%),#020608;touch-action:none;overflow:hidden;-webkit-user-select:none;user-select:none;color:var(--c)}
 #holo.on{display:block}
+#hVid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1) translateZ(0);opacity:0;pointer-events:none;background:#000;filter:brightness(.8) contrast(1.1) saturate(.7)}
+#holo.ar{background:#000}#holo.ar #hVid{opacity:.62}
+#hCur{position:absolute;left:-23px;top:-23px;width:46px;height:46px;border-radius:50%;border:2px solid #e8fffc;pointer-events:none;opacity:0;z-index:5;transition:transform .09s linear,opacity .15s;background:conic-gradient(rgba(46,230,214,.75) calc(var(--p,0)*360deg),rgba(46,230,214,0) 0);box-shadow:0 0 12px var(--c)}
+#hCur.on{opacity:1}
+#hHands.on{background:var(--c);color:#021012}
 #hc{position:absolute;inset:0;width:100%;height:100%;touch-action:none;animation:hIn .75s linear}
 #holo.fl #hc{opacity:.78}
 #holo::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.26) 2px 3px)}
@@ -552,7 +557,7 @@ body.holoOn>*:not(#holo){visibility:hidden!important}
 <div id="gest"><video id="gVid" playsinline muted autoplay></video><div class="gdot" id="gd0"></div><div class="gdot" id="gd1"></div><div id="gRing"></div>
 <div class="gtop"><span>HAND CONTROL</span><span id="gSt">STARTING</span></div><div class="ghint" id="gHint"></div><div class="gcap" id="gCap"></div>
 <div class="gtb"><button type="button" id="gTalk" class="hot">TALK</button><button type="button" id="gReset">RESET</button><button type="button" id="gExit">EXIT</button></div></div>
-<div id="holo"><canvas id="hc"></canvas><div class="hsw"></div><div class="htop"><div><b>HOLO / EARTH</b><span id="hRead"></span></div><div class="hbt"><button id="hTalk" type="button">TALK</button><button id="hExit" type="button">EXIT</button></div></div><div id="hCap"><div id="hCapU"></div><div id="hCapA"></div></div><div id="hpan"></div><div class="hhint">DRAG TO SPIN · PINCH TO ZOOM · TAP A CITY</div></div>
+<div id="holo"><video id="hVid" playsinline muted autoplay></video><canvas id="hc"></canvas><div id="hCur"></div><div class="hsw"></div><div class="htop"><div><b>HOLO / EARTH</b><span id="hRead"></span></div><div class="hbt"><button id="hHands" type="button">HANDS</button><button id="hTalk" type="button">TALK</button><button id="hExit" type="button">EXIT</button></div></div><div id="hCap"><div id="hCapU"></div><div id="hCapA"></div></div><div id="hpan"></div><div class="hhint" id="hHint">DRAG TO SPIN · PINCH TO ZOOM · TAP A CITY</div></div>
 <script>
 (function(){
 "use strict";
@@ -1153,7 +1158,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.13";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
+var VER="v9.14";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -2431,7 +2436,7 @@ function glideStart(){
   gl.raf=requestAnimationFrame(step);
 }
 /* ---------- HOLO globe v2: voice-driven, country highlight, glass panels, world markets ---------- */
-var HG={on:false,raf:0,last:0,ema:16,n:0,q:0,lon:2,lat:.1,vx:0,vy:0,zoom:1,down:false,ptr:{},pd:0,pz:1,t0:0,tm:0,tl:0,tapT:0,touch:0,tgt:null,W:0,H:0,d:1,R:150,cx:0,cy:0,cyF:.45,cyT:.45,fr:0,cp:[],col:"#2ee6d6",ready:false,sx:0,sy:0,moved:0,mode:"free",hl:[],hlT:0,cmd:0,quotes:{},tour:0,tourT:0,fine:null,city:null,ctry:null,ex:null,panEl:{}};
+var HG={on:false,raf:0,last:0,ema:16,n:0,q:0,lon:2,lat:.1,vx:0,vy:0,zoom:1,down:false,ptr:{},pd:0,pz:1,t0:0,tm:0,tl:0,tapT:0,touch:0,tgt:null,W:0,H:0,d:1,R:150,cx:0,cy:0,cyF:.45,cyT:.45,fr:0,cp:[],col:"#2ee6d6",ready:false,sx:0,sy:0,moved:0,mode:"free",hl:[],hlT:0,cmd:0,quotes:{},tour:0,tourT:0,fine:null,city:null,ctry:null,ex:null,panEl:{},ar:false,hands:[],hDrag:null,hZoom:null,pl:0,pt2:0,zt:0,cur:null,lastT:-1,lastDet:0,gap:60,curCool:0,hvx:0,hvy:0,hAct:0,stream:null,arBusy:false};
 window.__HG=HG;
 var HCITY=[
 ["Kuala Lumpur",3.139,101.687,"Asia/Kuala_Lumpur","Malaysia",1,1],["Putrajaya",2.926,101.696,"Asia/Kuala_Lumpur","Malaysia"],["Penang",5.414,100.329,"Asia/Kuala_Lumpur","Malaysia"],["Johor Bahru",1.4927,103.7414,"Asia/Kuala_Lumpur","Malaysia"],["Kuching",1.5533,110.3593,"Asia/Kuching","Malaysia"],["Kota Kinabalu",5.9804,116.0735,"Asia/Kuala_Lumpur","Malaysia"],["Melaka",2.1896,102.2501,"Asia/Kuala_Lumpur","Malaysia"],["Ipoh",4.5975,101.0901,"Asia/Kuala_Lumpur","Malaysia"],["Langkawi",6.35,99.8,"Asia/Kuala_Lumpur","Malaysia"],
@@ -2493,7 +2498,7 @@ function hcFind(name){
 }
 function hcTitle(s){return String(s).replace(/\b\w/g,function(m){return m.toUpperCase()})}
 function hcSize(){
-  HG.W=window.innerWidth;HG.H=window.innerHeight;HG.d=HG.q>=2?1:Math.min(window.devicePixelRatio||1,2);
+  HG.W=window.innerWidth;HG.H=window.innerHeight;HG.d=HG.q>=2?1:Math.min(window.devicePixelRatio||1,HG.ar?1.5:2);
   HG.cv.width=Math.round(HG.W*HG.d);HG.cv.height=Math.round(HG.H*HG.d);HG.cx=HG.W/2;
 }
 function hcRad(){var pk=Math.max(0,Math.min(1,(.45-HG.cyF)/.11));return Math.min(HG.W*.44,HG.H*(.3-.03*pk))*HG.zoom}
@@ -2644,6 +2649,8 @@ function hcMarkets(speak){
 function hcFocus(e){HG.tourT=performance.now()+9000;hcFly(e.c.lat,e.c.lon,2.4);var q=HG.quotes[e.id],st=hcStatus(e);hcCap("a",e.c.n.toUpperCase()+" · "+e.id+" · "+st+(q?" · "+fN(q.lvl,2)+" ("+hcSgn(q.pct)+")":""))}
 function holoIntent(raw,n){
   var w=n.split(" ").length;if(w>12)return null;
+  if(/^(use|turn on|enable|activate|start|switch on)( my)? (hands?|hand control|hand tracking|gestures?)( control)?$|^(hologram|holo|ar) mode$|^(control|move) (it|the globe) with my hands?$/.test(n))return{k:"ar",on:true};
+  if(HG.on&&/^(turn off|disable|stop|switch off)( my)? (hands?|hand control|hand tracking|gestures?)( control)?$|^hands off$/.test(n))return{k:"ar",on:false};
   if(HG.on&&/^(close|exit|hide|dismiss|back|go back|stop|tutup|turn off)( the)?( globe| hologram| holo| map| earth)?$/.test(n))return{k:"close"};
   if(/^(open|show|launch|start|activate|bring up)( me)?( the| my)? (holo ?globe|globe|hologram|holo|earth|world map|map of the world)$/.test(n))return{k:"open"};
   if(/\bmarkets?\b/.test(n)&&(/\b(global|world|worldwide|international|globally)\b|around the world|market activity/.test(n)||/^(how are|show me|show|display) (the )?(markets|stock markets|world markets)( doing| today| now)?$/.test(n)||/pasaran (global|dunia)/.test(n)))return{k:"markets"};
@@ -2653,13 +2660,81 @@ function holoIntent(raw,n){
 }
 function holoRun(h){
   if(h.k==="close"){hcClose();reply(LT("Globe closed.","Glob ditutup.","地球已关闭。",null,"Глобус закрыт.","地球を閉じました。"));return}
+  if(h.k==="ar"){hcOpen();if(h.on){hcAr(true).then(function(ok){if(!ok&&HG.on)reply(LT("I need a tap for the camera. Press the HANDS button on the globe, Sir.","Saya perlu anda tekan butang HANDS pada glob untuk kamera.","请点按地球上的 HANDS 按钮以打开摄像头。",null,"Нажмите кнопку HANDS на глобусе.","地球のHANDSボタンを押してください。"));else if(ok)reply(LT("Hand control online. Pinch or open your hand and move it to spin the globe, Sir.","Kawalan tangan aktif. Cubit atau buka tangan dan gerakkan untuk memutar glob.","手势控制已启动。捏合或张开手并移动即可旋转地球。",null,"Управление руками включено.","ハンドコントロールを起動しました。"))})}else{hcAr(false);reply(LT("Hand control off.","Kawalan tangan dimatikan.","手势控制已关闭。",null,"Управление руками выключено.","ハンドコントロールを停止しました。"))}return}
   var was=HG.on;hcOpen(h.k==="open"?false:true);
   if(h.k==="open"){reply(LT("Globe online.","Glob dalam talian.","地球已启动。",null,"Глобус включён.","地球を起動しました。"));return}
   if(h.k==="markets")hcMarkets(true);else hcPlace(h.p,true);
 }
+/* ---- AR: camera behind the globe, hands steer it ---- */
+var HCON=[[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17]];
+function hMap(nx,ny){var v=$("hVid"),W=innerWidth,H=innerHeight,vw=v.videoWidth||640,vh=v.videoHeight||480,sc=Math.max(W/vw,H/vh),dw=vw*sc,dh=vh*sc;return{x:(W-dw)/2+(1-nx)*dw,y:(H-dh)/2+ny*dh}}
+function hcHInfo(lm){
+  function D(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+  var w=lm[0],e=[[8,6],[12,10],[16,14],[20,18]].map(function(p){return D(lm[p[0]],w)>D(lm[p[1]],w)*1.12}),sz=D(lm[0],lm[9])||.1,pin=D(lm[4],lm[8])/sz<.38,ext=e.filter(Boolean).length,cx=0,cy=0;
+  [0,5,9,13,17].forEach(function(i){cx+=lm[i].x;cy+=lm[i].y});
+  return{ext:ext,pin:pin,c:hMap(cx/5,cy/5),pm:hMap((lm[4].x+lm[8].x)/2,(lm[4].y+lm[8].y)/2),pt:hMap(lm[8].x,lm[8].y),
+    point:e[0]&&!e[1]&&!e[2]&&!e[3]&&!pin,open:ext>=3&&!pin,fist:ext===0&&!pin}
+}
+function hcCur(x,y,p){var c=$("hCur");if(x==null){c.classList.remove("on");return}c.classList.add("on");c.style.transform="translate("+x+"px,"+y+"px)";c.style.setProperty("--p",Math.min(1,p||0))}
+function hcSelectAt(x,y){
+  var el=document.elementFromPoint(x,y),t=el&&el.closest?el.closest(".gp,#hExit,#hTalk,#hHands"):null;
+  if(t){t.click();return}
+  var best=null,bd=40,i,q;for(i=0;i<HG.cp.length;i++){q=HG.cp[i];var d=Math.hypot(q.x-x,q.y-y);if(d<bd){bd=d;best=q}}
+  if(best){if(best.ex)hcFocus(best.ex);else hcPlace({t:"city",c:best.c},false)}
+}
+function hcHands(res){
+  var hs=(res&&res.landmarks)||[],now=performance.now(),info=hs.map(hcHInfo),R=HG.R||150;
+  HG.hands=hs.map(function(lm){return lm.map(function(p){return hMap(p.x,p.y)})});
+  if(!info.length){hcRelease();HG.cur=null;hcCur(null);HG.hZoom=null;HG.zt=0;return}
+  HG.touch=now;HG.tgt=null;
+  if(info.length>=2){
+    var a=info[0].c,b=info[1].c,d=Math.hypot(a.x-b.x,a.y-b.y);hcRelease();HG.cur=null;hcCur(null);
+    if(!HG.hZoom)HG.hZoom={d0:Math.max(40,d),z0:HG.zoom};else HG.zt=Math.max(.6,Math.min(6.5,HG.hZoom.z0*d/HG.hZoom.d0));
+    return}
+  HG.hZoom=null;HG.zt=0;var h=info[0];
+  if(h.fist){hcRelease();HG.vx=HG.vy=0;HG.pl=HG.pt2=0;HG.cur=null;hcCur(null);return}
+  if(h.pin||h.open){
+    var pos=h.pin?h.pm:h.c,dr=HG.hDrag;HG.cur=null;hcCur(null);
+    if(dr&&now-dr.t<450){
+      var dx=pos.x-dr.x,dy=pos.y-dr.y,dts=Math.max(.02,(now-dr.t)/1000);
+      if(Math.abs(dx)<1.2)dx=0;if(Math.abs(dy)<1.2)dy=0;
+      var g=1.2,rl=-dx/R*g,rt=dy/R*g;HG.pl+=rl;HG.pt2+=rt;HG.hvx=HG.hvx*.5+(-rl/dts)*.5;HG.hvy=HG.hvy*.5+(rt/dts)*.5;
+    }
+    HG.hDrag={x:pos.x,y:pos.y,t:now};return;
+  }
+  hcRelease();
+  if(h.point){
+    var p=h.pt,c=HG.cur;
+    if(!c){c=HG.cur={x:p.x,y:p.y,ox:p.x,oy:p.y,t0:now}}
+    else{c.x+=(p.x-c.x)*.5;c.y+=(p.y-c.y)*.5;if(Math.hypot(c.x-c.ox,c.y-c.oy)>46){c.ox=c.x;c.oy=c.y;c.t0=now}}
+    var prog=(now-c.t0)/800;if(now<HG.curCool)prog=0;
+    hcCur(c.x,c.y,prog);
+    if(prog>=1){HG.curCool=now+1400;c.t0=now;hcSelectAt(c.x,c.y)}
+  }else{HG.cur=null;hcCur(null)}
+}
+function hcRelease(){if(HG.hDrag){HG.hDrag=null;var cap=5;HG.vx=Math.max(-cap,Math.min(cap,HG.hvx));HG.vy=Math.max(-cap,Math.min(cap,HG.hvy))}}
+function hcAr(on){
+  if(on===HG.ar||HG.arBusy)return Promise.resolve(HG.ar);
+  var h=$("holo"),v=$("hVid");
+  if(!on){
+    HG.ar=false;h.classList.remove("ar");$("hHands").classList.remove("on");hcCur(null);HG.hands=[];HG.hDrag=null;HG.hZoom=null;HG.zt=0;HG.cur=null;
+    if(HG.stream){try{HG.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}HG.stream=null}
+    try{v.srcObject=null}catch(e){}
+    $("hHint").textContent="DRAG TO SPIN \u00b7 PINCH TO ZOOM \u00b7 TAP A CITY";if(HG.on)hcSize();return Promise.resolve(false)}
+  if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){hcCap("a","This browser cannot open the camera.");return Promise.resolve(false)}
+  HG.arBusy=true;hcCap("a","Opening the camera for hand control\u2026");
+  return camGet("user",480,360,24).then(function(st){
+    HG.arBusy=false;if(!HG.on){st.getTracks().forEach(function(t){t.stop()});return false}
+    HG.stream=st;v.srcObject=st;v.play().catch(function(){});HG.ar=true;h.classList.add("ar");$("hHands").classList.add("on");HG.lastT=-1;
+    $("hHint").textContent="PINCH OR PALM TO SPIN \u00b7 2 HANDS ZOOM \u00b7 POINT + HOLD";hcSize();
+    hcCap("a","Loading hand tracking\u2026");
+    gLoad().then(function(){hcCap("a","Hands ready. Pinch or open your hand and move it to spin. Two hands to zoom. Point and hold to select.")}).catch(function(){hcCap("a","Hand tracking could not load. Check your internet connection, then tap HANDS again.");hcAr(false)});
+    return true;
+  }).catch(function(e){HG.arBusy=false;var n=String(e&&e.name||e);hcCap("a",/NotAllowed|Permission/i.test(n)?"The camera is blocked. Allow it for this site, then tap HANDS.":/NotReadable/i.test(n)?"Another app is using the camera. Close it, then tap HANDS.":"I cannot open the front camera.");return false});
+}
 /* ---- open / close ---- */
 function hcOpen(quiet){
-  hcInit();if(HG.on)return;
+  hcInit();if(HG.on)return;try{if(gest.on)gestClose()}catch(e){}
   HG.on=true;holoLive=true;document.body.classList.add("holoOn");
   var h=$("holo");h.classList.add("on");HG.q=Math.min(HG.q,1);HG.ema=16;HG.n=0;hcSize();
   HG.cyF=HG.cyT=.45;HG.mode="free";HG.hl=[];hcPan([]);$("hCapU").textContent="";$("hCapA").textContent="";
@@ -2669,7 +2744,7 @@ function hcOpen(quiet){
   HG.last=performance.now();HG.t0=HG.last;cancelAnimationFrame(HG.raf);HG.raf=requestAnimationFrame(hcFrame);
 }
 function hcClose(){
-  if(!HG.on)return;HG.on=false;holoLive=false;HG.cmd++;cancelAnimationFrame(HG.raf);clearTimeout(HG.stg);
+  if(!HG.on)return;HG.on=false;holoLive=false;HG.cmd++;cancelAnimationFrame(HG.raf);clearTimeout(HG.stg);if(HG.ar)hcAr(false);
   document.body.classList.remove("holoOn");$("holo").classList.remove("on");hcPan([]);
 }
 /* ---- render ---- */
@@ -2680,17 +2755,20 @@ function hcRingPath(g,rg,c0,s0,cp,sp,cx,cy,R){var mx=-2,k,xx,yy,zz,Z,Ln;g.beginP
   if(mx>-.05)g.closePath();return mx}
 function hcLbl(g,txt,x,y,right,pl,fs){var w=txt.length*fs*.74,l=right?x-w:x,r=right?x:x+w,i;for(i=0;i<pl.length;i++){var o=pl[i];if(Math.abs(o.y-y)<fs+3&&l<o.r+3&&r>o.l-3)return false}pl.push({l:l,r:r,y:y});g.textAlign=right?"right":"left";g.fillText(txt,x,y);g.textAlign="left";return true}
 function hcFrame(ts){
-  if(!HG.on)return;HG.raf=requestAnimationFrame(hcFrame);var cp0=performance.now();
+  if(!HG.on)return;HG.raf=requestAnimationFrame(hcFrame);if(HG.ar&&ts-HG.last<28)return;var cp0=performance.now();
   var dt=Math.min(.05,Math.max(.001,(ts-HG.last)/1000));HG.last=ts;
+  if(HG.ar&&gest.lm&&!document.hidden){var hv=$("hVid");if(hv.readyState>=2&&hv.currentTime!==HG.lastT&&ts-HG.lastDet>HG.gap){HG.lastDet=ts;HG.lastT=hv.currentTime;var h0=performance.now();try{hcHands(gest.lm.detectForVideo(hv,h0))}catch(e){}HG.gap=Math.max(50,Math.min(140,(performance.now()-h0)*1.8))}}
+  if(HG.pl||HG.pt2){var kk=Math.min(1,dt*14);HG.lon+=HG.pl*kk;HG.lat+=HG.pt2*kk;HG.pl*=1-kk;HG.pt2*=1-kk;if(Math.abs(HG.pl)<1e-5)HG.pl=0;if(Math.abs(HG.pt2)<1e-5)HG.pt2=0}
+  if(HG.zt)HG.zoom+=(HG.zt-HG.zoom)*Math.min(1,dt*9);
   HG.ema=HG.ema*.93+dt*1000*.07;
-  if(++HG.n>70&&HG.q<2&&HG.ema>(HG.q?34:28)){HG.q++;HG.n=0;HG.ema=16;hcSize()}
+  if(++HG.n>70&&HG.q<2&&HG.ema>(HG.ar?(HG.q?60:46):(HG.q?34:28))){HG.q++;HG.n=0;HG.ema=16;hcSize()}
   var tcy=HG.cyT;if(tcy<.45)tcy+=(.43-tcy)*Math.max(0,Math.min(1,(HG.zoom-2)/2));HG.cyF+=(tcy-HG.cyF)*Math.min(1,dt*4);HG.cy=HG.H*HG.cyF;
   if(HG.tgt&&!HG.down){
     var dl=HG.tgt.lon-HG.lon;dl=((dl+Math.PI)%6.2832+6.2832)%6.2832-Math.PI;
     HG.lon+=dl*Math.min(1,dt*3.4);HG.lat+=(HG.tgt.lat-HG.lat)*Math.min(1,dt*3.4);
     var dz=0;if(HG.tgt.zoom){dz=HG.tgt.zoom-HG.zoom;HG.zoom+=dz*Math.min(1,dt*3)}
     if(Math.abs(dl)<.003&&Math.abs(HG.tgt.lat-HG.lat)<.003&&Math.abs(dz)<.02)HG.tgt=null;
-  }else if(!HG.down){
+  }else if(!HG.down&&!HG.hDrag&&!HG.hZoom){
     if(Math.abs(HG.vx)>.02||Math.abs(HG.vy)>.02){HG.lon-=HG.vx*dt;HG.lat+=HG.vy*dt;var f=Math.pow(.05,dt);HG.vx*=f;HG.vy*=f}
     else if(HG.mode==="free"&&ts-HG.touch>3500)HG.lon+=.12*dt;
   }
@@ -2700,7 +2778,7 @@ function hcFrame(ts){
   HG.lat=Math.max(-1.35,Math.min(1.35,HG.lat));HG.zoom=Math.max(.6,Math.min(6.5,HG.zoom));
   var R=hcRad();HG.R=R;
   var g=HG.g,d=HG.d,W=HG.W,H=HG.H,cx=HG.cx,cy=HG.cy,col=HG.col,t=(ts-HG.t0)/1000,i,j,k,zm=HG.zoom;
-  g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,W,H);
+  g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,W,H);g.globalCompositeOperation=HG.ar?"lighter":"source-over";var ka=HG.ar?.3:1;
   var pl=[],c0=Math.cos(HG.lon),s0=Math.sin(HG.lon),cp=Math.cos(HG.lat),sp=Math.sin(HG.lat),L,P,xx,yy,zz,Z,oz;
   var by=cy+R*1.2;
   if(zm<2.4){
@@ -2711,7 +2789,7 @@ function hcFrame(ts){
     var ag=g.createRadialGradient(cx,cy,R*.9,cx,cy,R*1.22);ag.addColorStop(0,"rgba(46,230,214,.22)");ag.addColorStop(.5,"rgba(46,230,214,.06)");ag.addColorStop(1,"rgba(46,230,214,0)");
     g.globalAlpha=1;g.fillStyle=ag;g.beginPath();g.arc(cx,cy,R*1.22,0,6.2832);g.fill();
   }
-  g.globalAlpha=1;var bg=g.createRadialGradient(cx-R*.25,cy-R*.3,R*.1,cx,cy,R);bg.addColorStop(0,"rgba(10,60,64,.55)");bg.addColorStop(1,"rgba(2,14,18,.75)");
+  g.globalAlpha=1;var bg=g.createRadialGradient(cx-R*.25,cy-R*.3,R*.1,cx,cy,R);bg.addColorStop(0,"rgba(10,60,64,"+(.55*ka)+")");bg.addColorStop(1,"rgba(2,14,18,"+(.75*ka)+")");
   g.fillStyle=bg;g.beginPath();g.arc(cx,cy,R,0,6.2832);g.fill();
   g.globalAlpha=.9;g.strokeStyle=col;g.lineWidth=1.2;g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();
   if(HG.q<1&&zm<2.2){
@@ -2793,6 +2871,13 @@ function hcFrame(ts){
       if(qx>W*.7)hcLbl(g,Ci.n.toUpperCase(),qx-6,qy,true,pl,fsz);else hcLbl(g,Ci.n.toUpperCase(),qx+6,qy,false,pl,fsz)}
   }
   g.globalAlpha=1;
+  if(HG.ar&&HG.hands.length){
+    g.strokeStyle="#9ffcf0";g.lineWidth=1.4;g.globalAlpha=.7;g.beginPath();
+    HG.hands.forEach(function(P){HCON.forEach(function(c){g.moveTo(P[c[0]].x,P[c[0]].y);g.lineTo(P[c[1]].x,P[c[1]].y)})});g.stroke();
+    g.fillStyle="#e8fffc";g.globalAlpha=.95;g.beginPath();
+    HG.hands.forEach(function(P){[4,8,12,16,20,0].forEach(function(i){g.moveTo(P[i].x+3,P[i].y);g.arc(P[i].x,P[i].y,3,0,6.2832)})});g.fill();
+  }
+  g.globalAlpha=1;g.globalCompositeOperation="source-over";
   if(++HG.fr%8===0){var lt=HG.lat*57.2958,ln=HG.lon*57.2958;ln=((ln%360)+540)%360-180;$("hRead").textContent=Math.abs(lt).toFixed(1)+(lt<0?"S":"N")+"  "+Math.abs(ln).toFixed(1)+(ln<0?"W":"E")+"  x"+HG.zoom.toFixed(1);
     var tk=$("hTalk");if(tk){var on=!!(conv&&conv.on);if(tk.classList.contains("on")!==on)tk.classList.toggle("on",on)}}
   if(Math.random()<dt*.18){var h=$("holo");h.classList.add("fl");setTimeout(function(){h.classList.remove("fl")},80)}
@@ -2835,6 +2920,7 @@ function hcFrame(ts){
   }
   cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up);
   $("hExit").addEventListener("click",hcClose);
+  $("hHands").addEventListener("click",function(){unlockSpeech();ctx();hcAr(!HG.ar)});
   $("hTalk").addEventListener("click",function(){unlockSpeech();ctx();$("talkBtn").click()});
   var mf=$("mkFeed");if(mf){mf.value=ld("jv_mkfeed","");mf.addEventListener("change",function(){var u=mf.value.trim().replace(/\/+$/,"");if(u&&!/^https?:\/\//i.test(u))u="https://"+u;mf.value=u;sv("jv_mkfeed",u)})}
   window.addEventListener("resize",function(){if(HG.on)hcSize()});
