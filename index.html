@@ -330,6 +330,12 @@ body.nofx #holo::after,body.nofx .hsw{display:none}body.nofx #hc{animation:none}
 .gc{min-height:50px;padding:7px 9px}.gc b{font-size:14px;margin-top:3px}.gc span{font-size:10px}
 .od{display:inline-block;width:6px;height:6px;border-radius:50%;background:#6b7f82}.od.on{background:#38e07b;box-shadow:0 0 6px #38e07b}.od.br{background:#f5c542}
 body.holoOn>*:not(#holo){visibility:hidden!important}
+
+/* v9.16 agenda list */
+#agList{margin-top:16px}.agh{font:600 9px/1 var(--mono,ui-monospace,Menlo,monospace);letter-spacing:.2em;color:var(--c);opacity:.75;margin:4px 4px 10px}
+.trow.ag .agt{min-width:78px;line-height:1.25}.trow.ag .agt b{display:block;font-size:14px;color:var(--c);font-weight:600}.trow.ag .agt small{font-size:10px;opacity:.6;letter-spacing:.04em}
+.trow.ag.ev{border-left:2px solid var(--c)}
+@media (min-width:700px){.trow.ag .agt b{font-size:16px}.agh{font-size:10px}}
 </style>
 </head>
 <body>
@@ -362,6 +368,7 @@ body.holoOn>*:not(#holo){visibility:hidden!important}
 <div class="panel" id="pTasks">
   <div class="tadd"><input id="tIn" type="text" placeholder="Add a task" autocomplete="off" enterkeyhint="done"><button type="button" id="tBtn">ADD</button></div>
   <div id="tList"></div>
+  <div id="agList" style="display:none"></div>
 </div>
 <div class="panel" id="pLoc">
   <div class="card">
@@ -452,6 +459,14 @@ body.holoOn>*:not(#holo){visibility:hidden!important}
   <select id="speakOn"><option value="1">On</option><option value="0">Off (text only)</option></select>
   <label>Reply speed after I stop talking</label>
   <select id="sil"><option value="700">Fast (0.7 seconds)</option><option value="1100">Balanced (1.1 seconds)</option><option value="1800">Patient (1.8 seconds)</option><option value="2600">Very patient (2.6 seconds)</option></select>
+
+  <h3>PROACTIVE &amp; REMINDERS</h3>
+  <label>Proactive alerts</label>
+  <select id="proOn"><option value="1">On (Bitcoin moves, Bursa open and close, rain)</option><option value="0">Off (reminders only)</option></select>
+  <label>Quiet hours (11 PM to 7 AM)</label>
+  <select id="proQ"><option value="1">On (alerts stay silent)</option><option value="0">Off</option></select>
+  <div class="row" style="margin-top:10px"><button type="button" class="mini" id="proTest">TEST ALERT</button><button type="button" class="mini" id="proNotif">ENABLE NOTIFICATIONS</button></div>
+  <div class="hint">Say: remind me to call Joe at 5 PM, remind me in 20 minutes, what is on tomorrow, snooze, cancel all reminders. Jarvis speaks up while he is open. Standby mode keeps the screen awake, which is ideal for a desk.</div>
 
   <h3>LOOK</h3>
   <label>Theme</label>
@@ -679,6 +694,7 @@ function speakable(t){
   return out.replace(/`{1,2}$/,"");
 }
 function add(cls,text,links){
+  if(cls==="u")lastUserTs=Date.now();
   try{if(HG.on)hcCap(cls,text)}catch(e){}
   var d=document.createElement("div");d.className="m "+cls;if(cls==="a")fmt(d,text);else d.textContent=text;
   if(links&&links.length){links.forEach(function(l){d.appendChild(document.createElement("br"));var a=document.createElement("a");a.href=l.url;a.target="_blank";a.rel="noopener";a.textContent="OPEN "+l.name.toUpperCase();d.appendChild(a)})}
@@ -1189,7 +1205,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.15";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
+var VER="v9.16";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1225,6 +1241,400 @@ function addTimer(ms,label){
   },ms);
   timers.push(o);
 }
+/* ---------- v9.16: agenda, reminders and proactive Jarvis ---------- */
+var ag=[];try{ag=JSON.parse(ld("jv_agenda","[]"))||[]}catch(e){ag=[]}if(!Array.isArray(ag))ag=[];
+var proQ=[],lastFired=null,lastUserTs=0,pendingRem=null,agNoted=false;
+var WDN=["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+var MON=["january","february","march","april","may","june","july","august","september","october","november","december"];
+var WN={a:1,an:1,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,fifteen:15,twenty:20,thirty:30,forty:40,fortyfive:45};
+function agSave(){sv("jv_agenda",JSON.stringify(ag.filter(function(x){return !x.done||x.at>Date.now()-86400000}).slice(-200)))}
+function agNum(w){w=String(w||"").toLowerCase();return/^\d/.test(w)?parseFloat(w):(WN[w]||0)}
+function agFmtT(ts){var d=new Date(ts),h=d.getHours(),m=d.getMinutes();return(h%12||12)+(m?":"+("0"+m).slice(-2):"")+(h>=12?" PM":" AM")}
+function agDayKey(ts){var d=new Date(ts);return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
+function agFmtD(ts){
+  var n=new Date(),t=new Date(ts),a=new Date(n.getFullYear(),n.getMonth(),n.getDate()).getTime(),b=new Date(t.getFullYear(),t.getMonth(),t.getDate()).getTime(),df=Math.round((b-a)/86400000);
+  if(df===0)return"today";if(df===1)return"tomorrow";if(df>1&&df<7)return"on "+WDN[t.getDay()].replace(/^./,function(c){return c.toUpperCase()});
+  return"on "+MON[t.getMonth()].replace(/^./,function(c){return c.toUpperCase()})+" "+t.getDate();
+}
+function agYou(t){
+  return t.replace(/\bi['\u2019]ll\b/gi,"you will").replace(/\bi['\u2019]m\b/gi,"you are").replace(/\bi['\u2019]ve\b/gi,"you have").replace(/\bi am\b/gi,"you are").replace(/\bmyself\b/gi,"yourself").replace(/\bmy\b/gi,"your").replace(/\bme\b/gi,"you").replace(/\bi\b/gi,"you").replace(/^[A-Z](?=[a-z])/,function(c){return c.toLowerCase()});
+}
+/* parse a spoken time phrase. returns {at,rest,rep,dated,timed} or null. rest = the text with the time words removed */
+function agWhen(og,now){
+  now=now||new Date();
+  og=String(og).replace(/\b([ap])\.\s?m\.?/gi,"$1m");
+  var lo=og.toLowerCase(),d=new Date(now.getTime()),rep="",dated=false,timed=false,hh=null,mm=0,pod="",dayOff=null,wdI=-1,x;
+  function cut(re){var m=lo.match(re);if(m){var a=m.index,b=a+m[0].length;lo=(lo.slice(0,a)+" "+lo.slice(b));og=(og.slice(0,a)+" "+og.slice(b));}return m}
+  var NUMW="(\\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)";
+  /* relative: in 20 minutes / in an hour / in half an hour */
+  x=cut(new RegExp("\\b(?:in|after|within)\\s+(half an|half a|an|a|\\d+(?:\\.\\d+)?|one|two|three|four|five|six|seven|eight|nine|ten|fifteen|twenty|thirty|forty five|forty|fortyfive)\\s*(seconds?|secs?|minutes?|mins?|hours?|hrs?|days?)\\b"));
+  if(x){
+    var q=/^half/.test(x[1])?.5:agNum(x[1].replace(" ",""))||1;if(/^half/.test(x[1])&&/^half an$|^half a$/.test(x[1]))q=.5;
+    var u=x[2].charAt(0),ms=q*(u==="s"?1000:u==="m"?60000:u==="h"?3600000:86400000);
+    return{at:now.getTime()+Math.max(1000,ms),rest:og.replace(/\s+/g," ").trim(),rep:"",dated:true,timed:true,rel:true};
+  }
+  /* repeats */
+  x=cut(/\b(?:every|each)\s+(day|morning|evening|night|weekday|week|sunday|monday|tuesday|wednesday|thursday|friday|saturday)s?\b|\b(daily|weekdays|weekly)\b/);
+  if(x){var w=x[1]||x[2];if(/^(day|daily|morning|evening|night)$/.test(w)){rep="d";if(w==="morning")pod="morning";if(w==="evening")pod="evening";if(w==="night")pod="night"}else if(/^(weekday|weekdays)$/.test(w))rep="wd";else if(/^(week|weekly)$/.test(w))rep="w";else{rep="w";wdI=WDN.indexOf(w)}}
+  /* day words */
+  if(cut(/\bday after tomorrow\b/)){dayOff=2;dated=true}
+  else if(cut(/\btomorrow\b/)){dayOff=1;dated=true}
+  else if(cut(/\btonight\b/)){dayOff=0;dated=true;pod="night"}
+  else if(cut(/\btoday\b/)){dayOff=0;dated=true}
+  else if(cut(/\bnext week\b/)){dayOff=7;dated=true}
+  x=cut(/\b(?:(next|this|on)\s+)?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/);
+  if(x&&wdI<0){wdI=WDN.indexOf(x[2]);dated=true;if(x[1]==="next")wdI+=100}
+  else if(x&&wdI>=0){}
+  /* month and day: on the 25th / 25 december / december 25 */
+  var dm=null,mo=null;
+  x=cut(new RegExp("\\b(?:on\\s+)?(?:the\\s+)?(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?("+MON.join("|")+")\\b"));
+  if(x){dm=+x[1];mo=MON.indexOf(x[2])}
+  else{x=cut(new RegExp("\\b(?:on\\s+)?("+MON.join("|")+")\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b"));if(x){mo=MON.indexOf(x[1]);dm=+x[2]}
+    else{x=cut(/\bon\s+the\s+(\d{1,2})(?:st|nd|rd|th)\b/);if(x){dm=+x[1]}}}
+  if(dm){dated=true}
+  /* part of day */
+  x=cut(/\b(?:in the |this |at )?(morning|afternoon|evening|night)\b/);if(x&&!pod)pod=x[1];
+  /* clock time */
+  var ap=null;
+  if(cut(/\b(?:at\s+)?noon\b/)){hh=12;mm=0;timed=true}
+  else if(cut(/\b(?:at\s+)?midnight\b/)){hh=0;mm=0;timed=true;dayOff=dayOff===null?1:dayOff;dated=true}
+  else{
+    x=cut(new RegExp("\\b(?:at\\s+)?(\\d{1,2}):(\\d{2})\\s*(am|pm)?\\b"));
+    if(x){hh=+x[1];mm=+x[2];ap=x[3]||null;timed=true}
+    if(!timed){x=cut(new RegExp("\\b(?:at\\s+)?"+NUMW+"\\s+(\\d{2})\\s*(am|pm)\\b"));if(x){hh=agNum(x[1]);mm=+x[2];ap=x[3];timed=true}}
+    if(!timed){x=cut(new RegExp("\\b(?:at\\s+)?"+NUMW+"\\s*(am|pm)\\b"));if(x){hh=agNum(x[1]);ap=x[2];timed=true}}
+    if(!timed){x=cut(new RegExp("\\bat\\s+"+NUMW+"(?:\\s*o\\s?clock)?(?!\\s*\\d)\\b"));if(x){hh=agNum(x[1]);timed=true}}
+    if(!timed){x=cut(new RegExp("\\b"+NUMW+"\\s*o\\s?clock\\b"));if(x){hh=agNum(x[1]);timed=true}}
+  }
+  if(!timed&&!dated&&!rep&&!pod)return null;
+  if(!timed&&pod&&!dated&&!rep&&hh===null){/* only "morning" etc */}
+  var rest=og.replace(/\s+/g," ").replace(/^[\s,.\-]+|[\s,.\-]+$/g,"");
+  var nowMs=now.getTime(),base=new Date(now.getFullYear(),now.getMonth(),now.getDate(),0,0,0,0);
+  function build(dayStart,H,M){return new Date(dayStart.getFullYear(),dayStart.getMonth(),dayStart.getDate(),H,M,0,0).getTime()}
+  /* work out the day */
+  var day=new Date(base.getTime());
+  if(mo!==null&&dm){day=new Date(base.getFullYear(),mo,dm);if(day.getTime()<base.getTime())day=new Date(base.getFullYear()+1,mo,dm)}
+  else if(dm&&mo===null){day=new Date(base.getFullYear(),base.getMonth(),dm);if(day.getTime()<base.getTime())day=new Date(base.getFullYear(),base.getMonth()+1,dm)}
+  else if(dayOff!==null)day=new Date(base.getFullYear(),base.getMonth(),base.getDate()+dayOff);
+  var wdSet=wdI>=0,nextFlag=wdI>=100;if(nextFlag)wdI-=100;
+  /* hour */
+  var H=hh,M=mm,amb=false,Ham=H;
+  if(H!==null){
+    if(ap==="pm"&&H<12)H+=12;else if(ap==="am"&&H===12)H=0;
+    else if(!ap&&H>=1&&H<=12){
+      if(pod==="afternoon"||pod==="evening"||pod==="night"){if(H<12)H+=12;if(pod==="night"&&H===12)H=0}
+      else if(pod==="morning"){if(H===12)H=0}
+      else if(H===12){H=12}
+      else{
+        var isToday=!wdSet&&(!dated||(dayOff===0&&!dm));
+        if(isToday||(!dated&&!wdSet)){ /* soonest future of am or pm */
+          var c1=build(day,H,M),c2=build(day,H+12,M);
+          if(c1>nowMs+30000)H=H;else{H=H+12;if(c2<=nowMs+30000)amb=true}
+        }else{ if(H<=6)H+=12; }
+      }
+    }
+  }else{
+    var dflt={morning:9,afternoon:15,evening:19,night:21}[pod];
+    H=dflt!==undefined?dflt:9;M=0;
+  }
+  /* weekday resolution */
+  if(wdSet){
+    var cur=base.getDay(),add=(wdI-cur+7)%7;
+    if(add===0){var tt=build(base,H,M);if(tt<=nowMs||nextFlag)add=7}
+    else if(nextFlag&&add<7)add+=0;
+    day=new Date(base.getFullYear(),base.getMonth(),base.getDate()+add);
+  }
+  var at=build(day,H,M);
+  if(rep==="wd"&&!wdSet){while([0,6].indexOf(new Date(at).getDay())>=0)at+=86400000}
+  if(at<=nowMs+1000){
+    if(!dated&&!wdSet&&(timed||rep||pod)){at=amb?build(new Date(day.getTime()+86400000),Ham,M):at+86400000}
+    else if(rep){at+=86400000}
+  }
+  return{at:at,rest:rest,rep:rep,dated:dated||wdSet||!!dm,timed:timed,rel:false,wd:wdSet?wdI:-1};
+}
+function agNext(it){
+  var at=it.at,n=Date.now(),g=0;
+  do{
+    var d=new Date(at);
+    if(it.rep==="d")d.setDate(d.getDate()+1);
+    else if(it.rep==="wd"){do{d.setDate(d.getDate()+1)}while(d.getDay()===0||d.getDay()===6)}
+    else if(it.rep==="w")d.setDate(d.getDate()+7);
+    else return at;
+    at=d.getTime();g++;
+  }while(at<=n&&g<400);
+  return at;
+}
+function agClean(t){
+  t=String(t||"").replace(/^(?:to|about|that|of|for|on|at|in|the|and|then|,|\.)\s+/i,"").replace(/\s+(?:to|at|on|in|for|by|and|about)$/i,"").replace(/\s+/g," ").trim();
+  t=t.replace(/[.!?]+$/,"");
+  return t.charAt(0).toUpperCase()+t.slice(1);
+}
+function agAdd(t,at,rep,ev){
+  var it={id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),t:t,at:at,rep:rep||"",ev:!!ev,pre:ev?15:0,done:0,pf:0};
+  if(ev&&at-Date.now()<15*60000)it.pf=1;
+  ag.push(it);agSave();agPaint();return it;
+}
+function agUpcoming(from,to){
+  return ag.filter(function(x){return !x.done&&x.at>=from&&x.at<to}).sort(function(a,b){return a.at-b.at});
+}
+function agList(list,withDay){
+  return list.map(function(x){return(withDay?agFmtD(x.at).replace(/^on /,"").replace(/^./,function(c){return c.toUpperCase()})+" at ":"At ")+agFmtT(x.at)+", "+agYou(x.t)+(x.rep?" (repeats)":"")}).join(". ");
+}
+function agDayBounds(off){var b=new Date();b.setHours(0,0,0,0);var a=b.getTime()+off*86400000;return[a,a+86400000]}
+function agBrief(){
+  var r=agDayBounds(0),l=agUpcoming(Date.now()-1,r[1]);
+  if(!l.length)return"";
+  return"Today you have "+(l.length===1?"one thing":l.length+" things")+" lined up. "+agList(l.slice(0,4),false)+".";
+}
+/* ---- intent: reminders, agenda, snooze, proactive switches ---- */
+function agIntent(raw,n){
+  var body=raw.replace(/^\s*(?:hey |ok |okay )?jarvis[\s,.:]*/i,"").trim(),m,w;
+  if(pendingRem){
+    var pr=pendingRem;pendingRem=null;
+    if(/^(cancel|never ?mind|forget it|stop|no)$/.test(n))return R("Cancelled, Sir.");
+    if(pr.ask)return agIntent("remind me "+body,"remind me "+n);
+    var pw=agWhen(body);
+    if(pw){return agMk(pr.t,pw,pr.ev)}
+    if(/^(remind|set|add|schedule|book|what|whats|show|cancel|delete|open|play|call|navigate|tell|how|where|who|when)\b/.test(n)){/* a new command, drop the question */}
+    else{
+      pendingRem=pr;pendingRem.tries=(pr.tries||0)+1;if(pendingRem.tries>1){pendingRem=null;return R("No problem, Sir. Ask me again when you have a time in mind.")}
+      return{sync:R("Sorry, I missed the time. For example, in 20 minutes, or tomorrow at 9."),listen:true};
+    }
+  }
+  /* switches */
+  if(/^(?:turn |switch )?(?:off|stop|disable)\s+(?:the\s+)?(?:proactive|alerts?)\b|^no more\s+(?:proactive|alerts?)\b/.test(n)){pro.on=false;sv("jv_pro","0");return R("Understood. I will stay quiet unless a reminder is due.")}
+  if(/^(?:turn |switch )?on\s+(?:the\s+)?(?:proactive|alerts?)\b|^(?:be proactive|start alerts?|enable (?:proactive|alerts?))\b/.test(n)){pro.on=true;sv("jv_pro","1");return R("Proactive mode on. I will speak up when something matters.")}
+  if(/^quiet hours (?:off|disable)|^(?:turn off|disable) quiet hours/.test(n)){pro.quiet=false;sv("jv_proq","0");return R("Quiet hours are off.")}
+  if(/^quiet hours (?:on|enable)|^(?:turn on|enable) quiet hours/.test(n)){pro.quiet=true;sv("jv_proq","1");return R("Quiet hours on. No alerts between 11 at night and 7 in the morning.")}
+  /* snooze */
+  m=n.match(/^snooze(?:\s+(?:for\s+)?(.+))?$/)||n.match(/^remind me again(?:\s+(?:in|after)\s+(.+))?$/);
+  if(m){
+    if(!lastFired||Date.now()-lastFired.ts>15*60000)return R("There is nothing to snooze right now, Sir.");
+    var ms=10*60000;if(m[1]){var sw=agWhen("in "+m[1].replace(/^in\s+/,""));if(sw)ms=Math.max(60000,sw.at-Date.now())}
+    var o=lastFired.it;agAdd(o.t,Date.now()+ms,"",false);lastFired=null;
+    return R("Snoozed for "+words(ms)+".");
+  }
+  /* cancel */
+  m=n.match(/^(?:cancel|delete|remove|clear|scrap)\s+(?:(?:my|the|all|every|all my|all of my)\s+)?(?:upcoming\s+)?(reminders?|agenda|events?|appointments?|meetings?|schedule|calendar)(?:\s+(?:to|about|for|called)\s+(.+))?$/);
+  if(m&&!/\btimers?\b/.test(n)){
+    var all=/\b(all|every)\b/.test(n)||/s$/.test(m[1])||/^(agenda|schedule|calendar)$/.test(m[1]);
+    if(!m[2]&&!all){var lastOne=null;ag.forEach(function(x){if(!x.done)lastOne=x});if(!lastOne)return R("You have nothing scheduled, Sir.");ag=ag.filter(function(x){return x!==lastOne});agSave();agPaint();return R("Removed: "+agYou(lastOne.t)+".")}
+    if(all&&!m[2]){var c=ag.filter(function(x){return !x.done}).length;timers.forEach(function(x){clearTimeout(x.tid)});var tc=timers.length;timers=[];ag=ag.filter(function(x){return x.done});agSave();agPaint();hud();return R(c+tc?"Done. Cleared "+(c+tc)+(c+tc>1?" reminders.":" reminder."):"You have nothing scheduled, Sir.")}
+    var key=m[2].replace(/[^a-z0-9 ]/g,"").split(" ").filter(function(z){return z.length>2}),best=null,bs=0;
+    ag.forEach(function(x){if(x.done)return;var tl=x.t.toLowerCase(),s=0;key.forEach(function(k){if(tl.indexOf(k)>-1)s++});if(s>bs){bs=s;best=x}});
+    if(!best)return R("I could not find a reminder like that.");
+    ag=ag.filter(function(x){return x!==best});agSave();agPaint();
+    return R("Removed: "+agYou(best.t)+".");
+  }
+  /* what's next */
+  if(/^(?:what s|whats|what is|when is) (?:my )?next (?:reminder|event|appointment|meeting|thing)|^next (?:reminder|event|appointment|meeting)$/.test(n)){
+    var nx=agUpcoming(Date.now(),Date.now()+400*86400000)[0];
+    return R(nx?"Next up: "+agYou(nx.t)+", "+agFmtD(nx.at)+" at "+agFmtT(nx.at)+".":"Nothing scheduled, Sir.");
+  }
+  /* agenda queries */
+  var DW="(?:today|tomorrow|this week|next week|the day after tomorrow|day after tomorrow|sunday|monday|tuesday|wednesday|thursday|friday|saturday)";
+  if(!/\b(add|set|create|make|new|remind me|put|cancel|delete|remove)\b/.test(n)&&(
+     (/\b(agenda|schedule|calendar|reminders?|appointments?|meetings?)\b/.test(n)&&/^(?:what s|whats|what is|what are|what do i have|what have i got|do i have|have i got|show|read|list|check|tell me|give me|any|how does|what meetings|what reminders|what appointments|which meetings)\b/.test(n))||
+     new RegExp("^(?:what s|whats|what is) on (?:my |the )?(?:"+DW+"|calendar|agenda|schedule)").test(n)||
+     new RegExp("^(?:do i have|have i got) (?:anything|something)\\b.*"+DW).test(n))){
+    var off=0,span=1,lab="today";
+    if(/\bday after tomorrow\b/.test(n)){off=2;lab="the day after tomorrow"}
+    else if(/\btomorrow\b/.test(n)){off=1;lab="tomorrow"}
+    else if(/\b(this|next) week\b|\bweek\b|\bupcoming\b/.test(n)){off=0;span=7;lab="this week"}
+    else{w=n.match(/\b(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/);if(w){var cur=new Date().getDay();off=(WDN.indexOf(w[1])-cur+7)%7;lab="on "+w[1].replace(/^./,function(c){return c.toUpperCase()})}}
+    var b0=agDayBounds(off)[0],b1=b0+span*86400000;
+    var lst=agUpcoming(Math.max(b0,Date.now()-1),b1);
+    if(!lst.length)return R(lab==="today"?"Nothing else scheduled today, Sir.":"Nothing scheduled "+lab+", Sir.");
+    return R((span>1?"You have "+lst.length+" "+(lst.length>1?"things":"thing")+" this week. ":(lab==="today"?"Today":lab.charAt(0).toUpperCase()+lab.slice(1))+" you have "+(lst.length>1?lst.length+" things":"one thing")+". ")+agList(lst.slice(0,6),span>1)+".");
+  }
+  /* create reminder */
+  var rm=body.match(/^(?:please\s+)?(?:remind me|set (?:a |an )?reminder|add (?:a |an )?reminder|create (?:a |an )?reminder|reminder)\b[\s,:-]*(.*)$/i);
+  if(rm){
+    var tail=rm[1].trim();
+    if(!tail){pendingRem={t:"",ev:false,ask:1};return{sync:R("What should I remind you about, Sir?"),listen:true}}
+    var wr=agWhen(tail),txt;
+    if(wr){txt=agClean(wr.rest.replace(/^(?:me\s+)?/i,""))}
+    else txt=agClean(tail);
+    if(!txt)txt="Reminder";
+    if(!wr){pendingRem={t:txt,ev:false};return{sync:R("When should I remind you about "+agYou(txt.toLowerCase())+"?"),listen:true}}
+    return agMk(txt,wr,false);
+  }
+  /* create event: schedule X / add X to my calendar / i have X tomorrow at 3 */
+  var ev=null;
+  m=body.match(/^(?:please\s+)?(?:add|put|set|create|schedule|book|log)\s+(?:an?\s+|the\s+)?(?:new\s+)?(.+?)\s+(?:to|on|in|into)\s+(?:my\s+)?(?:calendar|agenda|schedule)\b(.*)$/i);
+  if(m)ev={txt:m[1],tail:m[1]+" "+m[2]};
+  if(!ev){m=body.match(/^(?:please\s+)?(?:schedule|book)\s+(?:an?\s+|the\s+)?(.+)$/i);if(m)ev={txt:m[1],tail:m[1]}}
+  if(!ev){m=body.match(/^(?:i have|i ve got|i got|i've got|we have|there is|there s)\s+(?:an?\s+|the\s+)?(.+)$/i);if(m&&!/\?$/.test(raw)&&/\b(meeting|call|appointment|shoot|session|show|gig|interview|rehearsal|recording|class|dinner|lunch|flight|training|event|deadline|studio|filming)\b/i.test(m[1]))ev={txt:m[1],tail:m[1]}}
+  if(ev){
+    var we=agWhen(ev.tail);
+    if(we&&(we.dated||we.timed)){var et=agClean(we.rest.replace(/^(?:an?|the)\s+/i,""));if(!et)et="Event";return agMk(et,we,true)}
+    if(!we&&/^(?:add|put|set|create|schedule|book|log)\b/i.test(body)&&/(calendar|agenda|schedule)/i.test(body)){pendingRem={t:agClean(ev.txt),ev:true};return{sync:R("When is it, Sir?"),listen:true}}
+  }
+  return null;
+}
+function agMk(t,w,ev){
+  if(!w.rel&&w.at<=Date.now()+1000)return R("That time has already passed, Sir. Give me a later time.");
+  return R(agConfirm(agAdd(t,w.at,w.rep,ev)));
+}
+function agConfirm(it){
+  var w=it.rep?({d:"every day",wd:"every weekday",w:"every week"}[it.rep]+" at "+agFmtT(it.at)):agFmtD(it.at)+" at "+agFmtT(it.at);
+  var near=it.at-Date.now()<3600000&&!it.rep;
+  if(near){var ms=it.at-Date.now();w="in "+words(ms)}
+  var s=(it.ev?"Added to your agenda: ":"Reminder set: ")+agYou(it.t)+", "+w+".";
+  if(!agNoted){agNoted=true;s+=" I will speak up when it is due, as long as Jarvis is open."}
+  return s;
+}
+/* ---- firing ---- */
+function agTick(){
+  var now=Date.now(),ch=false,lateList=[];
+  ag.forEach(function(it){
+    if(it.done)return;
+    if(it.ev&&it.pre&&!it.pf&&now>=it.at-it.pre*60000&&now<it.at){it.pf=1;ch=true;proPush({id:it.id+"p",k:"pre",text:"Heads up, Sir. In "+Math.max(1,Math.round((it.at-now)/60000))+" minutes: "+agYou(it.t)+".",it:it})}
+    if(now>=it.at){
+      var late=now-it.at;ch=true;
+      var msg=it.ev?"Sir, "+agYou(it.t)+" is starting now.":"Reminder, Sir: "+agYou(it.t)+".";
+      var snap={t:it.t,ev:it.ev};
+      if(it.rep){it.at=agNext(it);it.pf=0}else it.done=1;
+      if(late>4*60000)lateList.push({it:snap,at:now-late});
+      else proPush({id:it.id+"d"+now,k:"due",text:msg,it:snap});
+    }
+  });
+  if(lateList.length){
+    var t=lateList.length===1?"While you were away, Sir, you had a reminder at "+agFmtT(lateList[0].at)+": "+agYou(lateList[0].it.t)+".":"While you were away, Sir, you missed "+lateList.length+" reminders. "+lateList.slice(0,4).map(function(x){return"At "+agFmtT(x.at)+", "+agYou(x.it.t)}).join(". ")+".";
+    proPush({id:"late"+now,k:"due",text:t,it:lateList[0].it});
+  }
+  if(ch){agSave();agPaint()}
+  proFlush();
+}
+function proPush(m){if(proQ.some(function(x){return x.id===m.id}))return;proQ.push(m)}
+function proReady(){
+  if(document.hidden)return false;
+  if(busy||listening||sp.pending>0||sp.streaming)return false;
+  try{if(eyesLive)return false}catch(e){}
+  if(Date.now()-lastUserTs<2500)return false;
+  var b=$("boot");if(b&&b.style.display!=="none"&&!b.classList.contains("out"))return false;
+  return true;
+}
+function chime(){
+  var c=ctx();if(!c)return;
+  [[0,660],[0.16,990]].forEach(function(p){try{var o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=p[1];g.gain.value=0.0001;o.connect(g);g.connect(c.destination);var s=c.currentTime+p[0];g.gain.exponentialRampToValueAtTime(0.18,s+0.02);g.gain.exponentialRampToValueAtTime(0.0001,s+0.4);o.start(s);o.stop(s+0.45)}catch(e){}});
+}
+function proNotify(m){
+  try{if(document.hidden&&window.Notification&&Notification.permission==="granted")new Notification("JARVIS",{body:m.text,tag:m.id,silent:false})}catch(e){}
+}
+function proFlush(){
+  if(!proQ.length)return;
+  if(document.hidden){proQ.forEach(function(m){if(!m.nt){m.nt=1;proNotify(m)}});return}
+  if(!proReady())return;
+  var m=proQ.shift();
+  if(m.k==="due"&&m.it)lastFired={it:m.it,ts:Date.now()};
+  try{if(typeof unlockSpeech==="function")unlockSpeech()}catch(e){}
+  add("a",m.text);try{hist.push({role:"assistant",content:m.text});saveHist()}catch(e){}chime();
+  if(!(m.auto&&proQuiet()))speak(m.text);
+  try{if(typeof ringPulse==="function")ringPulse()}catch(e){}
+}
+setInterval(agTick,10000);
+document.addEventListener("visibilitychange",function(){if(!document.hidden)setTimeout(agTick,400)});
+window.addEventListener("focus",function(){setTimeout(agTick,400)});
+setInterval(function(){if(proQ.length)proFlush()},2000);
+/* ---- agenda list under TASKS ---- */
+function agPaint(){
+  var box=$("agList");if(!box)return;
+  var l=agUpcoming(Date.now()-1,Date.now()+400*86400000).slice(0,12);
+  box.innerHTML="";
+  if(!l.length){box.style.display="none";return}
+  box.style.display="block";
+  var h=document.createElement("div");h.className="agh";h.textContent="REMINDERS & AGENDA";box.appendChild(h);
+  l.forEach(function(x){
+    var r=document.createElement("div");r.className="trow ag"+(x.ev?" ev":"");
+    var tm=document.createElement("div");tm.className="agt";tm.innerHTML="<b>"+agFmtT(x.at)+"</b><small>"+agFmtD(x.at).replace(/^on /,"")+(x.rep?" · repeats":"")+"</small>";
+    var tx=document.createElement("div");tx.className="tx";tx.textContent=x.t;
+    var dl=document.createElement("button");dl.type="button";dl.className="x";dl.textContent="×";dl.setAttribute("aria-label","delete");
+    dl.onclick=function(){ag=ag.filter(function(z){return z!==x});agSave();agPaint()};
+    r.appendChild(tm);r.appendChild(tx);r.appendChild(dl);box.appendChild(r);
+  });
+}
+/* ---------- proactive Jarvis ---------- */
+var pro={on:ld("jv_pro","1")!=="0",quiet:ld("jv_proq","1")!=="0",st:null,tk:{}};
+try{pro.st=JSON.parse(ld("jv_prost","null"))}catch(e){}
+function proDay(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
+function proState(){
+  if(!pro.st||pro.st.day!==proDay())pro.st={day:proDay(),n:0,last:pro.st&&pro.st.last||{},done:{}};
+  return pro.st;
+}
+function proSave(){sv("jv_prost",JSON.stringify(pro.st))}
+function proQuiet(){var h=new Date().getHours();return pro.quiet&&(h>=23||h<7)}
+/* an automatic alert: capped per day and per topic, silent in quiet hours */
+function proAuto(key,text,minGapH){
+  var s=proState();
+  if(!pro.on||proQuiet()||s.n>=5)return false;
+  var gap=(minGapH||3)*3600000;
+  if(s.last[key]&&Date.now()-s.last[key]<gap)return false;
+  s.last[key]=Date.now();s.n++;proSave();
+  proPush({id:key+Date.now(),k:"auto",auto:true,text:text});
+  return true;
+}
+function proGate(){return pro.on&&!document.hidden&&!proQuiet()&&proReady()&&Date.now()-lastUserTs>20000}
+function proCrypto(){
+  var syms=["BTCUSDT","ETHUSDT"],lim={BTCUSDT:2,ETHUSDT:3};
+  syms.forEach(function(sy){
+    bfetch("/api/v3/klines?symbol="+sy+"&interval=5m&limit=13").then(function(rows){
+      if(!rows||rows.length<6)return;
+      var o=+rows[0][1],c=+rows[rows.length-1][4];if(!isFinite(o)||!isFinite(c)||o<=0)return;
+      var mv=(c/o-1)*100,a=Math.abs(mv);
+      if(a<lim[sy])return;
+      var nm=sy==="BTCUSDT"?"Bitcoin":"Ethereum",P=null;try{P=readPaper()}catch(e){}
+      var held=P&&P.pos&&P.pos[sy];
+      var t="Sir, "+nm+" has moved "+(mv>=0?"up ":"down ")+fN(a,1)+" percent in the last hour. It is at "+pxN(c)+" dollars."+(held?" You hold it in your paper account.":"");
+      proAuto("c"+sy,t,3);
+    }).catch(function(){});
+  });
+}
+function proBursa(){
+  var f;try{f=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Kuala_Lumpur",weekday:"short",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(new Date())}catch(e){return}
+  var o={};f.forEach(function(p){o[p.type]=p.value});
+  if(/^(Sat|Sun)$/.test(o.weekday))return;
+  var hm=(+o.hour%24)*60+(+o.minute),s=proState();
+  var which=(hm>=540&&hm<570)?"open":(hm>=1020&&hm<1050)?"close":"";
+  if(!which||s.done["b"+which])return;
+  withTO(getMarket(true),6000).then(function(m){
+    if(!m||!m.lvl)return;
+    var ok=proAuto("bursa"+which,(which==="open"?"Sir, Bursa Malaysia has just opened. ":"Sir, Bursa Malaysia has just closed. ")+mkSay(m).replace(/, as of the last close/,""),20);
+    if(ok){s.done["b"+which]=1;proSave()}
+  }).catch(function(){});
+}
+function proRain(){
+  var s=proState();if(s.done.rainT&&Date.now()-s.done.rainT<4*3600000)return;
+  coords().then(function(p){
+    return withTO(fetch("https://api.open-meteo.com/v1/forecast?latitude="+p.lat+"&longitude="+p.lon+"&hourly=precipitation_probability&forecast_hours=3&timezone=auto").then(function(r){return r.json()}),6000);
+  }).then(function(j){
+    var a=(j&&j.hourly&&j.hourly.precipitation_probability)||[];if(!a.length)return;
+    var mx=Math.max.apply(null,a.slice(0,3));
+    if(mx>=70){
+      var ok=proAuto("rain","Sir, rain is likely near you within the next two hours. "+mx+" percent chance.",5);
+      if(ok){s.done.rainT=Date.now();proSave()}
+    }
+  }).catch(function(){});
+}
+function proScan(){
+  if(!proGate())return;
+  var now=Date.now();
+  proState();
+  if(!pro.tk.c||now-pro.tk.c>5*60000){pro.tk.c=now;proCrypto()}
+  if(!pro.tk.b||now-pro.tk.b>60000){pro.tk.b=now;proBursa()}
+  if(!pro.tk.r||now-pro.tk.r>30*60000){pro.tk.r=now;proRain()}
+}
+setInterval(proScan,60000);setTimeout(proScan,25000);
+
+(function(){
+  var t=$("proTest"),nb=$("proNotif");
+  if(t)t.addEventListener("click",function(){proPush({id:"t"+Date.now(),k:"auto",text:"Sir, this is a test alert. Reminders and proactive updates are working."});$("sheet").classList.remove("open");setTimeout(proFlush,300)});
+  if(nb)nb.addEventListener("click",function(){
+    if(!window.Notification){add("s","// notifications are not supported in this browser");return}
+    Notification.requestPermission().then(function(p){add("s","// notifications "+p)}).catch(function(){})
+  });
+})();
+agPaint();
 var view="chat";
 function paintModes(){
   Array.prototype.forEach.call(document.querySelectorAll("#modes button"),function(b){var on=b.dataset.v?(view===b.dataset.v):(view==="chat"&&b.dataset.m===cfg.mode);b.classList.toggle("on",on)});
@@ -1444,6 +1854,7 @@ function weatherIntent(raw,n){
 function special(text){
   var raw=text.trim(),n=norm(raw);
   if(!n)return null;
+  var agi=agIntent(raw,n);if(agi)return agi.sync?agi:{sync:agi};
   if(!pendingNav&&(n==="yo"||/^(yo|oi)[ ,.!]+jarvis/i.test(raw)||/(^|\W)(morning|daily|race|my) brief(ing)?(\W|$)|^brief me|^(give me )?(the )?briefing|laporan harian|今日简报|简报/.test(n)))return{brief:true};
   if(pendingNav){
     pendingNav=false;
@@ -1940,6 +2351,7 @@ function briefing(k){
     if(r[4]&&!r[4].none)s+=" "+paperSay(r[4],k,true);
     var items=ot.slice(0,3).map(function(x){return x.t}).join(k==="zh"||k==="ja"?"、":"; ");
     s+=" "+(n?LT("You have "+n+" open "+(n>1?"tasks":"task")+". "+items+".","Anda ada "+n+" tugasan terbuka. "+items+".","您有"+n+"项待办任务。"+items+"。",k,"У вас открытых задач: "+n+". "+items+".","未完了のタスクは"+n+"件です。"+items+"。"):LT("Your task list is clear.","Senarai tugasan anda kosong.","您没有待办任务。",k,"Список задач пуст.","タスクはありません。"));
+    var ags=agBrief();if(ags)s+=" "+ags;
     if(timers.length)s+=" "+LT("You have "+timers.length+" timer"+(timers.length>1?"s":"")+" running.","Ada "+timers.length+" pemasa sedang berjalan.","有"+timers.length+"个计时器正在运行。",k,"Запущено таймеров: "+timers.length+".","タイマーが"+timers.length+"件動作中です。");
     if(h)s+=" "+LT("Headlines. ","Berita utama. ","头条新闻。",k,"Главные новости. ","ヘッドライン。")+h;
     s+=" "+LT("Standing by.","Sedia membantu.","随时待命。",k,"Жду указаний.","待機中です。");
@@ -2073,7 +2485,7 @@ function memAutoSync(){
   clearTimeout(SY.t);SY.t=setTimeout(function(){syncMem().catch(function(){})},4000);
 }
 function syCollect(){
-  var o={};try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf("jv_")===0&&!/^(jv_hist|jv_wx|jv_wxloc|jv_loc|jv_sycode|jv_syurl|jv_syts|jv_syauto|jv_mem|jv_memdel|jv_ringpos)$/.test(k))o[k]=localStorage.getItem(k)}}catch(e){}
+  var o={};try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf("jv_")===0&&!/^(jv_hist|jv_wx|jv_wxloc|jv_loc|jv_sycode|jv_syurl|jv_syts|jv_syauto|jv_mem|jv_memdel|jv_ringpos|jv_agenda|jv_prost)$/.test(k))o[k]=localStorage.getItem(k)}}catch(e){}
   return o;
 }
 function syPaint(){
@@ -2118,7 +2530,7 @@ if($("syMake")){
     SY.pullArm=0;syMsg("Getting settings...");
     syGet("s").then(function(r){
       if(!r||!r.data){syMsg("Nothing in the cloud yet. On your other device tap SEND SETTINGS TO CLOUD first.");return}
-      var n=0;Object.keys(r.data).forEach(function(k){if(k.indexOf("jv_")===0&&typeof r.data[k]==="string"&&!/^(jv_sycode|jv_syurl|jv_hist|jv_mem|jv_memdel|jv_ringpos)$/.test(k)){sv(k,r.data[k]);n++}});
+      var n=0;Object.keys(r.data).forEach(function(k){if(k.indexOf("jv_")===0&&typeof r.data[k]==="string"&&!/^(jv_sycode|jv_syurl|jv_hist|jv_mem|jv_memdel|jv_ringpos|jv_agenda|jv_prost)$/.test(k)){sv(k,r.data[k]);n++}});
       syMsg("Got "+n+" settings. Reloading...");setTimeout(function(){location.reload()},700);
     },function(e){syMsg(syErr(e))});
   });
@@ -3834,7 +4246,7 @@ function openSheet(){
   draft={keys:{},models:{}};shownProv=cfg.prov;$("prov").value=cfg.prov;$("base").value=baseCustom;loadProvFields(cfg.prov);
   $("theme").value=theme;
   $("speakOn").value=cfg.speak;$("soul").value=soul;$("notes").value=notes;$("links").value=linksTxt;$("places").value=placesTxt;
-  $("live").value=cfg.live;$("liveModel").value=cfg.liveModel;$("sil").value=cfg.sil;$("reason").value=cfg.reason;$("style").value=cfg.style;$("deepModel").value=cfg.deepModel;$("visModel").value=cfg.visRaw;$("learn").value=cfg.learn;$("barge").value=cfg.barge;$("memBox").value=mem.map(function(x){return(x.pin?"* ":"")+x.t}).join("\n");syFill();try{ringFill()}catch(e){}$("auddKey").value=cfg.audd;$("bkMsg").textContent="";$("wxLoc").value=cfg.wxLoc;$("wazeAuto").value=cfg.wazeAuto;
+  $("live").value=cfg.live;$("liveModel").value=cfg.liveModel;$("sil").value=cfg.sil;$("proOn").value=pro.on?"1":"0";$("proQ").value=pro.quiet?"1":"0";$("reason").value=cfg.reason;$("style").value=cfg.style;$("deepModel").value=cfg.deepModel;$("visModel").value=cfg.visRaw;$("learn").value=cfg.learn;$("barge").value=cfg.barge;$("memBox").value=mem.map(function(x){return(x.pin?"* ":"")+x.t}).join("\n");syFill();try{ringFill()}catch(e){}$("auddKey").value=cfg.audd;$("bkMsg").textContent="";$("wxLoc").value=cfg.wxLoc;$("wazeAuto").value=cfg.wazeAuto;
   $("mktOn").value=cfg.mkt;$("saver").value=cfg.saver;$("engine").value=cfg.engine;$("elKey").value=cfg.elKey;$("elVoice").value=cfg.elVoice;$("elModel").value=cfg.elModel;$("fiKey").value=cfg.fiKey;$("fiVoice").value=cfg.fiVoice;$("fiRelay").value=cfg.fiRelay;$("fiModel").value=cfg.fiModel;paintEngine();
   loadVoices();
   $("rate").value=cfg.rate;$("pitch").value=cfg.pitch;paintSliders();$("wakeUrl").value=wakeLink();
@@ -3958,7 +4370,7 @@ $("save").addEventListener("click",function(){
   cfg.prov=$("prov").value;baseCustom=cleanId($("base").value);syncCur();
   theme=$("theme").value;sv("jv_theme",theme);
   cfg.speak=$("speakOn").value;commitVoice();
-  cfg.live=$("live").value;cfg.liveModel=cleanId($("liveModel").value)||"groq/compound";sv("jv_live",cfg.live);sv("jv_livemodel2",cfg.liveModel);cfg.sil=$("sil").value;sv("jv_sil2",cfg.sil);cfg.reason=$("reason").value;sv("jv_reason",cfg.reason);cfg.style=$("style").value;sv("jv_style",cfg.style);cfg.deepModel=cleanId($("deepModel").value);sv("jv_deepmodel",cfg.deepModel);cfg.mkt=$("mktOn").value;sv("jv_mkt",cfg.mkt);paintMkt();
+  cfg.live=$("live").value;cfg.liveModel=cleanId($("liveModel").value)||"groq/compound";sv("jv_live",cfg.live);sv("jv_livemodel2",cfg.liveModel);cfg.sil=$("sil").value;sv("jv_sil2",cfg.sil);pro.on=$("proOn").value==="1";sv("jv_pro",pro.on?"1":"0");pro.quiet=$("proQ").value==="1";sv("jv_proq",pro.quiet?"1":"0");cfg.reason=$("reason").value;sv("jv_reason",cfg.reason);cfg.style=$("style").value;sv("jv_style",cfg.style);cfg.deepModel=cleanId($("deepModel").value);sv("jv_deepmodel",cfg.deepModel);cfg.mkt=$("mktOn").value;sv("jv_mkt",cfg.mkt);paintMkt();
   cfg.visRaw=cleanId($("visModel").value);cfg.vis=cfg.visRaw||"qwen/qwen3.8-27b";sv("jv_vismodel",cfg.visRaw);
   cfg.learn=$("learn").value;sv("jv_learn",cfg.learn);cfg.barge=$("barge").value;sv("jv_barge",cfg.barge);
   (function(){var L=$("memBox").value.split("\n").map(function(x){return x.trim()}).filter(Boolean).map(function(t){var p=/^\*\s*/.test(t);return{t:t.replace(/^\*\s*/,""),pin:p}}).filter(function(o){return o.t});memReplace(L);try{sySaveInputs()}catch(e){}})();
