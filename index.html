@@ -336,6 +336,9 @@ body.holoOn>*:not(#holo){visibility:hidden!important}
 .trow.ag .agt{min-width:78px;line-height:1.25}.trow.ag .agt b{display:block;font-size:14px;color:var(--c);font-weight:600}.trow.ag .agt small{font-size:10px;opacity:.6;letter-spacing:.04em}
 .trow.ag.ev{border-left:2px solid var(--c)}
 @media (min-width:700px){.trow.ag .agt b{font-size:16px}.agh{font-size:10px}}
+
+/* v9.17 KLCC hologram */
+.hbt{gap:6px}.hbt button{padding:9px 11px}
 </style>
 </head>
 <body>
@@ -346,7 +349,8 @@ body.holoOn>*:not(#holo){visibility:hidden!important}
 </header>
 <div class="hud"><span id="hL"></span><span id="hR"></span></div>
 <div class="stage">
-  <div class="orbw"><div class="ringx"><svg class="rl r1" viewBox="0 0 200 200"><circle cx="100" cy="100" r="95" fill="none" stroke="currentColor" stroke-width="5" opacity=".85"/><circle cx="100" cy="100" r="86" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".8"/></svg><svg class="rl r2" viewBox="0 0 200 200"><circle cx="100" cy="100" r="99" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 8" opacity=".7"/></svg><svg class="rl r3" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90.5" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="30 14 5 14" opacity=".55"/></svg><svg class="rl r4" viewBox="0 0 200 200"><path d="M100 4 A96 96 0 0 1 196 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".95"/><path d="M100 196 A96 96 0 0 1 4 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".6"/></svg></div><button type="button" id="orb" aria-label="Talk to Jarvis"><canvas id="viz"></canvas></button><div class="rchip rc1" id="rc1" data-q="what time is it"><span>TIME</span><b id="rv1">--</b></div><div class="rchip rc2" id="rc2" data-q="what is the weather"><span>WEATHER</span><b id="rv2">--</b></div><div class="rchip rc3" id="rc3" data-q="how is the klci"><span>KLCI</span><b id="rv3">--</b></div><div class="rchip rc4" id="rc4" data-q="how is my paper trading"><span>CHIO P/L</span><b id="rv4">--</b></div><div class="rmh" id="rmh"></div><button type="button" class="rmi" data-a="eyes">EYES</button><button type="button" class="rmi" data-a="hands">HANDS</button><button type="button" class="rmi" data-a="chio">CHIO</button><button type="button" class="rmi" data-a="tasks">TASKS</button><button type="button" class="rmi" data-a="waze">WAZE</button><button type="button" class="rmi" data-a="talk">TALK</button><button type="button" class="rmi" data-a="holo">HOLO</button></div>
+  <div class="orbw"><div class="ringx"><svg class="rl r1" viewBox="0 0 200 200"><circle cx="100" cy="100" r="95" fill="none" stroke="currentColor" stroke-width="5" opacity=".85"/><circle cx="100" cy="100" r="86" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".8"/></svg><svg class="rl r2" viewBox="0 0 200 200"><circle cx="100" cy="100" r="99" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 8" opacity=".7"/></svg><svg class="rl r3" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90.5" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="30 14 5 14" opacity=".55"/></svg><svg class="rl r4" viewBox="0 0 200 200"><path d="M100 4 A96 96 0 0 1 196 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".95"/><path d="M100 196 A96 96 0 0 1 4 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".6"/></svg></div><button type="button" id="orb" aria-label="Talk to Jarvis"><canvas id="viz"></canvas></button><div class="rchip rc1" id="rc1" data-q="what time is it"><span>TIME</span><b id="rv1">--</b></div><div class="rchip rc2" id="rc2" data-q="what is the weather"><span>WEATHER</span><b id="rv2">--</b></div><div class="rchip rc3" id="rc3" data-q="how is the klci"><span>KLCI</span><b id="rv3">--</b></div><div class="rchip rc4" id="rc4" data-q="how is my paper trading"><span>CHIO P/L</span><b id="rv4">--</b></div><div class="rmh" id="rmh"></div><button type="button" class="rmi" data-a="eyes">EYES</button><button type="button" class="rmi" data-a="hands">HANDS</button><button type="button" class="rmi" data-a="chio">CHIO</button><button type="button" class="rmi" data-a="tasks">TASKS</button><button type="button" class="rmi" data-a="waze">WAZE</button><button type="button" class="rmi" data-a="talk">TALK</button><button type="button" class="rmi" data-a="holo">HOLO</button>
+<button type="button" class="rmi" data-a="klcc">KLCC</button></div>
   <div class="status" id="status">tap the circle to talk</div>
 </div>
 <div class="wx" id="wx" title="Tap to refresh weather">
@@ -601,7 +605,7 @@ body.holoOn>*:not(#holo){visibility:hidden!important}
 <div id="gest"><video id="gVid" playsinline muted autoplay></video><div class="gdot" id="gd0"></div><div class="gdot" id="gd1"></div><div id="gRing"></div>
 <div class="gtop"><span>HAND CONTROL</span><span id="gSt">STARTING</span></div><div class="ghint" id="gHint"></div><div class="gcap" id="gCap"></div>
 <div class="gtb"><button type="button" id="gTalk" class="hot">TALK</button><button type="button" id="gReset">RESET</button><button type="button" id="gExit">EXIT</button></div></div>
-<div id="holo"><video id="hVid" playsinline muted autoplay></video><canvas id="hc"></canvas><div id="hCur"></div><div class="hsw"></div><div class="htop"><div><b>HOLO / EARTH</b><span id="hRead"></span></div><div class="hbt"><button id="hHands" type="button">HANDS</button><button id="hTalk" type="button">TALK</button><button id="hExit" type="button">EXIT</button></div></div><div id="hCap"><div id="hCapU"></div><div id="hCapA"></div></div><div id="hpan"></div><div class="hhint" id="hHint">DRAG TO SPIN · PINCH TO ZOOM · TAP A CITY</div></div>
+<div id="holo"><video id="hVid" playsinline muted autoplay></video><canvas id="hc"></canvas><div id="hCur"></div><div class="hsw"></div><div class="htop"><div><b>HOLO / EARTH</b><span id="hRead"></span></div><div class="hbt"><button id="hKl" type="button">KLCC</button><button id="hHands" type="button">HANDS</button><button id="hTalk" type="button">TALK</button><button id="hExit" type="button">EXIT</button></div></div><div id="hCap"><div id="hCapU"></div><div id="hCapA"></div></div><div id="hpan"></div><div class="hhint" id="hHint">DRAG TO SPIN · PINCH TO ZOOM · TAP A CITY</div></div>
 <script>
 (function(){
 "use strict";
@@ -1205,7 +1209,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.16";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
+var VER="v9.17";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -2880,7 +2884,7 @@ function glideStart(){
 }
 /* ---------- HOLO globe v2: voice-driven, country highlight, glass panels, world markets ---------- */
 var HG={on:false,raf:0,last:0,ema:16,n:0,q:0,lon:2,lat:.1,vx:0,vy:0,zoom:1,down:false,ptr:{},pd:0,pz:1,t0:0,tm:0,tl:0,tapT:0,touch:0,tgt:null,W:0,H:0,d:1,R:150,cx:0,cy:0,cyF:.45,cyT:.45,fr:0,cp:[],col:"#2ee6d6",ready:false,sx:0,sy:0,moved:0,mode:"free",hl:[],hlT:0,cmd:0,quotes:{},tour:0,tourT:0,fine:null,city:null,ctry:null,ex:null,panEl:{},ar:false,hands:[],hDrag:null,hZoom:null,pl:0,pt2:0,zt:0,cur:null,lastT:-1,lastDet:0,gap:60,curCool:0,hvx:0,hvy:0,hAct:0,stream:null,arBusy:false};
-window.__HG=HG;
+window.__HG=HG;HG.fy=226;HG.fyT=226;HG.part="all";HG.tp=[];HG.uiM=false;
 var HCITY=[
 ["Kuala Lumpur",3.139,101.687,"Asia/Kuala_Lumpur","Malaysia",1,1],["Putrajaya",2.926,101.696,"Asia/Kuala_Lumpur","Malaysia"],["Penang",5.414,100.329,"Asia/Kuala_Lumpur","Malaysia"],["Johor Bahru",1.4927,103.7414,"Asia/Kuala_Lumpur","Malaysia"],["Kuching",1.5533,110.3593,"Asia/Kuching","Malaysia"],["Kota Kinabalu",5.9804,116.0735,"Asia/Kuala_Lumpur","Malaysia"],["Melaka",2.1896,102.2501,"Asia/Kuala_Lumpur","Malaysia"],["Ipoh",4.5975,101.0901,"Asia/Kuala_Lumpur","Malaysia"],["Langkawi",6.35,99.8,"Asia/Kuala_Lumpur","Malaysia"],
 ["Singapore",1.352,103.82,"Asia/Singapore","Singapore",0,1],["Jakarta",-6.2,106.85,"Asia/Jakarta","Indonesia",0,1],["Bali",-8.65,115.22,"Asia/Makassar","Indonesia"],["Bangkok",13.75,100.5,"Asia/Bangkok","Thailand",0,1],["Manila",14.6,120.98,"Asia/Manila","Philippines"],["Hanoi",21.03,105.85,"Asia/Bangkok","Vietnam"],["Ho Chi Minh City",10.82,106.63,"Asia/Bangkok","Vietnam"],["Phnom Penh",11.56,104.92,"Asia/Phnom_Penh","Cambodia"],
@@ -3040,7 +3044,7 @@ function hcPlace(p,speak){
   hcFly(tlat,tlon,Math.min(finalZ,1.9));
   hcStage(0,function(){hcFly(tlat,tlon,finalZ);if(C)hcHL([C.n])},850);
   tz=c?c.tz:"";var ex=c?HG.ex.filter(function(e){return e.c===c})[0]:null,home=c&&c.me;
-  var list=[{k:"LOCATION",id:"loc",v:(p.t==="city"?c.n:C.n),s:(p.t==="city"?c.country:"")+(c?" · "+hcTime(tz,true):""),fn:function(){send("tell me about "+label)}},
+  var list=[{k:"LOCATION",id:"loc",v:(p.t==="city"?c.n:C.n),s:(c&&c.me?"Malaysia \u00b7 tap for KLCC":(p.t==="city"?c.country:"")+(c?" · "+hcTime(tz,true):"")),fn:function(){if(c&&c.me){hcTower(true);return}send("tell me about "+label)}},
     {k:"WEATHER",id:"wx",v:"…",s:c?"live":"no live data"}];
   if(ex)list.push({k:ex.id+" INDEX",id:"ix",v:"…",s:hcStatus(ex)});
   else list.push({k:"FROM KUALA LUMPUR",id:"ix",v:c&&!home?fN(hcDist(3.139,101.687,c.lat,c.lon),0)+" km":"—",s:c?"great-circle":""});
@@ -3090,10 +3094,214 @@ function hcMarkets(speak){
   });
 }
 function hcFocus(e){HG.tourT=performance.now()+9000;hcFly(e.c.lat,e.c.lon,2.4);var q=HG.quotes[e.id],st=hcStatus(e);hcCap("a",e.c.n.toUpperCase()+" · "+e.id+" · "+st+(q?" · "+fN(q.lvl,2)+" ("+hcSgn(q.pct)+")":""))}
+/* ---------- v9.17: KLCC hologram (Petronas Twin Towers), wireframe on the same canvas ---------- */
+var TW={c:1,s:0,cp:1,sp:0,k:1,cx:0,gy:0,D:950,sx:0,sy:0,z:0,rx:new Float32Array(32),rz:new Float32Array(32),ux:new Float32Array(32),uz:new Float32Array(32),kind:new Uint8Array(32),
+  seg:[[0,255,24,19.5],[255,310,20,17.5],[310,349,15.5,14.5],[349,375,12,12],[375,405.5,9,6.5]],OX:52,H:451.9,ready:false,pF:null,pB:null,pH:null,pBr:null};
+var TPART={
+  all:{lon:.55,lat:.2,zoom:1,fy:226},
+  bridge:{lon:.28,lat:.08,zoom:2.5,fy:172},
+  top:{lon:.7,lat:.14,zoom:2.3,fy:392}
+};
+function twInit(){
+  if(TW.ready)return;var s,j,a;
+  for(s=0;s<8;s++){
+    var A=[0,14.5,22.5,30.5],K=[0,1,2,1];
+    for(j=0;j<4;j++){a=(s*45+A[j])*Math.PI/180;TW.ux[s*4+j]=Math.cos(a);TW.uz[s*4+j]=Math.sin(a);TW.kind[s*4+j]=K[j]}
+  }
+  TW.ready=true;
+}
+function twQ(x1,Y,z1){
+  var y2=Y*TW.cp-z1*TW.sp,z2=Y*TW.sp+z1*TW.cp,pf=TW.D/(TW.D-z2);
+  TW.sx=TW.cx+x1*TW.k*pf;TW.sy=TW.gy-y2*TW.k*pf;TW.z=z2;
+}
+function twP(X,Y,Z){twQ(X*TW.c-Z*TW.s,Y,X*TW.s+Z*TW.c)}
+function twRad(kd,ro,rp){return kd===0?ro:kd===1?rp:rp+Math.min(1.8,(ro-rp)*.3)}
+/* one floor outline of a tower (star plan with petals) */
+function twRing(ox,h,ro,rp,step,hot){
+  var ocx=ox*TW.c,ocz=ox*TW.s,n=32,i,k,rad,x,z,px=0,py=0,pz=0,P;
+  for(i=0;i<=n;i+=step){
+    k=i%n;rad=twRad(TW.kind[k],ro,rp);x=ocx+TW.rx[k]*rad;z=ocz+TW.rz[k]*rad;twQ(x,h,z);
+    if(i>0){P=hot?TW.pH:((TW.z+pz)>=0?TW.pF:TW.pB);P.moveTo(px,py);P.lineTo(TW.sx,TW.sy)}
+    px=TW.sx;py=TW.sy;pz=TW.z;
+  }
+}
+function twLine(P,x0,y0,z0,x1,y1,z1){twP(x0,y0,z0);var ax=TW.sx,ay=TW.sy,az=TW.z;twP(x1,y1,z1);P.moveTo(ax,ay);P.lineTo(TW.sx,TW.sy)}
+function twLineW(P,x0,y0,z0,x1,y1,z1){twQ(x0,y0,z0);var ax=TW.sx,ay=TW.sy;twQ(x1,y1,z1);P.moveTo(ax,ay);P.lineTo(TW.sx,TW.sy)}
+function twDisc(P,cxm,cym,czm,r,n){var i,a,px=0,py=0;for(i=0;i<=n;i++){a=i/n*6.2832;twP(cxm+Math.cos(a)*r,cym,czm+Math.sin(a)*r);if(i)P.lineTo(TW.sx,TW.sy);else P.moveTo(TW.sx,TW.sy)}}
+function hcTowerDraw(ts,t,dt,ka){
+  var ti;twInit();var g=HG.g,W=HG.W,H=HG.H,col=HG.col,zm=HG.zoom,q=HG.q,i,j,k;
+  var c=Math.cos(HG.lon),s=Math.sin(HG.lon),cp=Math.cos(HG.lat),sp=Math.sin(HG.lat);
+  HG.fy+=(HG.fyT-HG.fy)*Math.min(1,dt*3.2);
+  var big=W>=700,kk=H*(big?.57:.5)/TW.H*zm,cyy=H*(big?.5:.47),lr=Math.min(W-10,HG.cx+Math.max(170,W*.27));
+  TW.c=c;TW.s=s;TW.cp=cp;TW.sp=sp;TW.k=kk;TW.cx=HG.cx;TW.gy=cyy+HG.fy*cp*kk;
+  for(i=0;i<32;i++){TW.rx[i]=TW.ux[i]*c-TW.uz[i]*s;TW.rz[i]=TW.ux[i]*s+TW.uz[i]*c}
+  var pF=TW.pF=new Path2D(),pB=TW.pB=new Path2D(),pH=TW.pH=new Path2D(),pBr=TW.pBr=new Path2D(),pG=new Path2D();
+  var hs=((t*.17)%1.3)*TW.H,sp1=q>=2?28:q===1?18:12,step=q>=2?2:1,vstep=q>=2?4:q===1?2:1;
+  var focusB=HG.part==="bridge",pul=.65+.35*Math.sin(t*3.2);
+  g.lineJoin="round";g.lineCap="round";
+  /* ground: projector disc, rings, ticks */
+  var ox,tw;
+  twP(0,0,0);var gx=TW.sx,gy0=TW.sy;
+  var bw=Math.max(60,Math.abs(110*kk)*1.9);
+  var gr=g.createRadialGradient(gx,gy0,2,gx,gy0,bw);gr.addColorStop(0,"rgba(46,230,214,"+(.30*ka+.04)+")");gr.addColorStop(1,"rgba(46,230,214,0)");
+  g.globalAlpha=1;g.fillStyle=gr;g.save();g.translate(gx,gy0);g.scale(1,Math.max(.12,sp*.9+.08));g.beginPath();g.arc(0,0,bw,0,6.2832);g.fill();g.restore();
+  twDisc(pG,0,0,0,100,48);twDisc(pG,0,0,0,150,56);twDisc(pG,0,0,0,205,64);
+  if(q<2){for(i=0;i<24;i++){var ta=i/24*6.2832,ca=Math.cos(ta),sa=Math.sin(ta);twP(ca*205,0,sa*205);var tx=TW.sx,ty=TW.sy;twP(ca*(i%2?196:190),0,sa*(i%2?196:190));pG.moveTo(tx,ty);pG.lineTo(TW.sx,TW.sy)}}
+  /* podium (Suria KLCC) */
+  var X0=-92,X1=92,Z0=-52,Z1=52,Y1=15;
+  twLine(pG,X0,0,Z0,X1,0,Z0,0,0,0);twLine(pG,X1,0,Z0,X1,0,Z1);twLine(pG,X1,0,Z1,X0,0,Z1);twLine(pG,X0,0,Z1,X0,0,Z0);
+  twLine(pG,X0,Y1,Z0,X1,Y1,Z0);twLine(pG,X1,Y1,Z0,X1,Y1,Z1);twLine(pG,X1,Y1,Z1,X0,Y1,Z1);twLine(pG,X0,Y1,Z1,X0,Y1,Z0);
+  twLine(pG,X0,0,Z0,X0,Y1,Z0);twLine(pG,X1,0,Z0,X1,Y1,Z0);twLine(pG,X1,0,Z1,X1,Y1,Z1);twLine(pG,X0,0,Z1,X0,Y1,Z1);
+  g.strokeStyle=col;g.lineWidth=.9;g.globalAlpha=.34;g.stroke(pG);
+  /* towers */
+  var offs=[-TW.OX,TW.OX],hi,seg,h,ro,rp;
+  for(ti=0;ti<2;ti++){
+    ox=offs[ti];
+    for(j=0;j<TW.seg.length;j++){
+      seg=TW.seg[j];ro=seg[2];rp=seg[3];
+      var h0=seg[0],h1=seg[1],nr=Math.max(1,Math.round((h1-h0)/sp1));
+      for(k=0;k<=nr;k++){h=h0+(h1-h0)*k/nr;if(k===0&&j>0)continue;twRing(ox,h,ro,rp,step,Math.abs(h-hs)<9)}
+      /* the setback step */
+      if(j<TW.seg.length-1){var nx=TW.seg[j+1];twRing(ox,h1,nx[2],nx[3],step,false)}
+    }
+    /* vertical edges, chained through the setbacks */
+    var ocx=ox*c,ocz=ox*s;
+    for(k=0;k<32;k+=vstep){
+      var kd=TW.kind[k],px0=0,py0=0,pz0=0,first=true;
+      for(j=0;j<TW.seg.length;j++){
+        seg=TW.seg[j];var rr=twRad(kd,seg[2],seg[3]);
+        twQ(ocx+TW.rx[k]*rr,seg[0],ocz+TW.rz[k]*rr);var bx=TW.sx,by=TW.sy,bz=TW.z;
+        twQ(ocx+TW.rx[k]*rr,seg[1],ocz+TW.rz[k]*rr);var tx2=TW.sx,ty2=TW.sy,tz2=TW.z;
+        var P=((bz+tz2)>=0)?pF:pB;P.moveTo(bx,by);P.lineTo(tx2,ty2);
+        if(j>0){P=((bz+pz0)>=0)?pF:pB;P.moveTo(px0,py0);P.lineTo(bx,by)}
+        px0=tx2;py0=ty2;pz0=tz2;
+      }
+    }
+    /* crown dome and spire */
+    twRing(ox,408,5.4,5.4,2,false);twRing(ox,410.6,3.6,3.6,2,false);twRing(ox,412.4,1.8,1.8,2,false);
+    twLine(pH,ox,412.4,0,ox,TW.H,0);
+    twLine(pF,ox,420,0,ox,420,0);
+    [421,429,437,444].forEach(function(hh){twRing(ox,hh,1.15,1.15,4,false)});
+  }
+  /* skybridge: two decks, truss, inverted V legs */
+  var BX=29.6,BY0=166,BY1=174,BZ=6;
+  var PB=focusB?pH:pBr;
+  [BY0,170,BY1].forEach(function(yy){twLine(PB,-BX,yy,-BZ,BX,yy,-BZ);twLine(PB,-BX,yy,BZ,BX,yy,BZ);twLine(PB,-BX,yy,-BZ,-BX,yy,BZ);twLine(PB,BX,yy,-BZ,BX,yy,BZ)});
+  for(i=0;i<=14;i++){var bx2=-BX+i*(2*BX/14);twLine(PB,bx2,BY0,-BZ,bx2,BY1,-BZ);twLine(PB,bx2,BY0,BZ,bx2,BY1,BZ)}
+  if(q<2)for(i=0;i<14;i++){var b0=-BX+i*(2*BX/14),b1=b0+2*BX/14;if(i%2===0){twLine(PB,b0,BY0,BZ,b1,BY1,BZ);twLine(PB,b0,BY0,-BZ,b1,BY1,-BZ)}else{twLine(PB,b0,BY1,BZ,b1,BY0,BZ);twLine(PB,b0,BY1,-BZ,b1,BY0,-BZ)}}
+  [-5,5].forEach(function(zz){twLine(PB,-4,BY0,zz,-27,122,zz);twLine(PB,4,BY0,zz,27,122,zz)});
+  twLine(PB,-4,BY0,-5,-4,BY0,5);twLine(PB,4,BY0,-5,4,BY0,5);
+  /* scan plane */
+  var sc=null;
+  if(hs<TW.H+20){twDisc(pH,0,hs,0,86,48)}
+  /* ---- strokes (glow pass first on high quality) ---- */
+  if(q<1){
+    g.strokeStyle=col;g.lineWidth=3.4;g.globalAlpha=.13;g.stroke(pF);g.stroke(pBr);
+    g.globalAlpha=.07;g.stroke(pB);
+  }
+  g.lineWidth=.8;g.strokeStyle=col;g.globalAlpha=.3;g.stroke(pB);
+  g.lineWidth=1;g.globalAlpha=.92;g.stroke(pF);
+  g.strokeStyle="#9ffcf0";g.lineWidth=focusB?1.4:1.1;g.globalAlpha=focusB?.6+.4*pul:.95;g.stroke(pBr);
+  g.strokeStyle="#e8fffc";g.lineWidth=1.3;g.globalAlpha=.95;g.stroke(pH);
+  /* beacon at the tip of each spire (aviation light) */
+  HG.tp.length=0;
+  for(ti=0;ti<2;ti++){twP(offs[ti],TW.H,0);var lx=TW.sx,ly=TW.sy;var bl=((t*.9+ti*.45)%1);
+    g.globalAlpha=1-bl;g.strokeStyle="#ff5470";g.lineWidth=1.2;g.beginPath();g.arc(lx,ly,2+bl*9,0,6.2832);g.stroke();
+    g.globalAlpha=1;g.fillStyle="#ff6a82";g.beginPath();g.arc(lx,ly,2,0,6.2832);g.fill();
+    if(ti===1)HG.tp.push({k:"top",x:lx,y:ly,r:46})}
+  /* labels, hotspots, ruler */
+  var fs=Math.round(8+Math.min(3,H/320));g.font="600 "+fs+"px Michroma,ui-monospace,monospace";g.textBaseline="middle";
+  twP(0,170,0);var bxp=TW.sx,byp=TW.sy;
+  if(HG.part==="all"){
+    var rx0=lr-125;
+    g.globalAlpha=.9;g.strokeStyle="#e8fffc";g.lineWidth=1;g.beginPath();g.moveTo(bxp,byp);g.lineTo(rx0-4,byp);g.stroke();
+    g.fillStyle="#e8fffc";g.textAlign="right";g.fillText("SKYBRIDGE  170 M",lr,byp-fs-2);g.fillStyle=col;g.fillText("FLOORS 41 · 42",lr,byp+fs+2);g.textAlign="left";
+    var ph=(t*.9)%1;g.globalAlpha=(1-ph)*.9;g.beginPath();g.arc(bxp,byp,4+ph*16,0,6.2832);g.stroke();
+    g.globalAlpha=1;g.fillStyle="#fff";g.beginPath();g.arc(bxp,byp,2.6,0,6.2832);g.fill();
+    HG.tp.push({k:"bridge",x:bxp,y:byp,r:44});
+    twP(TW.OX,TW.H,0);var tpx=TW.sx,tpy=Math.max(TW.sy,H*.2);
+    g.globalAlpha=.9;g.strokeStyle="#e8fffc";g.beginPath();g.moveTo(tpx+8,tpy);g.lineTo(Math.max(tpx+24,lr-125),tpy);g.stroke();
+    g.fillStyle="#e8fffc";g.textAlign="right";g.fillText("SPIRE  451.9 M",lr,tpy-fs-2);g.fillStyle=col;g.fillText("88 FLOORS",lr,tpy+fs+2);g.textAlign="left";
+  }
+  var ra=Math.max(0,Math.min(1,1-(zm-1.4)/.8));
+  if(ra>0){
+    g.globalAlpha=.7*ra;g.strokeStyle=col;g.lineWidth=1;g.fillStyle=col;g.beginPath();
+    var tks=[0,100,200,300,400,451.9],ys=[];
+    for(i=0;i<tks.length;i++){twP(0,tks[i],0);ys.push(TW.sy);g.moveTo(14,TW.sy);g.lineTo(i===5?30:24,TW.sy)}
+    g.moveTo(14,ys[0]);g.lineTo(14,ys[5]);g.stroke();
+    g.globalAlpha=.8*ra;g.font="500 "+(fs-1)+"px Michroma,ui-monospace,monospace";
+    for(i=1;i<tks.length;i++)g.fillText(i===5?"452":String(tks[i]),i===5?34:28,ys[i]-(i===5?0:0));
+    g.globalAlpha=.55*ra;g.fillText("M",18,ys[0]+10);
+  }
+  g.globalAlpha=1;
+}
+function hcTowerHit(x,y){
+  var i,q,best=null,bd=1e9;for(i=0;i<HG.tp.length;i++){q=HG.tp[i];var d=Math.hypot(q.x-x,q.y-y);if(d<q.r&&d<bd){bd=d;best=q}}
+  return best?best.k:null;
+}
+function hcTowerTap(x,y,now){
+  var k=hcTowerHit(x,y);
+  if(k){hcTowerPart(k,false);return}
+  if(now-HG.tapT<330&&HG.part!=="all")hcTowerPart("all",false);
+}
+function hcTowerPanels(part,id){
+  var list;
+  if(part==="bridge")list=[{k:"DECKS",id:"d",v:"2",s:"floors 41 and 42"},{k:"HEIGHT",id:"h",v:"170 m",s:"above the street"},{k:"SPAN",id:"s",v:"58.4 m",s:"about 750 tonnes"},{k:"BACK",id:"bk",v:"‹ OVERVIEW",s:"both towers",fn:function(){hcTowerPart("all",true)}}];
+  else if(part==="top")list=[{k:"SPIRE",id:"sp",v:"46.4 m",s:"antenna mast"},{k:"ROOF",id:"rf",v:"405.5 m",s:"top floor L88 at 375 m"},{k:"OBSERVATION",id:"ob",v:"370 m",s:"level 86"},{k:"BACK",id:"bk",v:"‹ OVERVIEW",s:"both towers",fn:function(){hcTowerPart("all",true)}}];
+  else list=[{k:"HEIGHT",id:"h",v:"451.9 m",s:"1,483 ft · 88 floors",fn:function(){hcTowerPart("top",true)}},{k:"SKYBRIDGE",id:"b",v:"170 m",s:"floors 41 · 42 · tap",fn:function(){hcTowerPart("bridge",true)}},{k:"OPENED",id:"o",v:"1999",s:"Pelli · tallest 1998–2004"},{k:"KLCC NOW",id:"wx",v:"…",s:hcTime("Asia/Kuala_Lumpur",false)}];
+  hcPan(list,false);
+}
+function hcTowerPart(part,speak){
+  var P=TPART[part]||TPART.all;HG.part=part;HG.mode="tower";HG.hl=[];HG.touch=0;
+  var yaw=P.lon,d=yaw-HG.lon;d=((d+Math.PI)%6.2832+6.2832)%6.2832-Math.PI;yaw=HG.lon+d;
+  HG.tgt={lon:yaw,lat:P.lat,zoom:P.zoom};HG.fyT=P.fy;
+  if(part==="bridge"){/* face the bridge broadside */var n=Math.round(HG.lon/Math.PI)*Math.PI;HG.tgt.lon=n+.22}
+  hcTowerPanels(part);
+  var id=++HG.cmd;
+  var cap=part==="bridge"?"SKYBRIDGE · 170 M · FLOORS 41–42":part==="top"?"CROWN · SPIRE · 451.9 M":"PETRONAS TWIN TOWERS · KUALA LUMPUR";
+  hcCap("a",cap);
+  if(part==="all")hcWx(3.1579,101.7116).then(function(w){if(id!==HG.cmd||HG.part!=="all")return;hcSet("wx",w?w.t+"°C":"—",w?w.w+" · "+hcTime("Asia/Kuala_Lumpur",false):hcTime("Asia/Kuala_Lumpur",false))});
+  if(speak){
+    var en,ms;
+    if(part==="bridge"){en="The skybridge. A two storey bridge on floors 41 and 42, 170 meters above the street. It spans 58 meters between the towers and weighs about 750 tonnes.";ms="Jejantas langit. Jambatan dua tingkat di tingkat 41 dan 42, setinggi 170 meter dari jalan. Panjangnya 58 meter dan beratnya kira-kira 750 tan."}
+    else if(part==="top"){en="The crown. The roof is at 405 meters, and a 46 meter spire takes the architectural height to 452 meters. The observation deck is on level 86, at 370 meters.";ms="Mahkota menara. Bumbung pada 405 meter, dan puncak setinggi 46 meter menjadikan ketinggian 452 meter. Dek tinjauan di tingkat 86, pada 370 meter."}
+    else{
+      hcWx(3.1579,101.7116).then(function(w){
+        if(id!==HG.cmd)return;
+        var e2="The Petronas Twin Towers, Kuala Lumpur. 452 meters and 88 floors, designed by Cesar Pelli and opened in 1999. They were the tallest buildings in the world from 1998 to 2004."+(w?" It is "+w.t+" degrees and "+w.w.toLowerCase()+" at KLCC right now.":"")+" Tap the skybridge or the spire for detail.";
+        var m2="Menara Berkembar Petronas, Kuala Lumpur. 452 meter dan 88 tingkat, direka oleh Cesar Pelli dan dirasmikan pada 1999. Ia bangunan tertinggi dunia dari 1998 hingga 2004."+(w?" Cuaca di KLCC sekarang "+w.t+" darjah.":"");
+        reply(LT(e2,m2,e2,null,e2,e2));
+      });
+      return;
+    }
+    reply(LT(en,ms,en,null,en,en));
+  }
+}
+function hcTower(speak,part){
+  hcInit();HG.cmd++;HG.mode="tower";HG.tour=0;HG.hl=[];HG.tgt=null;HG.part="all";HG.fy=226;HG.fyT=226;
+  HG.lon=.2;HG.lat=.16;HG.zoom=.62;HG.vx=HG.vy=0;HG.zt=0;
+  hcTowerPart(part||"all",!!speak);
+}
+
+function hcModeUI(){
+  var tw=HG.mode==="tower",b=document.querySelector("#holo .htop b"),kl=$("hKl"),r=$("hRead");
+  var tt=tw?"HOLO / KLCC":"HOLO / EARTH";if(b&&b.textContent!==tt)b.textContent=tt;
+  if(kl){var lb=tw?"GLOBE":"KLCC";if(kl.textContent!==lb)kl.textContent=lb}
+  if(tw&&r)r.textContent="3.158N  101.712E  x"+HG.zoom.toFixed(1);
+  if(HG.uiM!==tw){HG.uiM=tw;var h=$("hHint");if(h)h.textContent=tw?"DRAG TO ROTATE \u00b7 PINCH TO ZOOM \u00b7 TAP SKYBRIDGE OR SPIRE":(HG.ar?"PINCH OR PALM TO SPIN \u00b7 2 HANDS ZOOM \u00b7 POINT + HOLD":"DRAG TO SPIN \u00b7 PINCH TO ZOOM \u00b7 TAP A CITY")}
+}
 function holoIntent(raw,n){
   var w=n.split(" ").length;if(w>12)return null;
   if(/^(use|turn on|enable|activate|start|switch on)( my)? (hands?|hand control|hand tracking|gestures?)( control)?$|^(hologram|holo|ar) mode$|^(control|move) (it|the globe) with my hands?$/.test(n))return{k:"ar",on:true};
   if(HG.on&&/^(turn off|disable|stop|switch off)( my)? (hands?|hand control|hand tracking|gestures?)( control)?$|^hands off$/.test(n))return{k:"ar",on:false};
+  if(/\b(klcc|petronas|twin towers?|menara berkembar|kuala lumpur city cent(?:re|er))\b/.test(n)&&(/^(show|open|display|bring up|launch|let me see|see|view|tunjuk|papar|take me|fly|go|visit|pull up|hologram|holo|zoom)\b|\bhologram\b/.test(n))&&!/\b(price|prices|stock|share|weather|news|ticket|tickets|opening hours|how tall|how high|history|directions|navigate|waze)\b/.test(n))return{k:"tower",part:/sky ?bridge/.test(n)?"bridge":/\b(spire|crown|antenna|pinnacle|observation)\b/.test(n)?"top":"all"};
+  if(/\b(menara 118|merdeka 118|118 tower|tower 118|one one eight)\b/.test(n)&&/^(show|open|display|bring up|launch|tunjuk|papar|hologram|view|take me)\b/.test(n))return{k:"t118"};
+  if(HG.on&&HG.mode==="tower"){
+    if(/\b(sky ?bridge)\b/.test(n)&&/^(show|zoom|focus|go|look|tell|what|how|where|take|fly|the|bring|tunjuk)\b/.test(n))return{k:"tower",part:"bridge"};
+    if(/\b(spire|crown|antenna|pinnacle|observation deck|the top)\b/.test(n)&&/^(show|zoom|focus|go|look|tell|what|how|where|take|fly|the|bring|tunjuk)\b/.test(n))return{k:"tower",part:"top"};
+    if(/^(overview|full view|whole (tower|building)|reset( view)?|zoom out|show (it )?all|both towers|show both towers)$/.test(n)||(HG.part!=="all"&&/^(back|go back)$/.test(n)))return{k:"tower",part:"all"};
+    if(/^(back to|show|go to|return to|take me to)( the)? (globe|earth|map|world)$/.test(n))return{k:"globeback"};
+  }
   if(HG.on&&/^(close|exit|hide|dismiss|back|go back|stop|tutup|turn off)( the)?( globe| hologram| holo| map| earth)?$/.test(n))return{k:"close"};
   if(/^(open|show|launch|start|activate|bring up)( me)?( the| my)? (holo ?globe|globe|hologram|holo|earth|world map|map of the world)$/.test(n))return{k:"open"};
   if(/\bmarkets?\b/.test(n)&&(/\b(global|world|worldwide|international|globally)\b|around the world|market activity/.test(n)||/^(how are|show me|show|display) (the )?(markets|stock markets|world markets)( doing| today| now)?$/.test(n)||/pasaran (global|dunia)/.test(n)))return{k:"markets"};
@@ -3104,6 +3312,9 @@ function holoIntent(raw,n){
 function holoRun(h){
   if(h.k==="close"){hcClose();reply(LT("Globe closed.","Glob ditutup.","地球已关闭。",null,"Глобус закрыт.","地球を閉じました。"));return}
   if(h.k==="ar"){hcOpen();if(h.on){hcAr(true).then(function(ok){if(!ok&&HG.on)reply(LT("I need a tap for the camera. Press the HANDS button on the globe, Sir.","Saya perlu anda tekan butang HANDS pada glob untuk kamera.","请点按地球上的 HANDS 按钮以打开摄像头。",null,"Нажмите кнопку HANDS на глобусе.","地球のHANDSボタンを押してください。"));else if(ok)reply(LT("Hand control online. Pinch or open your hand and move it to spin the globe, Sir.","Kawalan tangan aktif. Cubit atau buka tangan dan gerakkan untuk memutar glob.","手势控制已启动。捏合或张开手并移动即可旋转地球。",null,"Управление руками включено.","ハンドコントロールを起動しました。"))})}else{hcAr(false);reply(LT("Hand control off.","Kawalan tangan dimatikan.","手势控制已关闭。",null,"Управление руками выключено.","ハンドコントロールを停止しました。"))}return}
+  if(h.k==="t118"){reply(LT("Menara 118 is not in my hologram library yet, Sir. I can show you the Petronas Twin Towers.","Menara 118 belum ada dalam pustaka hologram saya. Saya boleh tunjukkan Menara Berkembar Petronas.","Menara 118 is not in my hologram library yet, Sir. I can show you the Petronas Twin Towers.",null,"Menara 118 is not in my hologram library yet, Sir. I can show you the Petronas Twin Towers.","Menara 118 is not in my hologram library yet, Sir. I can show you the Petronas Twin Towers."));return}
+  if(h.k==="tower"){if(HG.on&&HG.mode==="tower"){hcTowerPart(h.part,true)}else{hcOpen(true);hcTower(true,h.part)}return}
+  if(h.k==="globeback"){hcPlace({t:"city",c:HG.city[0]},false);return}
   var was=HG.on;hcOpen(h.k==="open"?false:true);
   if(h.k==="open"){reply(LT("Globe online.","Glob dalam talian.","地球已启动。",null,"Глобус включён.","地球を起動しました。"));return}
   if(h.k==="markets")hcMarkets(true);else hcPlace(h.p,true);
@@ -3120,8 +3331,9 @@ function hcHInfo(lm){
 }
 function hcCur(x,y,p){var c=$("hCur");if(x==null){c.classList.remove("on");return}c.classList.add("on");c.style.transform="translate("+x+"px,"+y+"px)";c.style.setProperty("--p",Math.min(1,p||0))}
 function hcSelectAt(x,y){
-  var el=document.elementFromPoint(x,y),t=el&&el.closest?el.closest(".gp,#hExit,#hTalk,#hHands"):null;
+  var el=document.elementFromPoint(x,y),t=el&&el.closest?el.closest(".gp,#hExit,#hTalk,#hHands,#hKl"):null;
   if(t){t.click();return}
+  if(HG.mode==="tower"){var tpk=hcTowerHit(x,y);if(tpk)hcTowerPart(tpk,false);return}
   var best=null,bd=40,i,q;for(i=0;i<HG.cp.length;i++){q=HG.cp[i];var d=Math.hypot(q.x-x,q.y-y);if(d<bd){bd=d;best=q}}
   if(best){if(best.ex)hcFocus(best.ex);else hcPlace({t:"city",c:best.c},false)}
 }
@@ -3213,16 +3425,17 @@ function hcFrame(ts){
     if(Math.abs(dl)<.003&&Math.abs(HG.tgt.lat-HG.lat)<.003&&Math.abs(dz)<.02)HG.tgt=null;
   }else if(!HG.down&&!HG.hDrag&&!HG.hZoom){
     if(Math.abs(HG.vx)>.02||Math.abs(HG.vy)>.02){HG.lon-=HG.vx*dt;HG.lat+=HG.vy*dt;var f=Math.pow(.05,dt);HG.vx*=f;HG.vy*=f}
-    else if(HG.mode==="free"&&ts-HG.touch>3500)HG.lon+=.12*dt;
+    else if((HG.mode==="free"||HG.mode==="tower")&&ts-HG.touch>3500)HG.lon+=(HG.mode==="tower"?.2:.12)*dt;
   }
   if(HG.mode==="markets"&&!HG.tgt&&!HG.down&&ts-HG.tourT>5200&&ts-HG.touch>4000){
     var V=[[24,112,2.0],[48,12,2.3],[36,-85,1.6]];HG.tour=(HG.tour+1)%3;HG.tourT=ts;hcFly(V[HG.tour][0],V[HG.tour][1],V[HG.tour][2]);
   }
-  HG.lat=Math.max(-1.35,Math.min(1.35,HG.lat));HG.zoom=Math.max(.6,Math.min(6.5,HG.zoom));
+  if(HG.mode==="tower"){HG.lat=Math.max(-.1,Math.min(.95,HG.lat));HG.zoom=Math.max(.5,Math.min(3,HG.zoom))}else{HG.lat=Math.max(-1.35,Math.min(1.35,HG.lat));HG.zoom=Math.max(.6,Math.min(6.5,HG.zoom))}
   var R=hcRad();HG.R=R;
   var g=HG.g,d=HG.d,W=HG.W,H=HG.H,cx=HG.cx,cy=HG.cy,col=HG.col,t=(ts-HG.t0)/1000,i,j,k,zm=HG.zoom;
   g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,W,H);g.globalCompositeOperation=HG.ar?"lighter":"source-over";var ka=HG.ar?.3:1;
   var pl=[],c0=Math.cos(HG.lon),s0=Math.sin(HG.lon),cp=Math.cos(HG.lat),sp=Math.sin(HG.lat),L,P,xx,yy,zz,Z,oz;
+  if(HG.mode==="tower"){HG.cp.length=0;hcTowerDraw(ts,t,dt,ka)}else{
   var by=cy+R*1.2;
   if(zm<2.4){
     var gr=g.createLinearGradient(0,by,0,cy);gr.addColorStop(0,"rgba(46,230,214,.20)");gr.addColorStop(1,"rgba(46,230,214,0)");
@@ -3313,6 +3526,7 @@ function hcFrame(ts){
     }else{g.globalAlpha=Math.min(1,Z3*1.6);g.fillStyle="#d8fffa";g.beginPath();g.arc(qx,qy,2.2,0,6.2832);g.fill();g.fillStyle=col;
       if(qx>W*.7)hcLbl(g,Ci.n.toUpperCase(),qx-6,qy,true,pl,fsz);else hcLbl(g,Ci.n.toUpperCase(),qx+6,qy,false,pl,fsz)}
   }
+  }
   g.globalAlpha=1;
   if(HG.ar&&HG.hands.length){
     g.strokeStyle="#9ffcf0";g.lineWidth=1.4;g.globalAlpha=.7;g.beginPath();
@@ -3322,7 +3536,7 @@ function hcFrame(ts){
   }
   g.globalAlpha=1;g.globalCompositeOperation="source-over";
   if(++HG.fr%8===0){var lt=HG.lat*57.2958,ln=HG.lon*57.2958;ln=((ln%360)+540)%360-180;$("hRead").textContent=Math.abs(lt).toFixed(1)+(lt<0?"S":"N")+"  "+Math.abs(ln).toFixed(1)+(ln<0?"W":"E")+"  x"+HG.zoom.toFixed(1);
-    var tk=$("hTalk");if(tk){var on=!!(conv&&conv.on);if(tk.classList.contains("on")!==on)tk.classList.toggle("on",on)}}
+    hcModeUI();var tk=$("hTalk");if(tk){var on=!!(conv&&conv.on);if(tk.classList.contains("on")!==on)tk.classList.toggle("on",on)}}
   if(Math.random()<dt*.18){var h=$("holo");h.classList.add("fl");setTimeout(function(){h.classList.remove("fl")},80)}
   HG.cpu=(HG.cpu||0)*.9+(performance.now()-cp0)*.1;
 }
@@ -3354,6 +3568,7 @@ function hcFrame(ts){
       HG.down=false;var now=performance.now();
       if(now-HG.touch>90)HG.vx=HG.vy=0;
       if(HG.moved<9&&now-HG.tm<380){
+        if(HG.mode==="tower"){hcTowerTap(e.clientX,e.clientY,now);HG.tapT=now;HG.vx=HG.vy=0;return}
         var best=null,bd=34,i,q;for(i=0;i<HG.cp.length;i++){q=HG.cp[i];var dd=Math.hypot(q.x-e.clientX,q.y-e.clientY);if(dd<bd){bd=dd;best=q}}
         if(best){if(best.ex)hcFocus(best.ex);else hcPlace({t:"city",c:best.c},false)}
         else if(now-HG.tapT<330){hcPlace({t:"city",c:HG.city[0]},false)}
@@ -3364,6 +3579,7 @@ function hcFrame(ts){
   cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up);
   $("hExit").addEventListener("click",hcClose);
   $("hHands").addEventListener("click",function(){unlockSpeech();ctx();hcAr(!HG.ar)});
+  $("hKl").addEventListener("click",function(){unlockSpeech();ctx();if(HG.mode==="tower")hcPlace({t:"city",c:HG.city[0]},false);else hcTower(true)});
   $("hTalk").addEventListener("click",function(){unlockSpeech();ctx();$("talkBtn").click()});
   var mf=$("mkFeed");if(mf){mf.value=ld("jv_mkfeed","");mf.addEventListener("change",function(){var u=mf.value.trim().replace(/\/+$/,"");if(u&&!/^https?:\/\//i.test(u))u="https://"+u;mf.value=u;sv("jv_mkfeed",u)})}
   window.addEventListener("resize",function(){if(HG.on)hcSize()});
@@ -3385,6 +3601,7 @@ function rmGo(a){
   else if(a==="waze")$("wazeBtn").click();
   else if(a==="talk")$("talkBtn").click();
   else if(a==="holo")hcOpen();
+  else if(a==="klcc"){unlockSpeech();ctx();hcOpen(true);hcTower(true)}
   else if(a==="tasks"){var t=document.querySelector('button[data-v="tasks"]');if(t)t.click()}
   else if(a==="chio"){if(!busy){unlockSpeech();ctx();send("open chio")}}
 }
