@@ -1215,7 +1215,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.19";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
+var VER="v9.19.1";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -3450,33 +3450,58 @@ var SEALM=[{n:"KLCC",h:"451.9 M",lat:3.1579,lon:101.7116,b:0},{n:"MERDEKA 118",h
 function seaSay(en,ms,zh,ru,ja){
   var t=LT(en,ms,zh,null,ru,ja);hist.push({role:"assistant",content:t});saveHist();add("a",t);speak(t);
 }
+/* one continuous camera move (smooth cubic path, log zoom) instead of chained fly-tos */
+function hcCamGo(id,keys){
+  var k,d,c={id:id,t0:performance.now(),k:keys,m:[]},n=keys.length,ch=["lat","lon","z"];
+  for(k=1;k<n;k++){d=keys[k].lon-keys[k-1].lon;d=((d+Math.PI)%6.2832+6.2832)%6.2832-Math.PI;keys[k].lon=keys[k-1].lon+d}
+  for(k=0;k<n;k++){c.m[k]={};ch.forEach(function(q){
+    var m=0;if(k>0&&k<n-1){var s0=(keys[k][q]-keys[k-1][q])/(keys[k].t-keys[k-1].t),s1=(keys[k+1][q]-keys[k][q])/(keys[k+1].t-keys[k].t);
+      if(s0*s1>0){m=(s0+s1)/2;var lim=3*Math.min(Math.abs(s0),Math.abs(s1));if(Math.abs(m)>lim)m=m<0?-lim:lim}}
+    c.m[k][q]=m})}
+  HG.cam=c;HG.tgt=null;HG.vx=HG.vy=0;
+}
+function hcCamStep(ts){
+  var c=HG.cam;if(!c)return;
+  if(c.id!==HG.cmd||HG.down||HG.hDrag||HG.hZoom){HG.cam=null;return}
+  var u=(ts-c.t0)/1000,K=c.k,n=K.length,i=0,o={};
+  if(u>=K[n-1].t){u=K[n-1].t;i=n-2}else{while(i<n-2&&u>=K[i+1].t)i++}
+  var dt=K[i+1].t-K[i].t,s=(u-K[i].t)/dt,s2=s*s,s3=s2*s,h00=2*s3-3*s2+1,h10=s3-2*s2+s,h01=-2*s3+3*s2,h11=s3-s2;
+  ["lat","lon","z"].forEach(function(q){o[q]=h00*K[i][q]+h10*dt*c.m[i][q]+h01*K[i+1][q]+h11*dt*c.m[i+1][q]});
+  HG.lat=o.lat;HG.lon=o.lon;HG.zoom=Math.exp(o.z);HG.vx=HG.vy=0;
+  if(u>=K[n-1].t)HG.cam=null;
+}
 function hcSea(){
   hcOpen(true);hcInit();var id=++HG.cmd;HG.mode="place";HG.tour=0;HG.hl=[];HG.lm=null;hcPan([]);
-  var R=HREG["southeast asia"],T=[],go=function(ms,fn){T.push(setTimeout(function(){if(id===HG.cmd&&HG.on)fn()},ms))};
+  var R=HREG["southeast asia"],T=[],go=function(ms,fn){T.push(setTimeout(function(){if(id===HG.cmd&&HG.on)fn()},ms))},D=Math.PI/180;
   var mal=HG.cmap["malaysia"],kl=HG.city[0];
-  hcCap("u","initiate southeast asia intelligence");
-  hcFly(R[0],R[1],R[2]);hcCap("a","SOUTHEAST ASIA INTELLIGENCE · INITIATING");
-  go(1500,function(){hcHL(R[3]);hcCap("a","SOUTHEAST ASIA · 11 NATIONS")});
-  go(3000,function(){hcHL(["Malaysia"]);if(mal)hcFly(mal.lat,mal.lon,3.3);hcCap("a","MALAYSIA")});
-  go(4800,function(){hcFly(kl.lat,kl.lon,5.8);hcCap("a","KUALA LUMPUR")});
-  go(6400,function(){
-    HG.lm=SEALM;HG.lmT=performance.now();hcCap("a","KLCC · MERDEKA 118");
+  hcCap("u","initiate southeast asia intelligence");hcCap("a","SOUTHEAST ASIA INTELLIGENCE \u00b7 INITIATING");
+  /* full globe first, then a single smooth zoom: globe -> Southeast Asia -> Malaysia -> Kuala Lumpur */
+  hcCamGo(id,[{t:0,lat:HG.lat,lon:HG.lon,z:Math.log(Math.max(.6,HG.zoom))},
+    {t:1.7,lat:R[0]*D*1.2,lon:R[1]*D,z:Math.log(1.0)},
+    {t:3.9,lat:mal.lat*D,lon:mal.lon*D,z:Math.log(3.3)},
+    {t:5.8,lat:kl.lat*D,lon:kl.lon*D,z:Math.log(5.8)}]);
+  go(1500,function(){hcHL(R[3]);hcCap("a","SOUTHEAST ASIA \u00b7 11 NATIONS")});
+  go(3200,function(){hcHL(["Malaysia"]);hcCap("a","MALAYSIA")});
+  go(4900,function(){hcCap("a","KUALA LUMPUR")});
+  go(5500,function(){HG.lm=SEALM;HG.lmT=performance.now();hcCap("a","KLCC \u00b7 MERDEKA 118")});
+  go(6700,function(){
     var ex=HG.ex.filter(function(e){return e.c===kl})[0];
-    hcPan([{k:"KLCC",id:"a",v:"451.9 m",s:"88 floors · tap",fn:function(){hcTower(true,"all",0)}},
-      {k:"MERDEKA 118",id:"b",v:"678.9 m",s:"118 floors · tap",fn:function(){hcTower(true,"all",1)}},
-      {k:ex?"KLCI":"MARKET",id:"ix",v:"…",s:ex?hcStatus(ex):""},
-      {k:"KL NOW",id:"wx",v:"…",s:hcTime("Asia/Kuala_Lumpur",false)}],false);
-    hcWx(kl.lat,kl.lon).then(function(w){if(id!==HG.cmd)return;hcSet("wx",w?w.t+"°C":"—",w?w.w+" · "+hcTime("Asia/Kuala_Lumpur",false):hcTime("Asia/Kuala_Lumpur",false))});
-    getMarket(false).then(function(m){if(id!==HG.cmd)return;if(m)hcSet("ix",fN(m.lvl,2),hcSgn(m.pct)+(ex?" · "+hcStatus(ex):""),m.pct>=0?"up":"dn");else hcSet("ix","—","no feed")}).catch(function(){});
+    hcPan([{k:"KLCC",id:"a",v:"451.9 m",s:"88 floors \u00b7 tap",fn:function(){hcTower(true,"all",0)}},
+      {k:"MERDEKA 118",id:"b",v:"678.9 m",s:"118 floors \u00b7 tap",fn:function(){hcTower(true,"all",1)}},
+      {k:ex?"KLCI":"MARKET",id:"ix",v:"\u2026",s:ex?hcStatus(ex):""},
+      {k:"KL NOW",id:"wx",v:"\u2026",s:hcTime("Asia/Kuala_Lumpur",false)}],false);
+    hcWx(kl.lat,kl.lon).then(function(w){if(id!==HG.cmd)return;hcSet("wx",w?w.t+"\u00b0C":"\u2014",w?w.w+" \u00b7 "+hcTime("Asia/Kuala_Lumpur",false):hcTime("Asia/Kuala_Lumpur",false))});
+    getMarket(false).then(function(m){if(id!==HG.cmd)return;if(m)hcSet("ix",fN(m.lvl,2),hcSgn(m.pct)+(ex?" \u00b7 "+hcStatus(ex):""),m.pct>=0?"up":"dn");else hcSet("ix","\u2014","no feed")}).catch(function(){});
     seaSay("Southeast Asia intelligence initiated, Sir.","Perisikan Asia Tenggara dimulakan, Tuan.","东南亚情报已启动，先生。","Разведка по Юго-Восточной Азии запущена, сэр.","東南アジアのインテリジェンスを開始しました、サー。");
   });
 }
 function hcSeaDraw(g,t,cx,cy,R,c0,s0,cp,sp,W,H,pl,fsz,col){
   HG.lmHit=[];var K=HG.klq;if(!HG.lm||!K||HG.mode!=="place"||HG.zoom<3.5)return;
-  var p=Math.max(0,Math.min(1,(performance.now()-HG.lmT)/800)),e=1-Math.pow(1-p,3),i,L,px,py,lx,ly,dx,dy,k0=Math.cos(3.139*Math.PI/180);
+  var i,L,px,py,lx,ly,dx,dy,k0=Math.cos(3.139*Math.PI/180);
   g.save();g.font="600 "+fsz+"px Michroma,ui-monospace,monospace";g.textBaseline="middle";
   var mx=(SEALM[0].lon+SEALM[1].lon)/2,my=(SEALM[0].lat+SEALM[1].lat)/2;
   for(i=0;i<HG.lm.length;i++){L=HG.lm[i];
+    var p=Math.max(0,Math.min(1,(performance.now()-HG.lmT-i*550)/800)),e=1-Math.pow(1-p,3);if(e<=0.001)continue;
     /* true bearing between the two towers (KLCC north-east of Merdeka 118), spread so both stay legible at max zoom */
     dx=(L.lon-mx)*k0;dy=-(L.lat-my);var m=Math.hypot(dx,dy)||1;dx=dx/m;dy=dy/m;
     px=K.x+dx*26*e;py=K.y+dy*26*e;
@@ -3623,6 +3648,7 @@ function hcFrame(ts){
   HG.ema=HG.ema*.93+dt*1000*.07;
   if(++HG.n>70&&HG.q<2&&HG.ema>(HG.ar?(HG.q?60:46):(HG.q?34:28))){HG.q++;HG.n=0;HG.ema=16;hcSize()}
   var tcy=HG.cyT;if(tcy<.45)tcy+=(.43-tcy)*Math.max(0,Math.min(1,(HG.zoom-2)/2));HG.cyF+=(tcy-HG.cyF)*Math.min(1,dt*4);HG.cy=HG.H*HG.cyF;
+  if(HG.cam)hcCamStep(ts);
   if(HG.tgt&&!HG.down){
     var dl=HG.tgt.lon-HG.lon;dl=((dl+Math.PI)%6.2832+6.2832)%6.2832-Math.PI;
     HG.lon+=dl*Math.min(1,dt*3.4);HG.lat+=(HG.tgt.lat-HG.lat)*Math.min(1,dt*3.4);
