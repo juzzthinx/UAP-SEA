@@ -1215,7 +1215,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.18";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
+var VER="v9.18.1";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -3302,22 +3302,28 @@ function hcModeUI(){
   var um=tw?1+(TW.b?1:0):0;if(HG.uiM!==um){HG.uiM=um;var h=$("hHint");if(h)h.textContent=tw?"DRAG TO ROTATE \u00b7 PINCH TO ZOOM \u00b7 TAP "+(TW.b?"VIEW DECK":"SKYBRIDGE")+" OR SPIRE":(HG.ar?"PINCH OR PALM TO SPIN \u00b7 2 HANDS ZOOM \u00b7 POINT + HOLD":"DRAG TO SPIN \u00b7 PINCH TO ZOOM \u00b7 TAP A CITY")}
 }
 /* ---------- v9.18: Merdeka 118 (Menara 118) hologram, second building in tower mode ---------- */
-var M8={H:678.9,roof:518.2,ready:false,ux:new Float32Array(16),uz:new Float32Array(16),hs:[],PX:null,PY:null,PZ:null};
+var M8={H:678.9,ready:false,ux:new Float32Array(8),uz:new Float32Array(8),ah:[0,82.5,165,242.5,320,395,470,494,518.2],PX:null,PY:null,PZ:null};
 var TPART2={
-  all:{lon:.5,lat:.18,zoom:1,fy:340},
-  deck:{lon:.42,lat:.1,zoom:2.6,fy:498},
-  top:{lon:.72,lat:.12,zoom:2.2,fy:600}
+  all:{lon:1.5708,lat:.18,zoom:1,fy:340},
+  deck:{lon:1.4,lat:.1,zoom:2.6,fy:498},
+  top:{lon:1.75,lat:.12,zoom:2.2,fy:600}
 };
 function m8Init(){
-  if(M8.ready)return;var k,a,h,hs=[];
-  for(k=0;k<16;k++){a=k*Math.PI/8;M8.ux[k]=Math.cos(a);M8.uz[k]=Math.sin(a)}
-  for(h=0;h<518;h+=18)hs.push(h);hs.push(518.2);
-  M8.hs=hs;M8.PX=new Float32Array(hs.length*16);M8.PY=new Float32Array(hs.length*16);M8.PZ=new Float32Array(hs.length*16);M8.ready=true;
+  if(M8.ready)return;var k,a,n=M8.ah.length*8;
+  for(k=0;k<8;k++){a=k*Math.PI/4;M8.ux[k]=Math.cos(a);M8.uz[k]=Math.sin(a)}
+  M8.PX=new Float32Array(n);M8.PY=new Float32Array(n);M8.PZ=new Float32Array(n);M8.ready=true;
 }
-function m8R(h){if(h<=440)return 36-15*Math.pow(h/440,1.1);var u=(h-440)/78.2;u=u*u*(3-2*u);return 21-12*u}
+/* plan: 4 sharp corners (even k) and 4 crease points (odd k) that fold in at the belts and bulge mid-zone, like the faceted glass */
+function m8Rad(h,k){
+  var rc,ra;
+  if(h<=470){var zs=h<165?0:h<320?165:320,ze=h<165?165:h<320?320:470;rc=40-2.8*h/470;ra=.62+.30*Math.sin(Math.PI*(h-zs)/(ze-zs))}
+  else{var u=(h-470)/48.2;rc=37.2-30.2*u;ra=.62+.38*u}
+  return (k&1)?rc*ra:rc;
+}
+function m8Mast(y){return y<560?4.2-1.2*(y-518.2)/41.8:3-2.2*(y-560)/118.9}
 function hcM118Draw(ts,t,dt,ka,kk,cyy,lr){
-  m8Init();var g=HG.g,W=HG.W,H=HG.H,col=HG.col,zm=HG.zoom,q=HG.q,i,j,k,h,a,b,P,n=M8.hs.length,TH=M8.H,PX=M8.PX,PY=M8.PY,PZ=M8.PZ;
-  var pF=TW.pF=new Path2D(),pB=TW.pB=new Path2D(),pH=TW.pH=new Path2D(),pBr=TW.pBr=new Path2D(),pG=new Path2D();
+  m8Init();var g=HG.g,W=HG.W,H=HG.H,col=HG.col,zm=HG.zoom,q=HG.q,i,j,k,h,a,b,P,NR=M8.ah.length,TH=M8.H,PX=M8.PX,PY=M8.PY,PZ=M8.PZ,ah=M8.ah;
+  var pF=TW.pF=new Path2D(),pB=TW.pB=new Path2D(),pH=TW.pH=new Path2D(),pBr=TW.pBr=new Path2D(),pG=new Path2D(),pR=new Path2D(),pRb=new Path2D(),pD=new Path2D();
   var hs=((t*.17)%1.3)*TH,focusD=HG.part==="deck",pul=.65+.35*Math.sin(t*3.2);
   g.lineJoin="round";g.lineCap="round";
   /* ground */
@@ -3326,46 +3332,60 @@ function hcM118Draw(ts,t,dt,ka,kk,cyy,lr){
   g.globalAlpha=1;g.fillStyle=gr;g.save();g.translate(gx,gy0);g.scale(1,Math.max(.12,TW.sp*.9+.08));g.beginPath();g.arc(0,0,bw,0,6.2832);g.fill();g.restore();
   twDisc(pG,0,0,0,85,48);twDisc(pG,0,0,0,125,56);twDisc(pG,0,0,0,170,64);
   if(q<2){for(i=0;i<24;i++){var ta=i/24*6.2832,ca=Math.cos(ta),sa=Math.sin(ta);twP(ca*170,0,sa*170);var tx=TW.sx,ty=TW.sy;twP(ca*(i%2?162:156),0,sa*(i%2?162:156));pG.moveTo(tx,ty);pG.lineTo(TW.sx,TW.sy)}}
-  /* podium (118 Mall) */
   var X0=-62,X1=62,Z0=-46,Z1=46,Y1=22;
   twLine(pG,X0,0,Z0,X1,0,Z0);twLine(pG,X1,0,Z0,X1,0,Z1);twLine(pG,X1,0,Z1,X0,0,Z1);twLine(pG,X0,0,Z1,X0,0,Z0);
   twLine(pG,X0,Y1,Z0,X1,Y1,Z0);twLine(pG,X1,Y1,Z0,X1,Y1,Z1);twLine(pG,X1,Y1,Z1,X0,Y1,Z1);twLine(pG,X0,Y1,Z1,X0,Y1,Z0);
   twLine(pG,X0,0,Z0,X0,Y1,Z0);twLine(pG,X1,0,Z0,X1,Y1,Z0);twLine(pG,X1,0,Z1,X1,Y1,Z1);twLine(pG,X0,0,Z1,X0,Y1,Z1);
   g.strokeStyle=col;g.lineWidth=.9;g.globalAlpha=.34;g.stroke(pG);
-  /* project every floor ring once */
-  var r0,rad;
-  for(j=0;j<n;j++){h=M8.hs[j];r0=m8R(h);for(k=0;k<16;k++){rad=r0*(k&1?.9:1);twP(M8.ux[k]*rad,h,M8.uz[k]*rad);a=j*16+k;PX[a]=TW.sx;PY[a]=TW.sy;PZ[a]=TW.z}}
-  for(j=0;j<n;j++){
-    var hot=Math.abs(M8.hs[j]-hs)<9,dk=M8.hs[j]>=468;
-    for(k=0;k<16;k++){a=j*16+k;b=j*16+((k+1)&15);
-      P=hot?pH:dk?(focusD?pH:pBr):((PZ[a]+PZ[b])>=0?pF:pB);P.moveTo(PX[a],PY[a]);P.lineTo(PX[b],PY[b])}
+  /* project the 9 rings x 8 plan points once */
+  var rad;
+  for(j=0;j<NR;j++){h=ah[j];for(k=0;k<8;k++){rad=m8Rad(h,k);twP(M8.ux[k]*rad,h,M8.uz[k]*rad);a=j*8+k;PX[a]=TW.sx;PY[a]=TW.sy;PZ[a]=TW.z}}
+  var SG=function(P,a,b){P.moveTo(PX[a],PY[a]);P.lineTo(PX[b],PY[b])},FB=function(a,b){return (PZ[a]+PZ[b])>=0?pF:pB};
+  /* belts (bright) and mid-zone rings (dim) */
+  for(j=0;j<NR;j++){
+    var belt=(j===2||j===4||j===6||j===8),hot=Math.abs(ah[j]-hs)<9,crown=j>=6;
+    if(!belt&&q>=2&&j!==7)continue;
+    for(k=0;k<8;k++){a=j*8+k;b=j*8+((k+1)&7);
+      P=hot?pH:belt?(((PZ[a]+PZ[b])>=0)?(crown&&focusD?pH:pBr):pB):FB(a,b);SG(P,a,b)}
   }
-  var vs=q>=2?4:q===1?2:1;
-  for(k=0;k<16;k+=vs)for(j=0;j<n-1;j++){a=j*16+k;b=a+16;P=(PZ[a]+PZ[b])>=0?pF:pB;P.moveTo(PX[a],PY[a]);P.lineTo(PX[b],PY[b])}
-  /* diamond glass facets */
-  if(q<2){var kst=q?2:1;
-    for(j=0;j<n-1;j+=2)for(k=0;k<16;k+=kst){
-      a=j*16+k;b=(j+1)*16+((k+1)&15);P=(PZ[a]+PZ[b])>=0?pF:pB;P.moveTo(PX[a],PY[a]);P.lineTo(PX[b],PY[b]);
-      a=j*16+((k+1)&15);b=(j+1)*16+k;P=(PZ[a]+PZ[b])>=0?pF:pB;P.moveTo(PX[a],PY[a]);P.lineTo(PX[b],PY[b])}
+  /* corner and crease ridges */
+  var vs=q>=2?2:1;
+  for(k=0;k<8;k+=vs)for(j=0;j<NR-1;j++){a=j*8+k;b=a+8;SG(FB(a,b),a,b)}
+  /* long diamond lattice across every face, zone by zone (and the faceted crown) */
+  var z,f,j0,jm,j1,c0,cm,c1,A,B,C,D,E;
+  for(z=0;z<4;z++){j0=2*z;jm=j0+1;j1=j0+2;
+    for(f=0;f<4;f++){c0=2*f;cm=c0+1;c1=(c0+2)&7;
+      A=j0*8+c0;B=j0*8+c1;C=j1*8+c0;D=j1*8+c1;E=jm*8+cm;
+      var fr=(PZ[A]+PZ[D]+PZ[E])>=0?(z===3&&focusD?pH:pBr):pB;
+      SG(fr,A,D);SG(fr,B,C);SG(fr,A,E);SG(fr,E,C);SG(fr,B,E);SG(fr,E,D);
+    }
   }
-  /* spire mast */
-  var mh=[535,555,580,610,640,665],mr=function(y){return 5-4.1*(y-518.2)/160.7};
-  twDisc(pH,0,518.2,0,5,8);
-  for(i=0;i<mh.length;i++)twDisc(pF,0,mh[i],0,mr(mh[i]),8);
-  for(k=0;k<4;k++){var an=k*1.5708,cs=Math.cos(an),sn=Math.sin(an);twLine(pH,cs*5,518.2,sn*5,cs*.9,TH,sn*.9)}
+  /* red light ridge on two opposite corners */
+  for(i=0;i<2;i++){k=i*4;for(j=0;j<6;j++){a=j*8+k;b=a+8;SG(((PZ[a]+PZ[b])>=0)?pR:pRb,a,b)}}
+  /* spire mast: thick base, thin tip, ridge lines, rings, beads */
+  var mh=[518.2,560,620,678.9];
+  twDisc(pH,0,518.2,0,m8Mast(518.2),8);
+  for(i=1;i<mh.length-1;i++)twDisc(pF,0,mh[i],0,m8Mast(mh[i]),8);
+  for(k=0;k<4;k++){var an=k*1.5708,cs=Math.cos(an),sn=Math.sin(an),pm=null;
+    for(i=0;i<mh.length;i++){var rr=m8Mast(mh[i]);twP(cs*rr,mh[i],sn*rr);if(i)pH.lineTo(TW.sx,TW.sy);else pH.moveTo(TW.sx,TW.sy)}}
+  if(q<2){for(h=524;h<676;h+=(q?10:6)){rad=m8Mast(h);twP(rad,h,0);pD.rect(TW.sx-.9,TW.sy-.9,1.8,1.8);twP(-rad,h,0);pD.rect(TW.sx-.9,TW.sy-.9,1.8,1.8)}}
   /* scan ring */
-  if(hs<TH+20)twDisc(pH,0,hs,0,M8.hs&&hs<518?m8R(hs)+14:20,48);
-  /* ---- strokes ---- */
+  if(hs<TH+20)twDisc(pH,0,hs,0,hs<518?m8Rad(Math.min(hs,518),0)+14:20,48);
+  /* strokes */
   if(q<2){
-    twP(0,0,0);var bx0=TW.sx,by0=TW.sy;twP(0,518.2,0);var ty0=TW.sy,hw=34*kk;
+    twP(0,0,0);var bx0=TW.sx,by0=TW.sy;twP(0,518.2,0);var ty0=TW.sy,hw=42*kk;
     var gr2=g.createLinearGradient(bx0-hw,0,bx0+hw,0);gr2.addColorStop(0,rgba(col,0));gr2.addColorStop(.5,rgba(col,q?.07:.1));gr2.addColorStop(1,rgba(col,0));
     g.globalAlpha=1;g.fillStyle=gr2;g.fillRect(bx0-hw,ty0,hw*2,by0-ty0);
   }
   g.strokeStyle=col;g.lineWidth=3.2;g.globalAlpha=.15;g.stroke(pBr);g.stroke(pH);
   g.lineWidth=.8;g.strokeStyle=col;g.globalAlpha=.3;g.stroke(pB);
   g.lineWidth=1;g.globalAlpha=.92;g.stroke(pF);
-  g.strokeStyle="#9ffcf0";g.lineWidth=focusD?1.4:1.1;g.globalAlpha=focusD?.6+.4*pul:.95;g.stroke(pBr);
+  g.strokeStyle="#9ffcf0";g.lineWidth=focusD?1.2:1.15;g.globalAlpha=.95;g.stroke(pBr);
   g.strokeStyle="#e8fffc";g.lineWidth=1.3;g.globalAlpha=.95;g.stroke(pH);
+  if(q<2){g.fillStyle="#e8fffc";g.globalAlpha=.8;g.fill(pD)}
+  g.strokeStyle="#ff3b4e";g.lineWidth=5;g.globalAlpha=.16+.1*pul;g.stroke(pR);
+  g.lineWidth=2.1;g.globalAlpha=.7+.3*pul;g.stroke(pR);
+  g.lineWidth=1.2;g.globalAlpha=.28;g.stroke(pRb);
   /* beacon */
   HG.tp.length=0;
   twP(0,TH,0);var lx=TW.sx,ly=TW.sy,bl=(t*.9)%1;
@@ -3378,7 +3398,7 @@ function hcM118Draw(ts,t,dt,ka,kk,cyy,lr){
   if(HG.part==="all"){
     var rx0=lr-125;
     g.globalAlpha=.9;g.strokeStyle="#e8fffc";g.lineWidth=1;g.beginPath();g.moveTo(dxp,dyp);g.lineTo(rx0-4,dyp);g.stroke();
-    g.fillStyle="#e8fffc";g.textAlign="right";g.fillText("VIEW @118",lr,dyp-fs-2);g.fillStyle=col;g.fillText("LEVELS 116 · 117 · 118",lr,dyp+fs+2);g.textAlign="left";
+    g.fillStyle="#e8fffc";g.textAlign="right";g.fillText("VIEW @118",lr,dyp-fs-2);g.fillStyle=col;g.fillText("L116 · 117 · 118",lr,dyp+fs+2);g.textAlign="left";
     var ph=(t*.9)%1;g.globalAlpha=(1-ph)*.9;g.beginPath();g.arc(dxp,dyp,4+ph*16,0,6.2832);g.stroke();
     g.globalAlpha=1;g.fillStyle="#fff";g.beginPath();g.arc(dxp,dyp,2.6,0,6.2832);g.fill();
     HG.tp.push({k:"deck",x:dxp,y:dyp,r:44});
