@@ -1215,7 +1215,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.18.1";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
+var VER="v9.18.2";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -3361,7 +3361,6 @@ function hcM118Draw(ts,t,dt,ka,kk,cyy,lr){
     }
   }
   /* red light ridge on two opposite corners */
-  for(i=0;i<2;i++){k=i*4;for(j=0;j<6;j++){a=j*8+k;b=a+8;SG(((PZ[a]+PZ[b])>=0)?pR:pRb,a,b)}}
   /* spire mast: thick base, thin tip, ridge lines, rings, beads */
   var mh=[518.2,560,620,678.9];
   twDisc(pH,0,518.2,0,m8Mast(518.2),8);
@@ -3383,9 +3382,6 @@ function hcM118Draw(ts,t,dt,ka,kk,cyy,lr){
   g.strokeStyle="#9ffcf0";g.lineWidth=focusD?1.2:1.15;g.globalAlpha=.95;g.stroke(pBr);
   g.strokeStyle="#e8fffc";g.lineWidth=1.3;g.globalAlpha=.95;g.stroke(pH);
   if(q<2){g.fillStyle="#e8fffc";g.globalAlpha=.8;g.fill(pD)}
-  g.strokeStyle="#ff3b4e";g.lineWidth=5;g.globalAlpha=.16+.1*pul;g.stroke(pR);
-  g.lineWidth=2.1;g.globalAlpha=.7+.3*pul;g.stroke(pR);
-  g.lineWidth=1.2;g.globalAlpha=.28;g.stroke(pRb);
   /* beacon */
   HG.tp.length=0;
   twP(0,TH,0);var lx=TW.sx,ly=TW.sy,bl=(t*.9)%1;
