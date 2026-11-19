@@ -1215,7 +1215,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.20";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
+var VER="v9.21";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -3035,7 +3035,7 @@ function hcMkPaint(){
 function hcStage(a,b,delay){HG.stg&&clearTimeout(HG.stg);HG.stg=setTimeout(function(){if(HG.on)b()},delay)}
 function hcHL(list){HG.hl=(list||[]).map(function(n){return HG.cmap[String(n).toLowerCase()]}).filter(Boolean);HG.hlT=performance.now()}
 function hcPlace(p,speak){
-  hcInit();var id=++HG.cmd;HG.mode="place";HG.tour=0;HG.hl=[];HG.lm=null;
+  hcInit();var id=++HG.cmd;HG.mode="place";HG.tour=0;HG.hl=[];HG.lm=null;HG.net=null;
   if(p.t==="reg"){
     var r=p.r;hcPan([]);hcFly(r[0],r[1],r[2]);HG.tgtDone=null;
     if(r[3])hcStage(0,function(){hcHL(r[3])},900);
@@ -3471,7 +3471,7 @@ function hcCamStep(ts){
   if(u>=K[n-1].t)HG.cam=null;
 }
 function hcSea(){
-  hcOpen(true);hcInit();var id=++HG.cmd;HG.mode="place";HG.tour=0;HG.hl=[];HG.lm=null;hcPan([]);
+  hcOpen(true);hcInit();var id=++HG.cmd;HG.mode="place";HG.tour=0;HG.hl=[];HG.lm=null;HG.net=null;hcPan([]);
   var R=HREG["southeast asia"],T=[],go=function(ms,fn){T.push(setTimeout(function(){if(id===HG.cmd&&HG.on)fn()},ms))},D=Math.PI/180;
   var mal=HG.cmap["malaysia"],kl=HG.city[0];
   hcCap("u","initiate southeast asia intelligence");hcCap("a","SOUTHEAST ASIA INTELLIGENCE \u00b7 INITIATING");
@@ -3493,10 +3493,12 @@ function hcSea(){
     hcWx(kl.lat,kl.lon).then(function(w){if(id!==HG.cmd)return;hcSet("wx",w?w.t+"\u00b0C":"\u2014",w?w.w+" \u00b7 "+hcTime("Asia/Kuala_Lumpur",false):hcTime("Asia/Kuala_Lumpur",false))});
     getMarket(false).then(function(m){if(id!==HG.cmd)return;if(m)hcSet("ix",fN(m.lvl,2),hcSgn(m.pct)+(ex?" \u00b7 "+hcStatus(ex):""),m.pct>=0?"up":"dn");else hcSet("ix","\u2014","no feed")}).catch(function(){});
     go(1700,function(){
-      /* finale: pull back from KL so everything is in frame again */
-      hcCamGo(id,[{t:0,lat:HG.lat,lon:HG.lon,z:Math.log(HG.zoom)},{t:2.6,lat:4.2*D,lon:106*D,z:Math.log(1.9)}]);
+      /* finale: clear the panels and pull all the way back to the whole Earth, then light the global link */
+      hcPan([]);
+      hcCamGo(id,[{t:0,lat:HG.lat,lon:HG.lon,z:Math.log(HG.zoom)},{t:1.5,lat:4.2*D,lon:106*D,z:Math.log(1.9)},{t:3.3,lat:14*D,lon:90*D,z:Math.log(.95)}]);
       hcCap("a","SOUTHEAST ASIA \u00b7 INTELLIGENCE ONLINE");
-      go(1100,function(){hcHL(R[3])});
+      go(1200,function(){hcHL(R[3])});
+      go(3300,function(){HG.net={t:performance.now()};hcCap("a","GLOBAL LINK ONLINE \u00b7 8 HUBS")});
     });
     seaSay("Southeast Asia intelligence initiated, Sir.","Perisikan Asia Tenggara dimulakan, Tuan.","东南亚情报已启动，先生。","Разведка по Юго-Восточной Азии запущена, сэр.","東南アジアのインテリジェンスを開始しました、サー。");
   });
@@ -3520,6 +3522,43 @@ function hcSeaDraw(g,t,cx,cy,R,c0,s0,cp,sp,W,H,pl,fsz,col){
     var lx=ex+(up?4:-4);g.fillStyle="#e8fffc";g.textAlign=up?"left":"right";g.fillText(L.n,lx,ey-fsz-1);
     g.fillStyle=col;g.fillText(L.h,lx,ey+fsz+1);g.textAlign="left";
     HG.lmHit.push({x:px,y:py,b:L.b});
+  }
+  g.restore();g.globalAlpha=1;
+}
+
+var NETH=[["TOKYO",35.68,139.69],["SYDNEY",-33.87,151.21],["DUBAI",25.2,55.27],["MUMBAI",19.08,72.88],["JOHANNESBURG",-26.2,28.05],["LONDON",51.51,-.13],["NEW YORK",40.71,-74],["SAN FRANCISCO",37.77,-122.42]];
+function hcNetDraw(g,t,cx,cy,R,c0,s0,cp,sp,col){
+  var N=HG.net;if(!N)return;var D=Math.PI/180,now=performance.now(),u=(now-N.t)/1000,i,j,k;
+  var KLa=3.139,KLo=101.687;
+  var vec=function(lat,lon){var cl=Math.cos(lat*D);return[cl*Math.cos(lon*D),cl*Math.sin(lon*D),Math.sin(lat*D)]};
+  var scr=function(v,el){var xx=v[1]*c0-v[0]*s0,zz=v[0]*c0+v[1]*s0,yy=cp*v[2]-sp*zz,Z=sp*v[2]+cp*zz;
+    return{x:cx+xx*R*el,y:cy-yy*R*el,vis:Z>=0||(xx*xx+yy*yy)*el*el>1.0,Z:Z}};
+  g.save();g.lineJoin="round";g.lineCap="round";
+  /* shockwave rings across the surface from Kuala Lumpur */
+  var pl=Math.sin(KLa*D),cl=Math.cos(KLa*D);
+  for(k=0;k<2;k++){var a=(u-k*.45)/2.4;if(a<=0||a>=1)continue;var ang=a*72*D,sa=Math.sin(ang),ca=Math.cos(ang);
+    g.strokeStyle="#9ffcf0";g.lineWidth=2.4-a*1.4;g.globalAlpha=(1-a)*.8;g.beginPath();var pen=false;
+    for(j=0;j<=72;j++){var th=j/72*6.2832,la=Math.asin(pl*ca+cl*sa*Math.cos(th)),lo=KLo*D+Math.atan2(Math.sin(th)*sa*cl,ca-pl*Math.sin(la));
+      var p=scr(vec(la/D,lo/D),1);if(p.Z>0.02){if(pen)g.lineTo(p.x,p.y);else{g.moveTo(p.x,p.y);pen=true}}else pen=false}
+    g.stroke()}
+  /* great-circle links to the world hubs, with travelling pulses */
+  var a0=vec(KLa,KLo);
+  for(i=0;i<NETH.length;i++){var H=NETH[i],b0=vec(H[1],H[2]),dot=Math.max(-1,Math.min(1,a0[0]*b0[0]+a0[1]*b0[1]+a0[2]*b0[2])),om=Math.acos(dot),so=Math.sin(om)||1;
+    var pr=Math.max(0,Math.min(1,(u-.5-i*.28)/1.7));if(pr<=0)continue;
+    var hh=.07+.2*om/Math.PI,pts=[],M=40,mm=Math.ceil(M*pr);
+    for(j=0;j<=mm;j++){var s2=Math.min(pr,j/M),w0=Math.sin((1-s2)*om)/so,w1=Math.sin(s2*om)/so,el=1+hh*Math.sin(Math.PI*s2);
+      pts.push(scr([w0*a0[0]+w1*b0[0],w0*a0[1]+w1*b0[1],w0*a0[2]+w1*b0[2]],el))}
+    var ap=new Path2D(),pe=false;
+    for(j=0;j<pts.length;j++){var q=pts[j];if(q.vis){if(pe)ap.lineTo(q.x,q.y);else{ap.moveTo(q.x,q.y);pe=true}}else pe=false}
+    g.strokeStyle=col;g.lineWidth=4;g.globalAlpha=.1;g.stroke(ap);g.strokeStyle="#9ffcf0";g.lineWidth=1.4;g.globalAlpha=pr<1?.85:.55;g.stroke(ap);
+    var head=pr<1?pts[pts.length-1]:null;
+    if(pr>=1){var hp=((u*.45+i*.13)%1),s3=hp,w0b=Math.sin((1-s3)*om)/so,w1b=Math.sin(s3*om)/so,el3=1+hh*Math.sin(Math.PI*s3);head=scr([w0b*a0[0]+w1b*b0[0],w0b*a0[1]+w1b*b0[1],w0b*a0[2]+w1b*b0[2]],el3)}
+    if(head&&head.vis){g.globalAlpha=1;g.fillStyle="#e8fffc";g.beginPath();g.arc(head.x,head.y,2.2,0,6.2832);g.fill();g.globalAlpha=.25;g.beginPath();g.arc(head.x,head.y,5,0,6.2832);g.fill()}
+    if(pr>=1){var hs=scr(b0,1);if(hs.Z>0.05){var ar=((u-.5-i*.28-1.7)/1.4);if(ar>0&&ar<1){g.globalAlpha=(1-ar)*.9;g.strokeStyle="#9ffcf0";g.lineWidth=1.4;g.beginPath();g.arc(hs.x,hs.y,4+ar*20,0,6.2832);g.stroke()}
+      g.globalAlpha=.95;g.fillStyle="#e8fffc";g.beginPath();g.arc(hs.x,hs.y,2.6,0,6.2832);g.fill();
+      g.font="600 "+Math.round(8+Math.min(3,R/110))+"px Michroma,ui-monospace,monospace";g.textBaseline="middle";g.fillStyle="#e8fffc";g.globalAlpha=Math.min(1,hs.Z*3)*.9;
+      var dup=false,hk=H[0].toLowerCase();for(var ci=0;ci<HG.city.length;ci++)if(HG.city[ci].k===hk){dup=true;break}
+      if(!dup){var right=hs.x>cx,tw=g.measureText(H[0]).width+10;if(right&&hs.x+tw>HG.W-4)right=false;else if(!right&&hs.x-tw<4)right=true;g.textAlign=right?"left":"right";g.fillText(H[0],right?hs.x+7:hs.x-7,hs.y-1);g.textAlign="left"}}}
   }
   g.restore();g.globalAlpha=1;
 }
@@ -3629,7 +3668,7 @@ function hcOpen(quiet){
   hcInit();if(HG.on)return;try{if(gest.on)gestClose()}catch(e){}
   HG.on=true;holoLive=true;document.body.classList.add("holoOn");
   var h=$("holo");h.classList.add("on");HG.q=Math.min(HG.q,1);HG.ema=16;HG.n=0;hcSize();
-  HG.cyF=HG.cyT=.45;HG.mode="free";HG.hl=[];HG.lm=null;hcPan([]);$("hCapU").textContent="";$("hCapA").textContent="";
+  HG.cyF=HG.cyT=.45;HG.mode="free";HG.hl=[];HG.lm=null;HG.net=null;hcPan([]);$("hCapU").textContent="";$("hCapA").textContent="";
   var kl=HG.city[0];HG.lon=kl.lon*Math.PI/180+1.6;HG.lat=.05;HG.zoom=1;HG.vx=HG.vy=0;HG.touch=performance.now();
   HG.tgt={lon:kl.lon*Math.PI/180,lat:kl.lat*Math.PI/180*.8,zoom:1};
   HG.col=(getComputedStyle(document.body).getPropertyValue("--c")||"").trim()||"#2ee6d6";
@@ -3655,7 +3694,7 @@ function hcFrame(ts){
   HG.ema=HG.ema*.93+dt*1000*.07;
   if(++HG.n>70&&HG.q<2&&HG.ema>(HG.ar?(HG.q?60:46):(HG.q?34:28))){HG.q++;HG.n=0;HG.ema=16;hcSize()}
   var tcy=HG.cyT;if(tcy<.45)tcy+=(.43-tcy)*Math.max(0,Math.min(1,(HG.zoom-2)/2));HG.cyF+=(tcy-HG.cyF)*Math.min(1,dt*4);HG.cy=HG.H*HG.cyF;
-  if(HG.cam)hcCamStep(ts);
+  if(HG.cam)hcCamStep(ts);else if(HG.net&&HG.mode==="place"&&!HG.down&&!HG.tgt&&!HG.hDrag&&!HG.hZoom&&ts-HG.touch>2500&&(HG.vx*HG.vx+HG.vy*HG.vy)<.0004)HG.lon+=.05*dt;
   if(HG.tgt&&!HG.down){
     var dl=HG.tgt.lon-HG.lon;dl=((dl+Math.PI)%6.2832+6.2832)%6.2832-Math.PI;
     HG.lon+=dl*Math.min(1,dt*3.4);HG.lat+=(HG.tgt.lat-HG.lat)*Math.min(1,dt*3.4);
@@ -3768,6 +3807,7 @@ function hcFrame(ts){
   }
   }
   if(HG.mode!=="tower")hcSeaDraw(g,t,cx,cy,R,c0,s0,cp,sp,W,H,pl,fsz,col);
+  if(HG.net&&HG.mode==="place")hcNetDraw(g,t,cx,cy,R,c0,s0,cp,sp,col);
   g.globalAlpha=1;
   if(HG.ar&&HG.hands.length){
     g.strokeStyle="#9ffcf0";g.lineWidth=1.4;g.globalAlpha=.7;g.beginPath();
