@@ -350,7 +350,8 @@ body.holoOn>*:not(#holo){visibility:hidden!important}
 <div class="hud"><span id="hL"></span><span id="hR"></span></div>
 <div class="stage">
   <div class="orbw"><div class="ringx"><svg class="rl r1" viewBox="0 0 200 200"><circle cx="100" cy="100" r="95" fill="none" stroke="currentColor" stroke-width="5" opacity=".85"/><circle cx="100" cy="100" r="86" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".8"/></svg><svg class="rl r2" viewBox="0 0 200 200"><circle cx="100" cy="100" r="99" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 8" opacity=".7"/></svg><svg class="rl r3" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90.5" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="30 14 5 14" opacity=".55"/></svg><svg class="rl r4" viewBox="0 0 200 200"><path d="M100 4 A96 96 0 0 1 196 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".95"/><path d="M100 196 A96 96 0 0 1 4 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".6"/></svg></div><button type="button" id="orb" aria-label="Talk to Jarvis"><canvas id="viz"></canvas></button><div class="rchip rc1" id="rc1" data-q="what time is it"><span>TIME</span><b id="rv1">--</b></div><div class="rchip rc2" id="rc2" data-q="what is the weather"><span>WEATHER</span><b id="rv2">--</b></div><div class="rchip rc3" id="rc3" data-q="how is the klci"><span>KLCI</span><b id="rv3">--</b></div><div class="rchip rc4" id="rc4" data-q="how is my paper trading"><span>CHIO P/L</span><b id="rv4">--</b></div><div class="rmh" id="rmh"></div><button type="button" class="rmi" data-a="eyes">EYES</button><button type="button" class="rmi" data-a="hands">HANDS</button><button type="button" class="rmi" data-a="chio">CHIO</button><button type="button" class="rmi" data-a="tasks">TASKS</button><button type="button" class="rmi" data-a="waze">WAZE</button><button type="button" class="rmi" data-a="talk">TALK</button><button type="button" class="rmi" data-a="holo">HOLO</button>
-<button type="button" class="rmi" data-a="klcc">KLCC</button></div>
+<button type="button" class="rmi" data-a="klcc">KLCC</button>
+<button type="button" class="rmi" data-a="m118">M118</button></div>
   <div class="status" id="status">tap the circle to talk</div>
 </div>
 <div class="wx" id="wx" title="Tap to refresh weather">
@@ -605,7 +606,7 @@ body.holoOn>*:not(#holo){visibility:hidden!important}
 <div id="gest"><video id="gVid" playsinline muted autoplay></video><div class="gdot" id="gd0"></div><div class="gdot" id="gd1"></div><div id="gRing"></div>
 <div class="gtop"><span>HAND CONTROL</span><span id="gSt">STARTING</span></div><div class="ghint" id="gHint"></div><div class="gcap" id="gCap"></div>
 <div class="gtb"><button type="button" id="gTalk" class="hot">TALK</button><button type="button" id="gReset">RESET</button><button type="button" id="gExit">EXIT</button></div></div>
-<div id="holo"><video id="hVid" playsinline muted autoplay></video><canvas id="hc"></canvas><div id="hCur"></div><div class="hsw"></div><div class="htop"><div><b>HOLO / EARTH</b><span id="hRead"></span></div><div class="hbt"><button id="hKl" type="button">KLCC</button><button id="hHands" type="button">HANDS</button><button id="hTalk" type="button">TALK</button><button id="hExit" type="button">EXIT</button></div></div><div id="hCap"><div id="hCapU"></div><div id="hCapA"></div></div><div id="hpan"></div><div class="hhint" id="hHint">DRAG TO SPIN · PINCH TO ZOOM · TAP A CITY</div></div>
+<div id="holo"><video id="hVid" playsinline muted autoplay></video><canvas id="hc"></canvas><div id="hCur"></div><div class="hsw"></div><div class="htop"><div><b>HOLO / EARTH</b><span id="hRead"></span></div><div class="hbt"><button id="hKl" type="button">KLCC</button><button id="hBd" type="button">M118</button><button id="hHands" type="button">HANDS</button><button id="hTalk" type="button">TALK</button><button id="hExit" type="button">EXIT</button></div></div><div id="hCap"><div id="hCapU"></div><div id="hCapA"></div></div><div id="hpan"></div><div class="hhint" id="hHint">DRAG TO SPIN · PINCH TO ZOOM · TAP A CITY</div></div>
 <script>
 (function(){
 "use strict";
@@ -1214,7 +1215,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.17.1";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
+var VER="v9.18";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -3140,6 +3141,7 @@ function hcTowerDraw(ts,t,dt,ka){
   var big=W>=700,kk=H*(big?.57:.5)/TW.H*zm,cyy=H*(big?.5:.47),lr=Math.min(W-10,HG.cx+Math.max(170,W*.27));
   TW.c=c;TW.s=s;TW.cp=cp;TW.sp=sp;TW.k=kk;TW.cx=HG.cx;TW.gy=cyy+HG.fy*cp*kk;
   for(i=0;i<32;i++){TW.rx[i]=TW.ux[i]*c-TW.uz[i]*s;TW.rz[i]=TW.ux[i]*s+TW.uz[i]*c}
+  if(TW.b===1){hcM118Draw(ts,t,dt,ka,kk,cyy,lr);return}
   var pF=TW.pF=new Path2D(),pB=TW.pB=new Path2D(),pH=TW.pH=new Path2D(),pBr=TW.pBr=new Path2D(),pG=new Path2D();
   var hs=((t*.17)%1.3)*TW.H,sp1=q>=2?30:q===1?20:15,step=q>=2?2:1,vstep=q>=2?8:q===1?4:2;
   var focusB=HG.part==="bridge",pul=.65+.35*Math.sin(t*3.2);
@@ -3252,6 +3254,7 @@ function hcTowerTap(x,y,now){
   if(now-HG.tapT<330&&HG.part!=="all")hcTowerPart("all",false);
 }
 function hcTowerPanels(part,id){
+  if(TW.b===1){hcM118Panels(part);return}
   var list;
   if(part==="bridge")list=[{k:"DECKS",id:"d",v:"2",s:"floors 41 and 42"},{k:"HEIGHT",id:"h",v:"170 m",s:"above the street"},{k:"SPAN",id:"s",v:"58.4 m",s:"about 750 tonnes"},{k:"BACK",id:"bk",v:"‹ OVERVIEW",s:"both towers",fn:function(){hcTowerPart("all",true)}}];
   else if(part==="top")list=[{k:"SPIRE",id:"sp",v:"46.4 m",s:"antenna mast"},{k:"ROOF",id:"rf",v:"405.5 m",s:"top floor L88 at 375 m"},{k:"OBSERVATION",id:"ob",v:"370 m",s:"level 86"},{k:"BACK",id:"bk",v:"‹ OVERVIEW",s:"both towers",fn:function(){hcTowerPart("all",true)}}];
@@ -3259,6 +3262,7 @@ function hcTowerPanels(part,id){
   hcPan(list,false);
 }
 function hcTowerPart(part,speak){
+  if(TW.b===1){hcM118Part(part,speak);return}
   var P=TPART[part]||TPART.all;HG.part=part;HG.mode="tower";HG.hl=[];HG.touch=0;
   var yaw=P.lon,d=yaw-HG.lon;d=((d+Math.PI)%6.2832+6.2832)%6.2832-Math.PI;yaw=HG.lon+d;
   HG.tgt={lon:yaw,lat:P.lat,zoom:P.zoom};HG.fyT=P.fy;
@@ -3284,25 +3288,154 @@ function hcTowerPart(part,speak){
     reply(LT(en,ms,en,null,en,en));
   }
 }
-function hcTower(speak,part){
-  hcInit();HG.cmd++;HG.mode="tower";HG.tour=0;HG.hl=[];HG.tgt=null;HG.part="all";HG.fy=226;HG.fyT=226;
+function hcTower(speak,part,bd){
+  TW.b=bd===1?1:0;TW.H=TW.b?678.9:451.9;hcInit();HG.cmd++;HG.mode="tower";HG.tour=0;HG.hl=[];HG.tgt=null;HG.part="all";HG.fy=HG.fyT=TW.b?340:226;
   HG.lon=.2;HG.lat=.16;HG.zoom=.62;HG.vx=HG.vy=0;HG.zt=0;
   hcTowerPart(part||"all",!!speak);
 }
 
 function hcModeUI(){
   var tw=HG.mode==="tower",b=document.querySelector("#holo .htop b"),kl=$("hKl"),r=$("hRead");
-  var tt=tw?"HOLO / KLCC":"HOLO / EARTH";if(b&&b.textContent!==tt)b.textContent=tt;
+  var tt=tw?(TW.b?"HOLO / M118":"HOLO / KLCC"):"HOLO / EARTH";var bd=$("hBd");if(bd){var bl=tw&&TW.b?"KLCC":"M118";if(bd.textContent!==bl)bd.textContent=bl}if(b&&b.textContent!==tt)b.textContent=tt;
   if(kl){var lb=tw?"GLOBE":"KLCC";if(kl.textContent!==lb)kl.textContent=lb}
   if(tw&&r)r.textContent="3.158N  101.712E  x"+HG.zoom.toFixed(1);
-  if(HG.uiM!==tw){HG.uiM=tw;var h=$("hHint");if(h)h.textContent=tw?"DRAG TO ROTATE \u00b7 PINCH TO ZOOM \u00b7 TAP SKYBRIDGE OR SPIRE":(HG.ar?"PINCH OR PALM TO SPIN \u00b7 2 HANDS ZOOM \u00b7 POINT + HOLD":"DRAG TO SPIN \u00b7 PINCH TO ZOOM \u00b7 TAP A CITY")}
+  var um=tw?1+(TW.b?1:0):0;if(HG.uiM!==um){HG.uiM=um;var h=$("hHint");if(h)h.textContent=tw?"DRAG TO ROTATE \u00b7 PINCH TO ZOOM \u00b7 TAP "+(TW.b?"VIEW DECK":"SKYBRIDGE")+" OR SPIRE":(HG.ar?"PINCH OR PALM TO SPIN \u00b7 2 HANDS ZOOM \u00b7 POINT + HOLD":"DRAG TO SPIN \u00b7 PINCH TO ZOOM \u00b7 TAP A CITY")}
+}
+/* ---------- v9.18: Merdeka 118 (Menara 118) hologram, second building in tower mode ---------- */
+var M8={H:678.9,roof:518.2,ready:false,ux:new Float32Array(16),uz:new Float32Array(16),hs:[],PX:null,PY:null,PZ:null};
+var TPART2={
+  all:{lon:.5,lat:.18,zoom:1,fy:340},
+  deck:{lon:.42,lat:.1,zoom:2.6,fy:498},
+  top:{lon:.72,lat:.12,zoom:2.2,fy:600}
+};
+function m8Init(){
+  if(M8.ready)return;var k,a,h,hs=[];
+  for(k=0;k<16;k++){a=k*Math.PI/8;M8.ux[k]=Math.cos(a);M8.uz[k]=Math.sin(a)}
+  for(h=0;h<518;h+=18)hs.push(h);hs.push(518.2);
+  M8.hs=hs;M8.PX=new Float32Array(hs.length*16);M8.PY=new Float32Array(hs.length*16);M8.PZ=new Float32Array(hs.length*16);M8.ready=true;
+}
+function m8R(h){if(h<=440)return 36-15*Math.pow(h/440,1.1);var u=(h-440)/78.2;u=u*u*(3-2*u);return 21-12*u}
+function hcM118Draw(ts,t,dt,ka,kk,cyy,lr){
+  m8Init();var g=HG.g,W=HG.W,H=HG.H,col=HG.col,zm=HG.zoom,q=HG.q,i,j,k,h,a,b,P,n=M8.hs.length,TH=M8.H,PX=M8.PX,PY=M8.PY,PZ=M8.PZ;
+  var pF=TW.pF=new Path2D(),pB=TW.pB=new Path2D(),pH=TW.pH=new Path2D(),pBr=TW.pBr=new Path2D(),pG=new Path2D();
+  var hs=((t*.17)%1.3)*TH,focusD=HG.part==="deck",pul=.65+.35*Math.sin(t*3.2);
+  g.lineJoin="round";g.lineCap="round";
+  /* ground */
+  twP(0,0,0);var gx=TW.sx,gy0=TW.sy,bw=Math.max(60,Math.abs(95*kk)*1.9);
+  var gr=g.createRadialGradient(gx,gy0,2,gx,gy0,bw);gr.addColorStop(0,"rgba(46,230,214,"+(.30*ka+.04)+")");gr.addColorStop(1,"rgba(46,230,214,0)");
+  g.globalAlpha=1;g.fillStyle=gr;g.save();g.translate(gx,gy0);g.scale(1,Math.max(.12,TW.sp*.9+.08));g.beginPath();g.arc(0,0,bw,0,6.2832);g.fill();g.restore();
+  twDisc(pG,0,0,0,85,48);twDisc(pG,0,0,0,125,56);twDisc(pG,0,0,0,170,64);
+  if(q<2){for(i=0;i<24;i++){var ta=i/24*6.2832,ca=Math.cos(ta),sa=Math.sin(ta);twP(ca*170,0,sa*170);var tx=TW.sx,ty=TW.sy;twP(ca*(i%2?162:156),0,sa*(i%2?162:156));pG.moveTo(tx,ty);pG.lineTo(TW.sx,TW.sy)}}
+  /* podium (118 Mall) */
+  var X0=-62,X1=62,Z0=-46,Z1=46,Y1=22;
+  twLine(pG,X0,0,Z0,X1,0,Z0);twLine(pG,X1,0,Z0,X1,0,Z1);twLine(pG,X1,0,Z1,X0,0,Z1);twLine(pG,X0,0,Z1,X0,0,Z0);
+  twLine(pG,X0,Y1,Z0,X1,Y1,Z0);twLine(pG,X1,Y1,Z0,X1,Y1,Z1);twLine(pG,X1,Y1,Z1,X0,Y1,Z1);twLine(pG,X0,Y1,Z1,X0,Y1,Z0);
+  twLine(pG,X0,0,Z0,X0,Y1,Z0);twLine(pG,X1,0,Z0,X1,Y1,Z0);twLine(pG,X1,0,Z1,X1,Y1,Z1);twLine(pG,X0,0,Z1,X0,Y1,Z1);
+  g.strokeStyle=col;g.lineWidth=.9;g.globalAlpha=.34;g.stroke(pG);
+  /* project every floor ring once */
+  var r0,rad;
+  for(j=0;j<n;j++){h=M8.hs[j];r0=m8R(h);for(k=0;k<16;k++){rad=r0*(k&1?.9:1);twP(M8.ux[k]*rad,h,M8.uz[k]*rad);a=j*16+k;PX[a]=TW.sx;PY[a]=TW.sy;PZ[a]=TW.z}}
+  for(j=0;j<n;j++){
+    var hot=Math.abs(M8.hs[j]-hs)<9,dk=M8.hs[j]>=468;
+    for(k=0;k<16;k++){a=j*16+k;b=j*16+((k+1)&15);
+      P=hot?pH:dk?(focusD?pH:pBr):((PZ[a]+PZ[b])>=0?pF:pB);P.moveTo(PX[a],PY[a]);P.lineTo(PX[b],PY[b])}
+  }
+  var vs=q>=2?4:q===1?2:1;
+  for(k=0;k<16;k+=vs)for(j=0;j<n-1;j++){a=j*16+k;b=a+16;P=(PZ[a]+PZ[b])>=0?pF:pB;P.moveTo(PX[a],PY[a]);P.lineTo(PX[b],PY[b])}
+  /* diamond glass facets */
+  if(q<2){var kst=q?2:1;
+    for(j=0;j<n-1;j+=2)for(k=0;k<16;k+=kst){
+      a=j*16+k;b=(j+1)*16+((k+1)&15);P=(PZ[a]+PZ[b])>=0?pF:pB;P.moveTo(PX[a],PY[a]);P.lineTo(PX[b],PY[b]);
+      a=j*16+((k+1)&15);b=(j+1)*16+k;P=(PZ[a]+PZ[b])>=0?pF:pB;P.moveTo(PX[a],PY[a]);P.lineTo(PX[b],PY[b])}
+  }
+  /* spire mast */
+  var mh=[535,555,580,610,640,665],mr=function(y){return 5-4.1*(y-518.2)/160.7};
+  twDisc(pH,0,518.2,0,5,8);
+  for(i=0;i<mh.length;i++)twDisc(pF,0,mh[i],0,mr(mh[i]),8);
+  for(k=0;k<4;k++){var an=k*1.5708,cs=Math.cos(an),sn=Math.sin(an);twLine(pH,cs*5,518.2,sn*5,cs*.9,TH,sn*.9)}
+  /* scan ring */
+  if(hs<TH+20)twDisc(pH,0,hs,0,M8.hs&&hs<518?m8R(hs)+14:20,48);
+  /* ---- strokes ---- */
+  if(q<2){
+    twP(0,0,0);var bx0=TW.sx,by0=TW.sy;twP(0,518.2,0);var ty0=TW.sy,hw=34*kk;
+    var gr2=g.createLinearGradient(bx0-hw,0,bx0+hw,0);gr2.addColorStop(0,rgba(col,0));gr2.addColorStop(.5,rgba(col,q?.07:.1));gr2.addColorStop(1,rgba(col,0));
+    g.globalAlpha=1;g.fillStyle=gr2;g.fillRect(bx0-hw,ty0,hw*2,by0-ty0);
+  }
+  g.strokeStyle=col;g.lineWidth=3.2;g.globalAlpha=.15;g.stroke(pBr);g.stroke(pH);
+  g.lineWidth=.8;g.strokeStyle=col;g.globalAlpha=.3;g.stroke(pB);
+  g.lineWidth=1;g.globalAlpha=.92;g.stroke(pF);
+  g.strokeStyle="#9ffcf0";g.lineWidth=focusD?1.4:1.1;g.globalAlpha=focusD?.6+.4*pul:.95;g.stroke(pBr);
+  g.strokeStyle="#e8fffc";g.lineWidth=1.3;g.globalAlpha=.95;g.stroke(pH);
+  /* beacon */
+  HG.tp.length=0;
+  twP(0,TH,0);var lx=TW.sx,ly=TW.sy,bl=(t*.9)%1;
+  g.globalAlpha=1-bl;g.strokeStyle="#ff5470";g.lineWidth=1.2;g.beginPath();g.arc(lx,ly,2+bl*9,0,6.2832);g.stroke();
+  g.globalAlpha=1;g.fillStyle="#ff6a82";g.beginPath();g.arc(lx,ly,2,0,6.2832);g.fill();
+  HG.tp.push({k:"top",x:lx,y:ly,r:46});
+  /* labels, hotspots, ruler */
+  var fs=Math.round(8+Math.min(3,H/320));g.font="600 "+fs+"px Michroma,ui-monospace,monospace";g.textBaseline="middle";
+  twP(0,495,0);var dxp=TW.sx,dyp=TW.sy;
+  if(HG.part==="all"){
+    var rx0=lr-125;
+    g.globalAlpha=.9;g.strokeStyle="#e8fffc";g.lineWidth=1;g.beginPath();g.moveTo(dxp,dyp);g.lineTo(rx0-4,dyp);g.stroke();
+    g.fillStyle="#e8fffc";g.textAlign="right";g.fillText("VIEW @118",lr,dyp-fs-2);g.fillStyle=col;g.fillText("LEVELS 116 · 117 · 118",lr,dyp+fs+2);g.textAlign="left";
+    var ph=(t*.9)%1;g.globalAlpha=(1-ph)*.9;g.beginPath();g.arc(dxp,dyp,4+ph*16,0,6.2832);g.stroke();
+    g.globalAlpha=1;g.fillStyle="#fff";g.beginPath();g.arc(dxp,dyp,2.6,0,6.2832);g.fill();
+    HG.tp.push({k:"deck",x:dxp,y:dyp,r:44});
+    var tpy=Math.max(Math.min(ly,dyp-fs*3-8),H*.2);
+    g.globalAlpha=.9;g.strokeStyle="#e8fffc";g.beginPath();g.moveTo(lx+8,tpy);g.lineTo(Math.max(lx+24,lr-125),tpy);g.stroke();
+    g.fillStyle="#e8fffc";g.textAlign="right";g.fillText("SPIRE  678.9 M",lr,tpy-fs-2);g.fillStyle=col;g.fillText("118 FLOORS",lr,tpy+fs+2);g.textAlign="left";
+  }
+  var ra=Math.max(0,Math.min(1,1-(zm-1.4)/.8));
+  if(ra>0){
+    g.globalAlpha=.7*ra;g.strokeStyle=col;g.lineWidth=1;g.fillStyle=col;g.beginPath();
+    var tks=[0,200,400,600,678.9],ys=[];
+    for(i=0;i<tks.length;i++){twP(0,tks[i],0);ys.push(TW.sy);g.moveTo(14,TW.sy);g.lineTo(i===4?30:24,TW.sy)}
+    g.moveTo(14,ys[0]);g.lineTo(14,ys[4]);g.stroke();
+    g.globalAlpha=.8*ra;g.font="500 "+(fs-1)+"px Michroma,ui-monospace,monospace";
+    for(i=1;i<tks.length;i++)g.fillText(i===4?"679":String(tks[i]),i===4?34:28,ys[i]);
+    g.globalAlpha=.55*ra;g.fillText("M",18,ys[0]+10);
+  }
+  g.globalAlpha=1;
+}
+function hcM118Panels(part){
+  var bk={k:"BACK",id:"bk",v:"‹ OVERVIEW",s:"whole tower",fn:function(){hcM118Part("all",true)}},list;
+  if(part==="deck")list=[{k:"LEVEL 116",id:"a",v:"IN + OUT",s:"indoor and outdoor decks"},{k:"LEVEL 118",id:"b",v:"502.8 m",s:"top floor · upper deck"},{k:"ROOF",id:"r",v:"518.2 m",s:"spire rises above",fn:function(){hcM118Part("top",true)}},bk];
+  else if(part==="top")list=[{k:"SPIRE",id:"sp",v:"160.7 m",s:"mast above the roof"},{k:"ROOF",id:"rf",v:"518.2 m",s:"top floor 502.8 m"},{k:"HEIGHT",id:"h",v:"678.9 m",s:"2,227 ft architectural"},bk];
+  else list=[{k:"HEIGHT",id:"h",v:"678.9 m",s:"2,227 ft · 118 floors",fn:function(){hcM118Part("top",true)}},{k:"VIEW @118",id:"v",v:"L116–118",s:"observatories · tap",fn:function(){hcM118Part("deck",true)}},{k:"COMPLETED",id:"o",v:"2023",s:"Fender Katsalidis · #2 worldwide"},{k:"KL NOW",id:"wx",v:"…",s:hcTime("Asia/Kuala_Lumpur",false)}];
+  hcPan(list,false);
+}
+function hcM118Part(part,speak){
+  if(part!=="deck"&&part!=="top")part="all";
+  var P=TPART2[part];HG.part=part;HG.mode="tower";HG.hl=[];HG.touch=0;
+  var yaw=P.lon,d=yaw-HG.lon;d=((d+Math.PI)%6.2832+6.2832)%6.2832-Math.PI;yaw=HG.lon+d;
+  HG.tgt={lon:yaw,lat:P.lat,zoom:P.zoom};HG.fyT=P.fy;
+  hcM118Panels(part);
+  var id=++HG.cmd;
+  hcCap("a",part==="deck"?"VIEW @118 · LEVELS 116–118":part==="top"?"CROWN · SPIRE · 678.9 M":"MERDEKA 118 · KUALA LUMPUR");
+  if(part==="all")hcWx(3.1579,101.7116).then(function(w){if(id!==HG.cmd||HG.part!=="all"||!TW.b)return;hcSet("wx",w?w.t+"°C":"—",w?w.w+" · "+hcTime("Asia/Kuala_Lumpur",false):hcTime("Asia/Kuala_Lumpur",false))});
+  if(!speak)return;
+  var en,ms;
+  if(part==="deck"){en="The View at 118. Observatories on levels 116 to 118, with indoor and outdoor decks on level 116, just under the spire.";ms="View at 118. Dek tinjauan di tingkat 116 hingga 118, dengan dek dalam dan luar di tingkat 116, tepat di bawah puncak menara."}
+  else if(part==="top"){en="The crown. A 161 meter spire rises from the 518 meter roof, taking Merdeka 118 to 679 meters.";ms="Mahkota menara. Puncak setinggi 161 meter menjulang dari bumbung 518 meter, menjadikan Merdeka 118 setinggi 679 meter."}
+  else{
+    hcWx(3.1579,101.7116).then(function(w){
+      if(id!==HG.cmd)return;
+      var e2="Merdeka 118, also known as Menara 118, in Kuala Lumpur. 679 meters and 118 floors, the second tallest building in the world after the Burj Khalifa, and the tallest in Southeast Asia. Designed by Fender Katsalidis and completed in 2023."+(w?" It is "+w.t+" degrees and "+w.w.toLowerCase()+" in Kuala Lumpur right now.":"")+" Tap the view deck or the spire for detail.";
+      var m2="Merdeka 118, atau Menara 118, di Kuala Lumpur. 679 meter dan 118 tingkat, bangunan kedua tertinggi di dunia selepas Burj Khalifa dan tertinggi di Asia Tenggara. Direka oleh Fender Katsalidis dan siap pada 2023."+(w?" Cuaca di Kuala Lumpur sekarang "+w.t+" darjah.":"");
+      reply(LT(e2,m2,e2,null,e2,e2));
+    });
+    return;
+  }
+  reply(LT(en,ms,en,null,en,en));
 }
 function holoIntent(raw,n){
   var w=n.split(" ").length;if(w>12)return null;
   if(/^(use|turn on|enable|activate|start|switch on)( my)? (hands?|hand control|hand tracking|gestures?)( control)?$|^(hologram|holo|ar) mode$|^(control|move) (it|the globe) with my hands?$/.test(n))return{k:"ar",on:true};
   if(HG.on&&/^(turn off|disable|stop|switch off)( my)? (hands?|hand control|hand tracking|gestures?)( control)?$|^hands off$/.test(n))return{k:"ar",on:false};
-  if(/\b(klcc|petronas|twin towers?|menara berkembar|kuala lumpur city cent(?:re|er))\b/.test(n)&&(/^(show|open|display|bring up|launch|let me see|see|view|tunjuk|papar|take me|fly|go|visit|pull up|hologram|holo|zoom)\b|\bhologram\b/.test(n))&&!/\b(price|prices|stock|share|weather|news|ticket|tickets|opening hours|how tall|how high|history|directions|navigate|waze)\b/.test(n))return{k:"tower",part:/sky ?bridge/.test(n)?"bridge":/\b(spire|crown|antenna|pinnacle|observation)\b/.test(n)?"top":"all"};
-  if(/\b(menara 118|merdeka 118|118 tower|tower 118|one one eight)\b/.test(n)&&/^(show|open|display|bring up|launch|tunjuk|papar|hologram|view|take me)\b/.test(n))return{k:"t118"};
+  if(/\b(klcc|petronas|twin towers?|menara berkembar|kuala lumpur city cent(?:re|er))\b/.test(n)&&(/^(show|open|display|bring up|launch|let me see|see|view|tunjuk|papar|take me|fly|go|visit|pull up|hologram|holo|zoom)\b|\bhologram\b/.test(n))&&!/\b(price|prices|stock|share|weather|news|ticket|tickets|opening hours|how tall|how high|history|directions|navigate|waze)\b/.test(n))return{k:"tower",kl:1,part:/sky ?bridge/.test(n)?"bridge":/\b(spire|crown|antenna|pinnacle|observation)\b/.test(n)?"top":"all"};
+  if(/\b(menara 118|merdeka 118|merdeka118|menara118|118 tower|tower 118|kl 118|pnb 118|one one eight|one eighteen|menara one eighteen)\b/.test(n)&&/^(show|open|display|bring up|launch|tunjuk|papar|hologram|holo|view|take me|switch to|go to|fly to|let me see|see|visit|pull up|zoom)\b/.test(n)&&!/\b(price|prices|ticket|tickets|opening hours|history|directions|navigate|waze|news)\b/.test(n))return{k:"t118"};
+  if(HG.on&&HG.mode==="tower"&&TW.b&&/\b(view deck|viewing deck|observation deck|observatory|observatories|view at 118|view 118|sky deck)\b/.test(n)&&/^(show|zoom|focus|go|look|tell|what|how|where|take|fly|the|bring|tunjuk)\b/.test(n))return{k:"tower",part:"deck"};
   if(HG.on&&HG.mode==="tower"){
     if(/\b(sky ?bridge)\b/.test(n)&&/^(show|zoom|focus|go|look|tell|what|how|where|take|fly|the|bring|tunjuk)\b/.test(n))return{k:"tower",part:"bridge"};
     if(/\b(spire|crown|antenna|pinnacle|observation deck|the top)\b/.test(n)&&/^(show|zoom|focus|go|look|tell|what|how|where|take|fly|the|bring|tunjuk)\b/.test(n))return{k:"tower",part:"top"};
@@ -3319,8 +3452,8 @@ function holoIntent(raw,n){
 function holoRun(h){
   if(h.k==="close"){hcClose();reply(LT("Globe closed.","Glob ditutup.","地球已关闭。",null,"Глобус закрыт.","地球を閉じました。"));return}
   if(h.k==="ar"){hcOpen();if(h.on){hcAr(true).then(function(ok){if(!ok&&HG.on)reply(LT("I need a tap for the camera. Press the HANDS button on the globe, Sir.","Saya perlu anda tekan butang HANDS pada glob untuk kamera.","请点按地球上的 HANDS 按钮以打开摄像头。",null,"Нажмите кнопку HANDS на глобусе.","地球のHANDSボタンを押してください。"));else if(ok)reply(LT("Hand control online. Pinch or open your hand and move it to spin the globe, Sir.","Kawalan tangan aktif. Cubit atau buka tangan dan gerakkan untuk memutar glob.","手势控制已启动。捏合或张开手并移动即可旋转地球。",null,"Управление руками включено.","ハンドコントロールを起動しました。"))})}else{hcAr(false);reply(LT("Hand control off.","Kawalan tangan dimatikan.","手势控制已关闭。",null,"Управление руками выключено.","ハンドコントロールを停止しました。"))}return}
-  if(h.k==="t118"){reply(LT("Menara 118 is not in my hologram library yet, Sir. I can show you the Petronas Twin Towers.","Menara 118 belum ada dalam pustaka hologram saya. Saya boleh tunjukkan Menara Berkembar Petronas.","Menara 118 is not in my hologram library yet, Sir. I can show you the Petronas Twin Towers.",null,"Menara 118 is not in my hologram library yet, Sir. I can show you the Petronas Twin Towers.","Menara 118 is not in my hologram library yet, Sir. I can show you the Petronas Twin Towers."));return}
-  if(h.k==="tower"){if(HG.on&&HG.mode==="tower"){hcTowerPart(h.part,true)}else{hcOpen(true);hcTower(true,h.part)}return}
+  if(h.k==="t118"){hcOpen(true);hcTower(true,"all",1);return}
+  if(h.k==="tower"){if(HG.on&&HG.mode==="tower"&&!(TW.b&&h.kl)){hcTowerPart(h.part,true)}else{hcOpen(true);hcTower(true,h.part,0)}return}
   if(h.k==="globeback"){hcPlace({t:"city",c:HG.city[0]},false);return}
   var was=HG.on;hcOpen(h.k==="open"?false:true);
   if(h.k==="open"){reply(LT("Globe online.","Glob dalam talian.","地球已启动。",null,"Глобус включён.","地球を起動しました。"));return}
@@ -3338,7 +3471,7 @@ function hcHInfo(lm){
 }
 function hcCur(x,y,p){var c=$("hCur");if(x==null){c.classList.remove("on");return}c.classList.add("on");c.style.transform="translate("+x+"px,"+y+"px)";c.style.setProperty("--p",Math.min(1,p||0))}
 function hcSelectAt(x,y){
-  var el=document.elementFromPoint(x,y),t=el&&el.closest?el.closest(".gp,#hExit,#hTalk,#hHands,#hKl"):null;
+  var el=document.elementFromPoint(x,y),t=el&&el.closest?el.closest(".gp,#hExit,#hTalk,#hHands,#hKl,#hBd"):null;
   if(t){t.click();return}
   if(HG.mode==="tower"){var tpk=hcTowerHit(x,y);if(tpk)hcTowerPart(tpk,false);return}
   var best=null,bd=40,i,q;for(i=0;i<HG.cp.length;i++){q=HG.cp[i];var d=Math.hypot(q.x-x,q.y-y);if(d<bd){bd=d;best=q}}
@@ -3587,6 +3720,7 @@ function hcFrame(ts){
   cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up);
   $("hExit").addEventListener("click",hcClose);
   $("hHands").addEventListener("click",function(){unlockSpeech();ctx();hcAr(!HG.ar)});
+  $("hBd").addEventListener("click",function(){unlockSpeech();ctx();hcTower(true,"all",(HG.mode==="tower"&&TW.b)?0:1)});
   $("hKl").addEventListener("click",function(){unlockSpeech();ctx();if(HG.mode==="tower")hcPlace({t:"city",c:HG.city[0]},false);else hcTower(true)});
   $("hTalk").addEventListener("click",function(){unlockSpeech();ctx();$("talkBtn").click()});
   var mf=$("mkFeed");if(mf){mf.value=ld("jv_mkfeed","");mf.addEventListener("change",function(){var u=mf.value.trim().replace(/\/+$/,"");if(u&&!/^https?:\/\//i.test(u))u="https://"+u;mf.value=u;sv("jv_mkfeed",u)})}
@@ -3610,6 +3744,7 @@ function rmGo(a){
   else if(a==="talk")$("talkBtn").click();
   else if(a==="holo")hcOpen();
   else if(a==="klcc"){unlockSpeech();ctx();hcOpen(true);hcTower(true)}
+  else if(a==="m118"){unlockSpeech();ctx();hcOpen(true);hcTower(true,"all",1)}
   else if(a==="tasks"){var t=document.querySelector('button[data-v="tasks"]');if(t)t.click()}
   else if(a==="chio"){if(!busy){unlockSpeech();ctx();send("open chio")}}
 }
