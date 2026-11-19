@@ -1215,7 +1215,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.18.2";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
+var VER="v9.19";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -3035,7 +3035,7 @@ function hcMkPaint(){
 function hcStage(a,b,delay){HG.stg&&clearTimeout(HG.stg);HG.stg=setTimeout(function(){if(HG.on)b()},delay)}
 function hcHL(list){HG.hl=(list||[]).map(function(n){return HG.cmap[String(n).toLowerCase()]}).filter(Boolean);HG.hlT=performance.now()}
 function hcPlace(p,speak){
-  hcInit();var id=++HG.cmd;HG.mode="place";HG.tour=0;HG.hl=[];
+  hcInit();var id=++HG.cmd;HG.mode="place";HG.tour=0;HG.hl=[];HG.lm=null;
   if(p.t==="reg"){
     var r=p.r;hcPan([]);hcFly(r[0],r[1],r[2]);HG.tgtDone=null;
     if(r[3])hcStage(0,function(){hcHL(r[3])},900);
@@ -3445,8 +3445,55 @@ function hcM118Part(part,speak){
   }
   reply(LT(en,ms,en,null,en,en));
 }
+/* ---------- v9.19: "Jarvis, initiate Southeast Asia intelligence" ---------- */
+var SEALM=[{n:"KLCC",h:"451.9 M",lat:3.1579,lon:101.7116,b:0},{n:"MERDEKA 118",h:"678.9 M",lat:3.1426,lon:101.7000,b:1}];
+function seaSay(en,ms,zh,ru,ja){
+  var t=LT(en,ms,zh,null,ru,ja);hist.push({role:"assistant",content:t});saveHist();add("a",t);speak(t);
+}
+function hcSea(){
+  hcOpen(true);hcInit();var id=++HG.cmd;HG.mode="place";HG.tour=0;HG.hl=[];HG.lm=null;hcPan([]);
+  var R=HREG["southeast asia"],T=[],go=function(ms,fn){T.push(setTimeout(function(){if(id===HG.cmd&&HG.on)fn()},ms))};
+  var mal=HG.cmap["malaysia"],kl=HG.city[0];
+  hcCap("u","initiate southeast asia intelligence");
+  hcFly(R[0],R[1],R[2]);hcCap("a","SOUTHEAST ASIA INTELLIGENCE · INITIATING");
+  go(1500,function(){hcHL(R[3]);hcCap("a","SOUTHEAST ASIA · 11 NATIONS")});
+  go(3000,function(){hcHL(["Malaysia"]);if(mal)hcFly(mal.lat,mal.lon,3.3);hcCap("a","MALAYSIA")});
+  go(4800,function(){hcFly(kl.lat,kl.lon,5.8);hcCap("a","KUALA LUMPUR")});
+  go(6400,function(){
+    HG.lm=SEALM;HG.lmT=performance.now();hcCap("a","KLCC · MERDEKA 118");
+    var ex=HG.ex.filter(function(e){return e.c===kl})[0];
+    hcPan([{k:"KLCC",id:"a",v:"451.9 m",s:"88 floors · tap",fn:function(){hcTower(true,"all",0)}},
+      {k:"MERDEKA 118",id:"b",v:"678.9 m",s:"118 floors · tap",fn:function(){hcTower(true,"all",1)}},
+      {k:ex?"KLCI":"MARKET",id:"ix",v:"…",s:ex?hcStatus(ex):""},
+      {k:"KL NOW",id:"wx",v:"…",s:hcTime("Asia/Kuala_Lumpur",false)}],false);
+    hcWx(kl.lat,kl.lon).then(function(w){if(id!==HG.cmd)return;hcSet("wx",w?w.t+"°C":"—",w?w.w+" · "+hcTime("Asia/Kuala_Lumpur",false):hcTime("Asia/Kuala_Lumpur",false))});
+    getMarket(false).then(function(m){if(id!==HG.cmd)return;if(m)hcSet("ix",fN(m.lvl,2),hcSgn(m.pct)+(ex?" · "+hcStatus(ex):""),m.pct>=0?"up":"dn");else hcSet("ix","—","no feed")}).catch(function(){});
+    seaSay("Southeast Asia intelligence initiated, Sir.","Perisikan Asia Tenggara dimulakan, Tuan.","东南亚情报已启动，先生。","Разведка по Юго-Восточной Азии запущена, сэр.","東南アジアのインテリジェンスを開始しました、サー。");
+  });
+}
+function hcSeaDraw(g,t,cx,cy,R,c0,s0,cp,sp,W,H,pl,fsz,col){
+  HG.lmHit=[];var K=HG.klq;if(!HG.lm||!K||HG.mode!=="place"||HG.zoom<3.5)return;
+  var p=Math.max(0,Math.min(1,(performance.now()-HG.lmT)/800)),e=1-Math.pow(1-p,3),i,L,px,py,lx,ly,dx,dy,k0=Math.cos(3.139*Math.PI/180);
+  g.save();g.font="600 "+fsz+"px Michroma,ui-monospace,monospace";g.textBaseline="middle";
+  var mx=(SEALM[0].lon+SEALM[1].lon)/2,my=(SEALM[0].lat+SEALM[1].lat)/2;
+  for(i=0;i<HG.lm.length;i++){L=HG.lm[i];
+    /* true bearing between the two towers (KLCC north-east of Merdeka 118), spread so both stay legible at max zoom */
+    dx=(L.lon-mx)*k0;dy=-(L.lat-my);var m=Math.hypot(dx,dy)||1;dx=dx/m;dy=dy/m;
+    px=K.x+dx*26*e;py=K.y+dy*26*e;
+    var up=i===0,ex=px+(up?26:-26)*e,ey=py+(up?-84:84)*e,ph=(t*.9+i*.5)%1;
+    g.globalAlpha=e;g.strokeStyle="#e8fffc";g.lineWidth=1;g.beginPath();g.moveTo(px,py);g.lineTo(ex,ey);g.lineTo(ex+(up?70:-70)*e,ey);g.stroke();
+    g.globalAlpha=(1-ph)*.9*e;g.strokeStyle=col;g.lineWidth=1.4;g.beginPath();g.arc(px,py,5+ph*20,0,6.2832);g.stroke();
+    g.globalAlpha=e;g.strokeStyle="#9ffcf0";g.lineWidth=1.4;g.beginPath();g.moveTo(px,py-7);g.lineTo(px+7,py);g.lineTo(px,py+7);g.lineTo(px-7,py);g.closePath();g.stroke();
+    g.fillStyle="#fff";g.beginPath();g.arc(px,py,2.6,0,6.2832);g.fill();
+    var lx=ex+(up?4:-4);g.fillStyle="#e8fffc";g.textAlign=up?"left":"right";g.fillText(L.n,lx,ey-fsz-1);
+    g.fillStyle=col;g.fillText(L.h,lx,ey+fsz+1);g.textAlign="left";
+    HG.lmHit.push({x:px,y:py,b:L.b});
+  }
+  g.restore();g.globalAlpha=1;
+}
 function holoIntent(raw,n){
   var w=n.split(" ").length;if(w>12)return null;
+  if(/^(?:(?:hey |yo |ok |okay )?jarvis,? )?(?:please )?(?:initiate|initialize|initialise|activate|start|launch|begin|engage|run|open|mulakan|aktifkan)(?: the)? (?:southeast|south east|south-east|se|sea|asean) ?(?:asia|asian)? ?(?:intelligence|intel|briefing|mode|sequence|view|overview)?$|^(?:(?:hey |yo |ok |okay )?jarvis,? )?(?:mulakan|aktifkan) (?:risikan|perisikan|intelijen) asia tenggara$/.test(n)&&/\b(intelligence|intel|perisikan|risikan|intelijen|sequence|asean|asia)\b/.test(n))return{k:"sea"};
   if(/^(use|turn on|enable|activate|start|switch on)( my)? (hands?|hand control|hand tracking|gestures?)( control)?$|^(hologram|holo|ar) mode$|^(control|move) (it|the globe) with my hands?$/.test(n))return{k:"ar",on:true};
   if(HG.on&&/^(turn off|disable|stop|switch off)( my)? (hands?|hand control|hand tracking|gestures?)( control)?$|^hands off$/.test(n))return{k:"ar",on:false};
   if(/\b(klcc|petronas|twin towers?|menara berkembar|kuala lumpur city cent(?:re|er))\b/.test(n)&&(/^(show|open|display|bring up|launch|let me see|see|view|tunjuk|papar|take me|fly|go|visit|pull up|hologram|holo|zoom)\b|\bhologram\b/.test(n))&&!/\b(price|prices|stock|share|weather|news|ticket|tickets|opening hours|how tall|how high|history|directions|navigate|waze)\b/.test(n))return{k:"tower",kl:1,part:/sky ?bridge/.test(n)?"bridge":/\b(spire|crown|antenna|pinnacle|observation)\b/.test(n)?"top":"all"};
@@ -3468,6 +3515,7 @@ function holoIntent(raw,n){
 function holoRun(h){
   if(h.k==="close"){hcClose();reply(LT("Globe closed.","Glob ditutup.","地球已关闭。",null,"Глобус закрыт.","地球を閉じました。"));return}
   if(h.k==="ar"){hcOpen();if(h.on){hcAr(true).then(function(ok){if(!ok&&HG.on)reply(LT("I need a tap for the camera. Press the HANDS button on the globe, Sir.","Saya perlu anda tekan butang HANDS pada glob untuk kamera.","请点按地球上的 HANDS 按钮以打开摄像头。",null,"Нажмите кнопку HANDS на глобусе.","地球のHANDSボタンを押してください。"));else if(ok)reply(LT("Hand control online. Pinch or open your hand and move it to spin the globe, Sir.","Kawalan tangan aktif. Cubit atau buka tangan dan gerakkan untuk memutar glob.","手势控制已启动。捏合或张开手并移动即可旋转地球。",null,"Управление руками включено.","ハンドコントロールを起動しました。"))})}else{hcAr(false);reply(LT("Hand control off.","Kawalan tangan dimatikan.","手势控制已关闭。",null,"Управление руками выключено.","ハンドコントロールを停止しました。"))}return}
+  if(h.k==="sea"){hcSea();return}
   if(h.k==="t118"){hcOpen(true);hcTower(true,"all",1);return}
   if(h.k==="tower"){if(HG.on&&HG.mode==="tower"&&!(TW.b&&h.kl)){hcTowerPart(h.part,true)}else{hcOpen(true);hcTower(true,h.part,0)}return}
   if(h.k==="globeback"){hcPlace({t:"city",c:HG.city[0]},false);return}
@@ -3490,6 +3538,7 @@ function hcSelectAt(x,y){
   var el=document.elementFromPoint(x,y),t=el&&el.closest?el.closest(".gp,#hExit,#hTalk,#hHands,#hKl,#hBd"):null;
   if(t){t.click();return}
   if(HG.mode==="tower"){var tpk=hcTowerHit(x,y);if(tpk)hcTowerPart(tpk,false);return}
+  if(HG.lmHit&&HG.lm&&HG.mode==="place"){for(var li=0;li<HG.lmHit.length;li++){var lh=HG.lmHit[li];if(Math.hypot(lh.x-x,lh.y-y)<34){hcTower(true,"all",lh.b);return}}}
   var best=null,bd=40,i,q;for(i=0;i<HG.cp.length;i++){q=HG.cp[i];var d=Math.hypot(q.x-x,q.y-y);if(d<bd){bd=d;best=q}}
   if(best){if(best.ex)hcFocus(best.ex);else hcPlace({t:"city",c:best.c},false)}
 }
@@ -3548,7 +3597,7 @@ function hcOpen(quiet){
   hcInit();if(HG.on)return;try{if(gest.on)gestClose()}catch(e){}
   HG.on=true;holoLive=true;document.body.classList.add("holoOn");
   var h=$("holo");h.classList.add("on");HG.q=Math.min(HG.q,1);HG.ema=16;HG.n=0;hcSize();
-  HG.cyF=HG.cyT=.45;HG.mode="free";HG.hl=[];hcPan([]);$("hCapU").textContent="";$("hCapA").textContent="";
+  HG.cyF=HG.cyT=.45;HG.mode="free";HG.hl=[];HG.lm=null;hcPan([]);$("hCapU").textContent="";$("hCapA").textContent="";
   var kl=HG.city[0];HG.lon=kl.lon*Math.PI/180+1.6;HG.lat=.05;HG.zoom=1;HG.vx=HG.vy=0;HG.touch=performance.now();
   HG.tgt={lon:kl.lon*Math.PI/180,lat:kl.lat*Math.PI/180*.8,zoom:1};
   HG.col=(getComputedStyle(document.body).getPropertyValue("--c")||"").trim()||"#2ee6d6";
@@ -3658,7 +3707,7 @@ function hcFrame(ts){
     g.globalAlpha=1;g.fillStyle="#d8fffa";g.beginPath();g.arc(cx+sxp*cr-syp*sr,cy+sxp*sr+syp*cr,2.2,0,6.2832);g.fill();
   }
   /* cities, KL beacon, market pins */
-  HG.cp.length=0;var fsz=Math.round(8+Math.min(3,R/100));g.font="600 "+fsz+"px Michroma,ui-monospace,monospace";g.textBaseline="middle";
+  HG.cp.length=0;HG.klq=null;var fsz=Math.round(8+Math.min(3,R/100));g.font="600 "+fsz+"px Michroma,ui-monospace,monospace";g.textBaseline="middle";
   var mkM=HG.mode==="markets",exOf=null;
   if(mkM){exOf={};HG.ex.forEach(function(e){exOf[e.c.k]=e})}
   for(i=0;i<HG.city.length;i++){var Ci=HG.city[i],ex2=mkM?exOf[Ci.k]:null;
@@ -3676,14 +3725,16 @@ function hcFrame(ts){
       g.globalAlpha=st==="OPEN"?1:.6;g.fillStyle="#e8fffc";var lb=ex2.id+(qq?" "+(qq.pct>=0?"+":"")+qq.pct.toFixed(1)+"%":"");
       if(qx>W*.7)hcLbl(g,lb,qx-rr*.6-4,qy,true,pl,fsz);else hcLbl(g,lb,qx+rr*.6+4,qy,false,pl,fsz);
     }else if(Ci.me){
+      HG.klq={x:qx,y:qy,z:Z3};
       var ph=(t*.9)%1;g.strokeStyle="#ffffff";g.globalAlpha=(1-ph)*.9;g.lineWidth=1.4;g.beginPath();g.arc(qx,qy,4+ph*22,0,6.2832);g.stroke();
       var ph2=(t*.9+.5)%1;g.globalAlpha=(1-ph2)*.6;g.beginPath();g.arc(qx,qy,4+ph2*22,0,6.2832);g.stroke();
       g.globalAlpha=1;g.strokeStyle="#ffffff";g.lineWidth=1.2;g.beginPath();g.moveTo(qx,qy);g.lineTo(cx+xx*R*1.0,cy-yy*R*1.0-12);g.stroke();
-      g.fillStyle="#ffffff";g.beginPath();g.arc(qx,qy,3.2,0,6.2832);g.fill();g.globalAlpha=Z3;hcLbl(g,zm>2.4?"KUALA LUMPUR":"KL",qx+6,qy-14,false,pl,fsz);pl.push({l:qx-20,r:qx+20,y:qy});
+      g.fillStyle="#ffffff";g.beginPath();g.arc(qx,qy,3.2,0,6.2832);g.fill();g.globalAlpha=Z3;if(!(HG.lm&&HG.mode==="place"&&zm>=3.5))hcLbl(g,zm>2.4?"KUALA LUMPUR":"KL",qx+6,qy-14,false,pl,fsz);pl.push({l:qx-20,r:qx+20,y:qy});
     }else{g.globalAlpha=Math.min(1,Z3*1.6);g.fillStyle="#d8fffa";g.beginPath();g.arc(qx,qy,2.2,0,6.2832);g.fill();g.fillStyle=col;
       if(qx>W*.7)hcLbl(g,Ci.n.toUpperCase(),qx-6,qy,true,pl,fsz);else hcLbl(g,Ci.n.toUpperCase(),qx+6,qy,false,pl,fsz)}
   }
   }
+  if(HG.mode!=="tower")hcSeaDraw(g,t,cx,cy,R,c0,s0,cp,sp,W,H,pl,fsz,col);
   g.globalAlpha=1;
   if(HG.ar&&HG.hands.length){
     g.strokeStyle="#9ffcf0";g.lineWidth=1.4;g.globalAlpha=.7;g.beginPath();
@@ -3726,6 +3777,7 @@ function hcFrame(ts){
       if(now-HG.touch>90)HG.vx=HG.vy=0;
       if(HG.moved<9&&now-HG.tm<380){
         if(HG.mode==="tower"){hcTowerTap(e.clientX,e.clientY,now);HG.tapT=now;HG.vx=HG.vy=0;return}
+        if(HG.lmHit&&HG.lm&&HG.mode==="place"){var lj,lq;for(lj=0;lj<HG.lmHit.length;lj++){lq=HG.lmHit[lj];if(Math.hypot(lq.x-e.clientX,lq.y-e.clientY)<34){hcTower(true,"all",lq.b);HG.tapT=now;HG.vx=HG.vy=0;return}}}
         var best=null,bd=34,i,q;for(i=0;i<HG.cp.length;i++){q=HG.cp[i];var dd=Math.hypot(q.x-e.clientX,q.y-e.clientY);if(dd<bd){bd=dd;best=q}}
         if(best){if(best.ex)hcFocus(best.ex);else hcPlace({t:"city",c:best.c},false)}
         else if(now-HG.tapT<330){hcPlace({t:"city",c:HG.city[0]},false)}
