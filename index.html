@@ -1215,7 +1215,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.19.1";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
+var VER="v9.20";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -3492,16 +3492,23 @@ function hcSea(){
       {k:"KL NOW",id:"wx",v:"\u2026",s:hcTime("Asia/Kuala_Lumpur",false)}],false);
     hcWx(kl.lat,kl.lon).then(function(w){if(id!==HG.cmd)return;hcSet("wx",w?w.t+"\u00b0C":"\u2014",w?w.w+" \u00b7 "+hcTime("Asia/Kuala_Lumpur",false):hcTime("Asia/Kuala_Lumpur",false))});
     getMarket(false).then(function(m){if(id!==HG.cmd)return;if(m)hcSet("ix",fN(m.lvl,2),hcSgn(m.pct)+(ex?" \u00b7 "+hcStatus(ex):""),m.pct>=0?"up":"dn");else hcSet("ix","\u2014","no feed")}).catch(function(){});
+    go(1700,function(){
+      /* finale: pull back from KL so everything is in frame again */
+      hcCamGo(id,[{t:0,lat:HG.lat,lon:HG.lon,z:Math.log(HG.zoom)},{t:2.6,lat:4.2*D,lon:106*D,z:Math.log(1.9)}]);
+      hcCap("a","SOUTHEAST ASIA \u00b7 INTELLIGENCE ONLINE");
+      go(1100,function(){hcHL(R[3])});
+    });
     seaSay("Southeast Asia intelligence initiated, Sir.","Perisikan Asia Tenggara dimulakan, Tuan.","东南亚情报已启动，先生。","Разведка по Юго-Восточной Азии запущена, сэр.","東南アジアのインテリジェンスを開始しました、サー。");
   });
 }
 function hcSeaDraw(g,t,cx,cy,R,c0,s0,cp,sp,W,H,pl,fsz,col){
-  HG.lmHit=[];var K=HG.klq;if(!HG.lm||!K||HG.mode!=="place"||HG.zoom<3.5)return;
+  HG.lmHit=[];var K=HG.klq;if(!HG.lm||!K||HG.mode!=="place")return;
+  var za=Math.max(0,Math.min(1,(HG.zoom-2.6)/1));if(za<=0)return;
   var i,L,px,py,lx,ly,dx,dy,k0=Math.cos(3.139*Math.PI/180);
   g.save();g.font="600 "+fsz+"px Michroma,ui-monospace,monospace";g.textBaseline="middle";
   var mx=(SEALM[0].lon+SEALM[1].lon)/2,my=(SEALM[0].lat+SEALM[1].lat)/2;
   for(i=0;i<HG.lm.length;i++){L=HG.lm[i];
-    var p=Math.max(0,Math.min(1,(performance.now()-HG.lmT-i*550)/800)),e=1-Math.pow(1-p,3);if(e<=0.001)continue;
+    var p=Math.max(0,Math.min(1,(performance.now()-HG.lmT-i*550)/800)),e=(1-Math.pow(1-p,3))*za;if(e<=0.001)continue;
     /* true bearing between the two towers (KLCC north-east of Merdeka 118), spread so both stay legible at max zoom */
     dx=(L.lon-mx)*k0;dy=-(L.lat-my);var m=Math.hypot(dx,dy)||1;dx=dx/m;dy=dy/m;
     px=K.x+dx*26*e;py=K.y+dy*26*e;
