@@ -313,6 +313,25 @@ body.nofx #holo::after,body.nofx .hsw{display:none}body.nofx #hc{animation:none}
 .hbt button{border:1px solid var(--c);background:rgba(4,12,14,.85);color:var(--c);border-radius:999px;padding:9px 14px;font:600 9px "Michroma",ui-monospace,monospace;letter-spacing:.14em}
 #hTalk.on{background:var(--c);color:#021012;animation:hTk 1.4s ease-in-out infinite}
 @keyframes hTk{50%{box-shadow:0 0 14px var(--c)}}
+#hDesk{position:absolute;inset:0;display:none;pointer-events:none;z-index:3;transition:transform 1s}
+#holo.desk #hDesk{display:block}
+.dkClock{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 20px);text-align:center;color:#e8fffc}
+.dkClock b{font:300 clamp(54px,15vw,104px)/1 "Michroma",ui-monospace,monospace;letter-spacing:.04em;text-shadow:0 0 22px rgba(46,230,214,.45)}
+.dkClock small{font:500 14px "Michroma",ui-monospace,monospace;opacity:.5;margin-left:10px;vertical-align:top;line-height:2.6}
+#dkD{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 30px + clamp(54px,15vw,104px));text-align:center;font:500 10px "Michroma",ui-monospace,monospace;letter-spacing:.24em;color:var(--c);opacity:.85}
+#dkRow{position:absolute;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 20px);display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.dkc{min-width:104px;padding:8px 12px;border:1px solid rgba(46,230,214,.3);border-radius:12px;background:rgba(2,16,18,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);text-align:left}
+.dkc small{display:block;font:500 7.5px "Michroma",ui-monospace,monospace;letter-spacing:.16em;opacity:.65}
+.dkc b{display:block;font:600 17px system-ui,sans-serif;color:#e8fffc;margin-top:2px}
+.dkc span{display:block;font:400 10.5px system-ui,sans-serif;opacity:.7;margin-top:1px}
+.dkc.up b{color:#38e07b}.dkc.dn b{color:#ff5470}
+#holo.desk .htop{opacity:0;transition:opacity .4s}#holo.desk.rev .htop{opacity:1}
+#holo.desk:not(.rev) .hbt{pointer-events:none}
+#holo.desk .htop>div:first-child,#holo.desk .hbt button:not(#hExit){display:none}
+#holo.desk .hhint,#holo.desk #hpan,#holo.desk #hCapU{display:none!important}
+#holo.desk #hCap{top:auto;bottom:calc(env(safe-area-inset-bottom) + 112px);background:none;text-align:center}
+#holo.desk #hc{transition:opacity .45s}#hc.dkf{opacity:0!important}
+#holo.desk.night #hc{opacity:.5}#holo.desk.night #hDesk,#holo.desk.night #hCap{opacity:.5}
 #hCap{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 58px);padding:8px 16px 18px;pointer-events:none;z-index:2;background:linear-gradient(180deg,rgba(2,8,10,.78),rgba(2,8,10,.55) 70%,rgba(2,8,10,0))}
 #hCapU{font:500 10px/1.4 "Michroma",ui-monospace,monospace;letter-spacing:.08em;opacity:.7;min-height:14px}
 #hCapA{font:400 12.5px/1.4 system-ui,sans-serif;color:#d8fffa;margin-top:3px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
@@ -473,6 +492,10 @@ body.holoOn>*:not(#holo){visibility:hidden!important}
   <div class="row" style="margin-top:10px"><button type="button" class="mini" id="proTest">TEST ALERT</button><button type="button" class="mini" id="proNotif">ENABLE NOTIFICATIONS</button></div>
   <div class="hint">Say: remind me to call Joe at 5 PM, remind me in 20 minutes, what is on tomorrow, snooze, cancel all reminders. Jarvis speaks up while he is open. Standby mode keeps the screen awake, which is ideal for a desk.</div>
 
+  <h3>DESK MODE</h3>
+  <div class="hint">An ambient hologram for your desk or bedside: a big clock, a slowly turning globe or tower, weather, KLCI, Bitcoin, paper P/L and your next reminder. It keeps the screen awake, runs light, and Jarvis still speaks up. Say: desk mode. Say: exit desk mode.</div>
+  <div class="row" style="margin-top:10px"><button type="button" class="mini" id="deskGo">START DESK MODE</button></div>
+
   <h3>LOOK</h3>
   <label>Theme</label>
   <select id="theme"><option value="night">Petronas (black, silver and teal)</option><option value="paddock">Paddock (white and red)</option></select>
@@ -606,7 +629,7 @@ body.holoOn>*:not(#holo){visibility:hidden!important}
 <div id="gest"><video id="gVid" playsinline muted autoplay></video><div class="gdot" id="gd0"></div><div class="gdot" id="gd1"></div><div id="gRing"></div>
 <div class="gtop"><span>HAND CONTROL</span><span id="gSt">STARTING</span></div><div class="ghint" id="gHint"></div><div class="gcap" id="gCap"></div>
 <div class="gtb"><button type="button" id="gTalk" class="hot">TALK</button><button type="button" id="gReset">RESET</button><button type="button" id="gExit">EXIT</button></div></div>
-<div id="holo"><video id="hVid" playsinline muted autoplay></video><canvas id="hc"></canvas><div id="hCur"></div><div class="hsw"></div><div class="htop"><div><b>HOLO / EARTH</b><span id="hRead"></span></div><div class="hbt"><button id="hKl" type="button">KLCC</button><button id="hBd" type="button">M118</button><button id="hHands" type="button">HANDS</button><button id="hTalk" type="button">TALK</button><button id="hExit" type="button">EXIT</button></div></div><div id="hCap"><div id="hCapU"></div><div id="hCapA"></div></div><div id="hpan"></div><div class="hhint" id="hHint">DRAG TO SPIN · PINCH TO ZOOM · TAP A CITY</div></div>
+<div id="holo"><video id="hVid" playsinline muted autoplay></video><canvas id="hc"></canvas><div id="hCur"></div><div class="hsw"></div><div id="hDesk"><div class="dkClock"><b id="dkT">--:--</b><small id="dkS"></small></div><div id="dkD"></div><div id="dkRow"></div></div><div class="htop"><div><b>HOLO / EARTH</b><span id="hRead"></span></div><div class="hbt"><button id="hKl" type="button">KLCC</button><button id="hBd" type="button">M118</button><button id="hHands" type="button">HANDS</button><button id="hTalk" type="button">TALK</button><button id="hExit" type="button">EXIT</button></div></div><div id="hCap"><div id="hCapU"></div><div id="hCapA"></div></div><div id="hpan"></div><div class="hhint" id="hHint">DRAG TO SPIN · PINCH TO ZOOM · TAP A CITY</div></div>
 <script>
 (function(){
 "use strict";
@@ -1215,7 +1238,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.21";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
+var VER="v9.22";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1637,6 +1660,7 @@ function proScan(){
 setInterval(proScan,60000);setTimeout(proScan,25000);
 
 (function(){
+  var dg=$("deskGo");if(dg)dg.addEventListener("click",function(){unlockSpeech();ctx();dkOn(true)});
   var t=$("proTest"),nb=$("proNotif");
   if(t)t.addEventListener("click",function(){proPush({id:"t"+Date.now(),k:"auto",text:"Sir, this is a test alert. Reminders and proactive updates are working."});$("sheet").classList.remove("open");setTimeout(proFlush,300)});
   if(nb)nb.addEventListener("click",function(){
@@ -2951,7 +2975,7 @@ function hcFind(name){
 }
 function hcTitle(s){return String(s).replace(/\b\w/g,function(m){return m.toUpperCase()})}
 function hcSize(){
-  HG.W=window.innerWidth;HG.H=window.innerHeight;HG.d=HG.q>=2?1:Math.min(window.devicePixelRatio||1,HG.ar?1.25:1.5);
+  HG.W=window.innerWidth;HG.H=window.innerHeight;HG.d=HG.q>=2?1:Math.min(window.devicePixelRatio||1,HG.ar?1.25:(HG.desk?1:1.5));
   HG.cv.width=Math.round(HG.W*HG.d);HG.cv.height=Math.round(HG.H*HG.d);HG.cx=HG.W/2;
 }
 function hcRad(){var pk=Math.max(0,Math.min(1,(.45-HG.cyF)/.11));return Math.min(HG.W*.44,HG.H*(.3-.03*pk))*HG.zoom}
@@ -3562,8 +3586,168 @@ function hcNetDraw(g,t,cx,cy,R,c0,s0,cp,sp,col){
   }
   g.restore();g.globalAlpha=1;
 }
+/* ---------- v9.22: deeper Chio link (trading recap, market explain, trading desk on the globe) ---------- */
+var C2COINS=[["BTCUSDT","Bitcoin"],["ETHUSDT","Ethereum"],["SOLUSDT","Solana"],["BNBUSDT","BNB"],["XRPUSDT","XRP"]];
+function c2Cur(){var my=false,fx=0;try{if(ld("jt_cur","USDT")==="MYR"){var c=JSON.parse(ld("jt_fx","null"));if(c&&c.r>0){my=true;fx=c.r}}}catch(e){}return{my:my,fx:fx}}
+function c2M(v,sign){var c=c2Cur(),x=c.my?v*c.fx:v,a=Math.abs(x),s=(c.my?"RM":"$")+fN(a,a>=100?0:2);return(sign?(x>=0?"+":"-"):(x<0?"-":""))+s}
+function c2W(v){var c=c2Cur(),x=Math.abs(c.my?v*c.fx:v),s=fN(x,x>=100?0:2);return s+(c.my?" ringgit":" dollars")}
+function c2Mk(){
+  return withTO(bfetch("/api/v3/ticker/24hr?symbols="+encodeURIComponent(JSON.stringify(C2COINS.map(function(c){return c[0]})))),9000).then(function(rows){
+    var o={};rows.forEach(function(r){o[r.symbol]={px:+r.lastPrice,pct:+r.priceChangePercent,hi:+r.highPrice,lo:+r.lowPrice}});return o}).catch(function(){return null});
+}
+function c2Data(){
+  var P=readPaper();
+  return Promise.all([getPaper(),c2Mk()]).then(function(a){
+    var pap=a[0],mk=a[1],o={P:P,pap:pap,mk:mk,has:!!(P&&pap&&!pap.none)};
+    if(o.has){
+      var d0=new Date();d0.setHours(0,0,0,0);d0=d0.getTime();
+      var sells=(P.trades||[]).filter(function(t){return t.side==="SELL"&&isFinite(t.pnl)&&t.t>=d0});
+      o.today={n:sells.length,w:sells.filter(function(t){return t.pnl>0}).length,pnl:sells.reduce(function(s,t){return s+t.pnl},0)};
+      var eq=(P.eq||[]).filter(function(x){return x&&isFinite(x.e)&&isFinite(x.t)}),base=null,i;
+      for(i=0;i<eq.length;i++){if(eq[i].t<d0)base=eq[i];else break}
+      if(!base&&eq.length)base=eq[0];
+      o.dEq=base?pap.eq-base.e:null;o.dPct=(base&&base.e>0)?o.dEq/base.e:null;
+    }
+    return o;
+  });
+}
+function c2RecapText(o){
+  if(!o.has)return L2("You do not have a paper account in Chio yet. Open Chio and make your first practice trade, and I will recap it here.","Anda belum ada akaun latihan dalam Chio. Buka Chio dan buat dagangan latihan pertama, nanti saya rumuskan di sini.");
+  var pap=o.pap,s=L2("Trading recap. Your paper account is at "+c2W(pap.eq)+", "+(pap.pct>=0?"up ":"down ")+fN(Math.abs(pap.pct*100),1)+" percent since the start.",
+    "Rumusan dagangan. Akaun latihan anda pada "+c2W(pap.eq)+", "+(pap.pct>=0?"naik ":"turun ")+fN(Math.abs(pap.pct*100),1)+" peratus sejak mula.");
+  if(o.dPct!=null&&Math.abs(o.dPct)>=.00005)s+=" "+L2("Today it is "+(o.dEq>=0?"up ":"down ")+c2W(o.dEq)+", "+fN(Math.abs(o.dPct*100),1)+" percent.","Hari ini "+(o.dEq>=0?"naik ":"turun ")+c2W(o.dEq)+", "+fN(Math.abs(o.dPct*100),1)+" peratus.");
+  var t=o.today;
+  if(t.n)s+=" "+L2("You closed "+t.n+(t.n>1?" trades":" trade")+" today, "+t.w+" winning, with a realized "+(t.pnl>=0?"profit of ":"loss of ")+c2W(t.pnl)+".","Anda tutup "+t.n+" dagangan hari ini, "+t.w+" menang, "+(t.pnl>=0?"untung ":"rugi ")+c2W(t.pnl)+".");
+  else s+=" "+L2("No closed trades today.","Tiada dagangan ditutup hari ini.");
+  var ps=(pap.list||[]).slice();
+  if(ps.length){
+    ps.sort(function(a,b){return b.pct-a.pct});var bt=ps[0],ws=ps[ps.length-1],ph=function(h){return chioSym(h.sym)+(h.pct>=0?" up ":" down ")+fN(Math.abs(h.pct*100),1)+" percent"};
+    s+=" "+(ps.length>1?L2("You hold "+ps.length+" positions. The best is "+ph(bt)+", the weakest is "+ph(ws)+".","Anda pegang "+ps.length+" kedudukan. Terbaik "+ph(bt).replace(" up "," naik ").replace(" down "," turun ").replace(" percent"," peratus")+", paling lemah "+ph(ws).replace(" up "," naik ").replace(" down "," turun ").replace(" percent"," peratus")+".")
+      :L2("You hold one position: "+ph(bt)+".","Anda pegang satu kedudukan: "+ph(bt).replace(" up "," naik ").replace(" down "," turun ").replace(" percent"," peratus")+"."));
+  }else s+=" "+L2("No open positions.","Tiada kedudukan terbuka.");
+  var b=o.mk&&o.mk.BTCUSDT;
+  if(b)s+=" "+L2("Bitcoin is at "+pxN(b.px)+" dollars, "+(b.pct>=0?"up ":"down ")+fN(Math.abs(b.pct),1)+" percent in 24 hours.","Bitcoin pada "+pxN(b.px)+" dolar, "+(b.pct>=0?"naik ":"turun ")+fN(Math.abs(b.pct),1)+" peratus dalam 24 jam.");
+  return s+" "+L2("This is practice money, so treat it as learning.","Ini wang latihan, jadi anggap ia pembelajaran.");
+}
+function c2Recap(o){
+  (o?Promise.resolve(o):c2Data()).then(function(d){reply(c2RecapText(d))}).catch(function(){reply(L2("I could not read your paper account just now.","Saya tak dapat baca akaun latihan anda sekarang."))});
+}
+function c2Explain(){
+  c2Mk().then(function(mk){
+    if(!mk){reply(L2("I cannot reach the exchange right now, so I cannot read the market. Try again in a moment.","Saya tak dapat capai pertukaran sekarang, jadi tak boleh baca pasaran. Cuba sekejap lagi."));return}
+    var rows=C2COINS.map(function(c){var m=mk[c[0]];return m?{n:c[1],pct:m.pct}:null}).filter(Boolean);
+    if(!rows.length){reply(L2("I got no market data back. Try again in a moment.","Tiada data pasaran diterima. Cuba sekejap lagi."));return}
+    var up=rows.filter(function(r){return r.pct>=0}).length,avg=rows.reduce(function(a,r){return a+r.pct},0)/rows.length,srt=rows.slice().sort(function(a,b){return b.pct-a.pct}),st=srt[0],wk=srt[srt.length-1];
+    var mood=avg>2?"a strong rally":avg>.5?"leaning up":avg>-.5?"flat and quiet":avg>-2?"leaning down":"a sharp sell-off";
+    var moodM=avg>2?"naik kuat":avg>.5?"cenderung naik":avg>-.5?"mendatar dan tenang":avg>-2?"cenderung turun":"jualan mendadak";
+    var sg=function(p){return(p>=0?"up ":"down ")+fN(Math.abs(p),1)+" percent"},sgM=function(p){return(p>=0?"naik ":"turun ")+fN(Math.abs(p),1)+" peratus"};
+    var s=L2("Crypto market. "+up+" of "+rows.length+" major coins are up, and the mood is "+mood+". Strongest is "+st.n+", "+sg(st.pct)+". Weakest is "+wk.n+", "+sg(wk.pct)+".",
+      "Pasaran kripto. "+up+" daripada "+rows.length+" syiling utama naik, dan suasana "+moodM+". Terkuat "+st.n+", "+sgM(st.pct)+". Terlemah "+wk.n+", "+sgM(wk.pct)+".");
+    var b=mk.BTCUSDT;
+    if(b&&b.hi>b.lo){var rg=(b.hi-b.lo)/b.lo*100,ps=(b.px-b.lo)/(b.hi-b.lo),where=ps>.8?"near the top of":ps<.2?"near the bottom of":"in the middle of",whereM=ps>.8?"hampir di puncak":ps<.2?"hampir di dasar":"di tengah";
+      s+=" "+L2("Bitcoin is at "+pxN(b.px)+" dollars, "+where+" its 24 hour range. The range was "+fN(rg,1)+" percent wide, "+(rg<2?"a calm day":rg<5?"an active day":"a wild day")+".",
+        "Bitcoin pada "+pxN(b.px)+" dolar, "+whereM+" julat 24 jam. Julat selebar "+fN(rg,1)+" peratus, "+(rg<2?"hari tenang":rg<5?"hari aktif":"hari bergelora")+".")}
+    s+=" "+L2("I can read the numbers but not the reasons. Say: search why bitcoin is moving, and I will check the news.","Saya boleh baca angka tetapi bukan sebabnya. Sebut: search why bitcoin is moving, dan saya semak berita.");
+    reply(s);
+  });
+}
+function hcTrade(speak){
+  hcOpen(true);hcInit();var id=++HG.cmd;HG.mode="markets";HG.hl=[];HG.tour=0;HG.tourT=performance.now();HG.lm=null;HG.net=null;
+  hcPan([{k:"PAPER ACCOUNT",id:"pa",v:"…",s:"",fn:function(){send("open chio")}},{k:"TODAY",id:"td",v:"…",s:""},
+    {k:"BITCOIN",id:"btc",v:"…",s:"",fn:function(){send("bitcoin")}},{k:"ETHEREUM",id:"eth",v:"…",s:"",fn:function(){send("ethereum")}}],false);
+  hcFly(18,108,1.12);hcCap("a","TRADING DESK · LIVE");
+  hcQuotes(false).catch(function(){});
+  c2Data().then(function(o){
+    if(id!==HG.cmd)return;
+    if(o.has){
+      var pc=o.pap.pct*100;hcSet("pa",c2M(o.pap.eq),(pc>=0?"+":"")+fN(pc,1)+"% since start · "+(o.pap.list||[]).length+" open",pc>=0?"up":"dn");
+      hcSet("td",o.dEq!=null?c2M(o.dEq,true):"—",o.today.n?o.today.n+" closed · "+o.today.w+" won":"no closed trades",o.dEq!=null&&o.dEq<0?"dn":"up");
+    }else{hcSet("pa","NO ACCOUNT","open Chio to start");hcSet("td","—","no trades yet")}
+    var b=o.mk&&o.mk.BTCUSDT,e=o.mk&&o.mk.ETHUSDT;
+    if(b)hcSet("btc","$"+pxN(b.px),(b.pct>=0?"+":"")+fN(b.pct,1)+"% 24h",b.pct>=0?"up":"dn");
+    if(e)hcSet("eth","$"+pxN(e.px),(e.pct>=0?"+":"")+fN(e.pct,1)+"% 24h",e.pct>=0?"up":"dn");
+    if(speak)c2Recap(o);
+  }).catch(function(){});
+}
+/* ---------- v9.22: DESK MODE, an ambient hologram for the bedside or desk ---------- */
+var DK={on:false,i:-1,clk:0,sc:0,dat:0,wl:null,rt:0,d:{},lc:"",lt:0};
+function dkEl(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+function dkWake(){try{if(navigator.wakeLock&&navigator.wakeLock.request&&!DK.wl)navigator.wakeLock.request("screen").then(function(l){DK.wl=l;l.addEventListener("release",function(){DK.wl=null})}).catch(function(){})}catch(e){}}
+function dkOn(speak){
+  hcOpen(true);hcInit();var h=$("holo");
+  if(DK.on){return}
+  if(!DK.bound){DK.bound=1;h.addEventListener("pointerdown",function(){if(!HG.desk)return;h.classList.add("rev");clearTimeout(DK.rt);DK.rt=setTimeout(function(){h.classList.remove("rev")},4500)},true);document.addEventListener("visibilitychange",function(){if(DK.on&&!document.hidden)dkWake()})}
+  DK.on=true;HG.desk=true;h.classList.add("desk");HG.q=Math.max(HG.q,1);hcSize();
+  HG.touch=performance.now()-65000;
+  hcPan([]);HG.cyF=HG.cyT=dkCy();HG.lm=null;HG.net=null;HG.cam=null;DK.i=-1;dkScene();dkTick();
+  DK.clk=setInterval(dkTick,1000);
+  DK.sc=setInterval(function(){if(!HG.desk||!HG.on)return;if(performance.now()-HG.touch<60000)return;dkScene()},45000);
+  dkData();DK.dat=setInterval(dkData,60000);dkWake();
+  if(speak)reply(LT("Desk mode on, Sir. I will keep the time, weather, markets and your next reminder in view, and speak up if something needs you. Tap the screen and press Exit when you are done.",
+    "Mod meja dihidupkan, Tuan. Saya papar masa, cuaca, pasaran dan peringatan seterusnya, dan akan bersuara jika ada perkara penting. Ketik skrin dan tekan Exit apabila selesai.",
+    "桌面模式已开启，先生。我会显示时间、天气、市场和下一个提醒，有事会主动提醒您。完成后点屏幕再按退出。",null,
+    "Режим стола включён, сэр. Я покажу время, погоду, рынки и ближайшее напоминание. Коснитесь экрана и нажмите Exit, когда закончите.",
+    "デスクモードをオンにしました、サー。時刻、天気、市場、次のリマインダーを表示します。終了するには画面をタップしてExitを押してください。"));
+}
+function dkOff(keep){
+  if(!DK.on)return;DK.on=false;HG.desk=false;clearInterval(DK.clk);clearInterval(DK.sc);clearInterval(DK.dat);clearTimeout(DK.rt);
+  var h=$("holo");h.classList.remove("desk","rev","night");var c=$("hc");if(c)c.classList.remove("dkf");
+  try{if(DK.wl){DK.wl.release();DK.wl=null}}catch(e){}
+  var d=$("hDesk");if(d)d.style.transform="";
+  HG.cyF=HG.cyT=.45;HG.zoom=Math.max(HG.zoom,1);hcSize();
+  if(!keep)hcClose();
+}
+function dkLand(){return window.innerWidth>window.innerHeight*1.15}
+function dkCy(){return dkLand()?.58:.5}
+function dkScene(){
+  DK.i=(DK.i+1)%3;var c=$("hc"),i=DK.i;
+  if(c)c.classList.add("dkf");
+  setTimeout(function(){
+    if(!HG.desk||!HG.on)return;
+    HG.lm=null;HG.net=null;
+    if(i===0){var kl=HG.city[0];HG.mode="free";HG.part="all";HG.tgt={lon:kl.lon*Math.PI/180,lat:.12,zoom:dkLand()?.95:1.15};hcHL(["Malaysia"]);hcPan([]);
+      setTimeout(function(){if(HG.desk&&HG.mode==="free")HG.tgt=null},4500)}
+    else{hcTower(false,i===1?"all":"all",i===2?1:0);hcPan([])}
+    HG.cyF=HG.cyT=dkCy();
+    setTimeout(function(){if(c)c.classList.remove("dkf")},120);
+  },480);
+}
+function dkTick(){
+  if(!DK.on)return;var d=new Date(),hh=d.getHours(),mm=d.getMinutes(),t=$("dkT"),s=$("dkS"),dd=$("dkD");
+  if(t)t.textContent=("0"+hh).slice(-2)+":"+("0"+mm).slice(-2);
+  if(s)s.textContent=("0"+d.getSeconds()).slice(-2);
+  if(dd){var wk=["SUNDAY","MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"][d.getDay()],mo=["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"][d.getMonth()];dd.textContent=wk+" · "+d.getDate()+" "+mo}
+  $("holo").classList.toggle("night",hh>=23||hh<7);
+  var hd=$("hDesk");if(hd)hd.style.transform="translate("+((mm%5)-2)*2+"px,"+((mm%3)-1)*2+"px)";
+  var ca=$("hCapA");if(ca){var tx=ca.textContent;if(tx!==DK.lc){DK.lc=tx;DK.lt=Date.now()}else if(tx&&Date.now()-DK.lt>25000){ca.textContent="";DK.lc=""}}
+  if(d.getSeconds()===0)dkPaint();
+}
+function dkData(){
+  if(!DK.on)return;
+  getWeather(false).then(function(w){DK.d.wx=w;dkPaint()}).catch(function(){});
+  getMarket(false).then(function(m){DK.d.k=m;dkPaint()}).catch(function(){});
+  getCoin("BTCUSDT").then(function(c){DK.d.b=c;dkPaint()}).catch(function(){});
+  getPaper().then(function(p){DK.d.p=p;dkPaint()}).catch(function(){});
+}
+function dkChip(row,k,v,s,cls){var c=dkEl("div","dkc"+(cls?" "+cls:""));c.appendChild(dkEl("small","",k));c.appendChild(dkEl("b","",v));c.appendChild(dkEl("span","",s||""));row.appendChild(c)}
+function dkPaint(){
+  var row=$("dkRow");if(!row||!DK.on)return;row.innerHTML="";var D=DK.d,w=D.wx,m=D.k,b=D.b,p=D.p;
+  if(w)dkChip(row,"KUALA LUMPUR",w.t+"°C","H"+w.hi+" L"+w.lo+(w.pop>=40?" · "+w.pop+"% rain":""));
+  if(m&&m.lvl)dkChip(row,"KLCI",fN(m.lvl,2),hcSgn(m.pct),m.pct>=0?"up":"dn");
+  if(b&&b.px)dkChip(row,"BITCOIN","$"+pxN(b.px),(b.pct>=0?"+":"")+fN(b.pct,1)+"% 24h",b.pct>=0?"up":"dn");
+  if(p&&!p.none)dkChip(row,"PAPER",(p.pct>=0?"+":"")+fN(p.pct*100,1)+"%",c2M(p.eq),p.pct>=0?"up":"dn");
+  var nx=ag.filter(function(x){return !x.done&&x.at>=Date.now()}).sort(function(a,c){return a.at-c.at})[0];
+  if(nx){var tx=String(nx.t||"");dkChip(row,"NEXT",agFmtT(nx.at),tx.length>24?tx.slice(0,23)+"…":tx)}
+  else dkChip(row,"NEXT","—","no reminders");
+}
 function holoIntent(raw,n){
   var w=n.split(" ").length;if(w>12)return null;
+  var JP="^(?:(?:hey |yo |ok |okay )?jarvis,? )?(?:please )?";
+  if(new RegExp(JP+"(?:exit|stop|leave|close|end|turn off|disable|cancel) (?:the )?(?:desk|ambient) ?(?:mode|view)?$").test(n))return{k:"deskoff"};
+  if(new RegExp(JP+"(?:(?:activate|start|enter|go to|go into|switch to|turn on|open|begin|initiate|launch|engage|set) (?:the |my )?)?(?:desk|ambient|bedside) (?:mode|view|display)$").test(n)||new RegExp(JP+"(?:activate|start|enter|go to|switch to|turn on|initiate|launch|engage) (?:the |my )?(?:desk|ambient)$").test(n))return{k:"desk"};
+  if(new RegExp(JP+"(?:(?:initiate|activate|launch|start|engage) chio(?: intelligence)?|(?:show|open|bring up|display|pull up)(?: me)?(?: my| the)? (?:trading desk|trading view|trade view|trading intelligence|chio intelligence|chio view|chio on (?:the )?globe))$").test(n))return{k:"trade"};
+  if(new RegExp(JP+"(?:(?:give me|show me|let me hear|read me|whats|what s|what is) )?(?:my |the |a )?(?:daily |todays |today s |today )?(?:trading|trade|paper|chio) (?:recap|summary|report|review|debrief|briefing|update)(?: for today| of today| today)?$").test(n)||new RegExp(JP+"(?:recap|summarize|summarise|review) (?:my )?(?:trading|trades|paper trading|paper account|portfolio)(?: today| for today)?$").test(n)||new RegExp(JP+"how (?:did|is|are|have) (?:my )?(?:trading|trades|paper trading|paper account|portfolio)(?: go| going| doing| do| been| gone)?(?: today| so far| this week)?$").test(n))return{k:"recap"};
+  if(new RegExp(JP+"(?:explain|summarize|summarise|break down|recap|whats happening in|what s happening in|how is|hows|how s) (?:the )?(?:crypto|coin) (?:market|markets)(?: today| right now| now)?$").test(n)||new RegExp(JP+"(?:crypto|coin) market (?:recap|summary|mood|update|overview)$").test(n))return{k:"explain"};
   if(/^(?:(?:hey |yo |ok |okay )?jarvis,? )?(?:please )?(?:initiate|initialize|initialise|activate|start|launch|begin|engage|run|open|mulakan|aktifkan)(?: the)? (?:southeast|south east|south-east|se|sea|asean) ?(?:asia|asian)? ?(?:intelligence|intel|briefing|mode|sequence|view|overview)?$|^(?:(?:hey |yo |ok |okay )?jarvis,? )?(?:mulakan|aktifkan) (?:risikan|perisikan|intelijen) asia tenggara$/.test(n)&&/\b(intelligence|intel|perisikan|risikan|intelijen|sequence|asean|asia)\b/.test(n))return{k:"sea"};
   if(/^(use|turn on|enable|activate|start|switch on)( my)? (hands?|hand control|hand tracking|gestures?)( control)?$|^(hologram|holo|ar) mode$|^(control|move) (it|the globe) with my hands?$/.test(n))return{k:"ar",on:true};
   if(HG.on&&/^(turn off|disable|stop|switch off)( my)? (hands?|hand control|hand tracking|gestures?)( control)?$|^hands off$/.test(n))return{k:"ar",on:false};
@@ -3584,9 +3768,15 @@ function holoIntent(raw,n){
   return null;
 }
 function holoRun(h){
+  if(DK.on&&!/^(desk|deskoff|recap|explain)$/.test(h.k))dkOff(true);
   if(h.k==="close"){hcClose();reply(LT("Globe closed.","Glob ditutup.","地球已关闭。",null,"Глобус закрыт.","地球を閉じました。"));return}
   if(h.k==="ar"){hcOpen();if(h.on){hcAr(true).then(function(ok){if(!ok&&HG.on)reply(LT("I need a tap for the camera. Press the HANDS button on the globe, Sir.","Saya perlu anda tekan butang HANDS pada glob untuk kamera.","请点按地球上的 HANDS 按钮以打开摄像头。",null,"Нажмите кнопку HANDS на глобусе.","地球のHANDSボタンを押してください。"));else if(ok)reply(LT("Hand control online. Pinch or open your hand and move it to spin the globe, Sir.","Kawalan tangan aktif. Cubit atau buka tangan dan gerakkan untuk memutar glob.","手势控制已启动。捏合或张开手并移动即可旋转地球。",null,"Управление руками включено.","ハンドコントロールを起動しました。"))})}else{hcAr(false);reply(LT("Hand control off.","Kawalan tangan dimatikan.","手势控制已关闭。",null,"Управление руками выключено.","ハンドコントロールを停止しました。"))}return}
   if(h.k==="sea"){hcSea();return}
+  if(h.k==="desk"){dkOn(true);return}
+  if(h.k==="deskoff"){if(DK.on){dkOff(false);reply(LT("Desk mode off, Sir.","Mod meja dimatikan, Tuan.","桌面模式已关闭，先生。",null,"Режим стола выключен, сэр.","デスクモードをオフにしました、サー。"))}else reply(LT("Desk mode is not running, Sir.","Mod meja tidak berjalan, Tuan.","桌面模式没有运行，先生。",null,"Режим стола не запущен, сэр.","デスクモードは動いていません、サー。"));return}
+  if(h.k==="trade"){hcTrade(true);return}
+  if(h.k==="recap"){c2Recap();return}
+  if(h.k==="explain"){c2Explain();return}
   if(h.k==="t118"){hcOpen(true);hcTower(true,"all",1);return}
   if(h.k==="tower"){if(HG.on&&HG.mode==="tower"&&!(TW.b&&h.kl)){hcTowerPart(h.part,true)}else{hcOpen(true);hcTower(true,h.part,0)}return}
   if(h.k==="globeback"){hcPlace({t:"city",c:HG.city[0]},false);return}
@@ -3675,7 +3865,7 @@ function hcOpen(quiet){
   HG.last=performance.now();HG.t0=HG.last;cancelAnimationFrame(HG.raf);HG.raf=requestAnimationFrame(hcFrame);
 }
 function hcClose(){
-  if(!HG.on)return;HG.on=false;holoLive=false;HG.cmd++;cancelAnimationFrame(HG.raf);clearTimeout(HG.stg);if(HG.ar)hcAr(false);
+  if(!HG.on)return;if(HG.desk)dkOff(true);HG.on=false;holoLive=false;HG.cmd++;cancelAnimationFrame(HG.raf);clearTimeout(HG.stg);if(HG.ar)hcAr(false);
   document.body.classList.remove("holoOn");$("holo").classList.remove("on");hcPan([]);
 }
 /* ---- render ---- */
@@ -3686,7 +3876,7 @@ function hcRingPath(g,rg,c0,s0,cp,sp,cx,cy,R){var mx=-2,k,xx,yy,zz,Z,Ln;g.beginP
   if(mx>-.05)g.closePath();return mx}
 function hcLbl(g,txt,x,y,right,pl,fs){var w=txt.length*fs*.74,l=right?x-w:x,r=right?x:x+w,i;for(i=0;i<pl.length;i++){var o=pl[i];if(Math.abs(o.y-y)<fs+3&&l<o.r+3&&r>o.l-3)return false}pl.push({l:l,r:r,y:y});g.textAlign=right?"right":"left";g.fillText(txt,x,y);g.textAlign="left";return true}
 function hcFrame(ts){
-  if(!HG.on)return;HG.raf=requestAnimationFrame(hcFrame);if(HG.ar&&ts-HG.last<28)return;var cp0=performance.now();
+  if(!HG.on)return;HG.raf=requestAnimationFrame(hcFrame);if((HG.ar&&ts-HG.last<28)||(HG.desk&&!HG.down&&ts-HG.last<33))return;var cp0=performance.now();
   var dt=Math.min(.05,Math.max(.001,(ts-HG.last)/1000));HG.last=ts;
   if(HG.ar&&gest.lm&&!document.hidden){var hv=$("hVid");if(hv.readyState>=2&&hv.currentTime!==HG.lastT&&ts-HG.lastDet>HG.gap){HG.lastDet=ts;HG.lastT=hv.currentTime;var h0=performance.now();try{hcHands(gest.lm.detectForVideo(hv,h0))}catch(e){}HG.gap=Math.max(50,Math.min(140,(performance.now()-h0)*1.8))}}
   if(HG.pl||HG.pt2){var kk=Math.min(1,dt*14);HG.lon+=HG.pl*kk;HG.lat+=HG.pt2*kk;HG.pl*=1-kk;HG.pt2*=1-kk;if(Math.abs(HG.pl)<1e-5)HG.pl=0;if(Math.abs(HG.pt2)<1e-5)HG.pt2=0}
