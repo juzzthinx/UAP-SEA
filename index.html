@@ -379,6 +379,10 @@ body.xrOn>*:not(#xr){visibility:hidden!important}
 #xCap.pop{animation:hPop .5s ease}
 .xhint{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 22px);text-align:center;font:600 9px "Michroma",ui-monospace,monospace;letter-spacing:.2em;pointer-events:none;opacity:.85}
 body.nofx .xsw{display:none}
+
+/* v9.27 LITE */
+body.lite *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+body.lite .xsw{display:none}
 </style>
 </head>
 <body>
@@ -514,6 +518,10 @@ body.nofx .xsw{display:none}
   <select id="proQ"><option value="1">On (alerts stay silent)</option><option value="0">Off</option></select>
   <div class="row" style="margin-top:10px"><button type="button" class="mini" id="proTest">TEST ALERT</button><button type="button" class="mini" id="proNotif">ENABLE NOTIFICATIONS</button></div>
   <div class="hint">Say: remind me to call Joe at 5 PM, remind me in 20 minutes, what is on tomorrow, snooze, cancel all reminders. Jarvis speaks up while he is open. Standby mode keeps the screen awake, which is ideal for a desk.</div>
+
+  <h3>PERFORMANCE</h3>
+  <div class="hint">Lite mode lowers the graphics load so Jarvis stays smooth and cooler on a long day: fewer effects on the globe, a lighter ring, a lighter X-ray camera and slower live updates. Say: lite mode, or: full graphics.</div>
+  <select id="perfSel"><option value="0">Full graphics</option><option value="1">Lite (smoother, cooler)</option></select>
 
   <h3>DESK MODE</h3>
   <div class="hint">An ambient hologram for your desk or bedside: a big clock, a slowly turning globe or tower, weather, KLCI, Bitcoin, paper P/L and your next reminder. It keeps the screen awake, runs light, and Jarvis still speaks up. Say: desk mode. Say: exit desk mode.</div>
@@ -682,6 +690,7 @@ var PROV={
  openrouter:{name:"OpenRouter",model:"meta-llama/llama-3.3-70b-instruct:free",base:"https://openrouter.ai/api/v1",hint:"Has free models (names end in :free) with daily limits. Get a key at openrouter.ai. Free model names change, so edit the model if it errors."},
  custom:{name:"Custom",model:"",hint:"Any OpenAI-style provider. Enter its base URL, key and model."}
 };
+var LITE=ld("jv_lite","0")==="1";try{document.body.classList.toggle("lite",LITE)}catch(e){}
 var cfg={key:"",model:"",prov:ld("jv_prov","claude"),lang:ld("jv_lang","en-US"),speak:ld("jv_speak","1"),mode:ld("jv_mode","assist")};
 if(!PROV[cfg.prov])cfg.prov="claude";
 if(["en-US","ms-MY","zh-CN","ru-RU","ja-JP"].indexOf(cfg.lang)<0)cfg.lang="en-US";
@@ -1003,7 +1012,7 @@ function unlockSpeech(){
 /* ---------- speaking circle ---------- */
 var actTs=performance.now();
 ["pointerdown","touchstart","keydown","wheel"].forEach(function(ev){window.addEventListener(ev,function(){actTs=performance.now()},{passive:true,capture:true})});
-function lowPower(){return performance.now()-actTs>40000}
+function lowPower(){return performance.now()-actTs>(LITE?15000:40000)}
 var viz={state:"",a:0,bump:0,rip:[],lastRip:0};
 var vc={ink:"#141414",red:"#d50000",dim:"#8b8680"};
 var vcv=$("viz"),vg=null,vsz=0,vRAF=0;
@@ -1016,7 +1025,8 @@ function vizFrame(ts){
   if(!vg||eyesLive||holoLive||xrLive)return;
   if(bootEl&&!bootEl.classList.contains("out"))return;
   if(gestLive&&ts-(viz.lastG||0)<30)return;viz.lastG=ts;
-  if((!viz.state||viz.state==="stby")&&ts-(viz.lastI||0)<(lowPower()?110:40))return;viz.lastI=ts;
+  if(LITE&&viz.state&&viz.state!=="stby"&&ts-(viz.lastI||0)<30)return;
+  if((!viz.state||viz.state==="stby")&&ts-(viz.lastI||0)<(lowPower()?(LITE?160:110):(LITE?60:40)))return;viz.lastI=ts;
   var t=ts/1000,dt=Math.min(0.05,Math.max(0.001,t-(viz.t0||t)));viz.t0=t;
   var W=vsz,cx=W/2,cy=W/2,R=W*0.27,st=viz.state,g=vg,i,TAU=6.2832;
   var w=viz.w||(viz.w={l:0,t:0,s:0,b:0}),k=1-Math.exp(-dt*7);
@@ -1233,7 +1243,7 @@ function wxMoon(g,x,y,r,t){
 }
 function wxFrame(ts){
   wxRAF=requestAnimationFrame(wxFrame);
-  if(ts-(wxFrame.l||0)<(lowPower()?170:56))return;wxFrame.l=ts;
+  if(ts-(wxFrame.l||0)<(lowPower()?(LITE?250:170):(LITE?90:56)))return;wxFrame.l=ts;
   if(!wxg||eyesLive||gestLive||holoLive||xrLive||(bootEl&&!bootEl.classList.contains("out")))return;
   var g=wxg,W=wxcv.clientWidth||54,t=ts/1000,k=wx?wx.kind:"load",day=wx?wx.day:true,cx=W/2,cy=W/2,ink=wxC.ink,red=wxC.red,i;
   g.clearRect(0,0,W,W);g.lineCap="round";
@@ -1263,7 +1273,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.26";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
+var VER="v9.27";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1685,6 +1695,7 @@ function proScan(){
 setInterval(proScan,60000);setTimeout(proScan,25000);
 
 (function(){
+  var pf=$("perfSel");if(pf){pf.value=LITE?"1":"0";pf.addEventListener("change",function(){litePut(pf.value==="1",false)})}
   var dg=$("deskGo");if(dg)dg.addEventListener("click",function(){unlockSpeech();ctx();dkOn(true)});
   var t=$("proTest"),nb=$("proNotif");
   if(t)t.addEventListener("click",function(){proPush({id:"t"+Date.now(),k:"auto",text:"Sir, this is a test alert. Reminders and proactive updates are working."});$("sheet").classList.remove("open");setTimeout(proFlush,300)});
@@ -2544,7 +2555,7 @@ function memAutoSync(){
   clearTimeout(SY.t);SY.t=setTimeout(function(){syncMem().catch(function(){})},4000);
 }
 function syCollect(){
-  var o={};try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf("jv_")===0&&!/^(jv_hist|jv_wx|jv_wxloc|jv_loc|jv_sycode|jv_syurl|jv_syts|jv_syauto|jv_mem|jv_memdel|jv_ringpos|jv_agenda|jv_prost)$/.test(k))o[k]=localStorage.getItem(k)}}catch(e){}
+  var o={};try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf("jv_")===0&&!/^(jv_hist|jv_wx|jv_wxloc|jv_loc|jv_sycode|jv_syurl|jv_syts|jv_syauto|jv_mem|jv_memdel|jv_lite|jv_ringpos|jv_agenda|jv_prost)$/.test(k))o[k]=localStorage.getItem(k)}}catch(e){}
   return o;
 }
 function syPaint(){
@@ -2589,7 +2600,7 @@ if($("syMake")){
     SY.pullArm=0;syMsg("Getting settings...");
     syGet("s").then(function(r){
       if(!r||!r.data){syMsg("Nothing in the cloud yet. On your other device tap SEND SETTINGS TO CLOUD first.");return}
-      var n=0;Object.keys(r.data).forEach(function(k){if(k.indexOf("jv_")===0&&typeof r.data[k]==="string"&&!/^(jv_sycode|jv_syurl|jv_hist|jv_mem|jv_memdel|jv_ringpos|jv_agenda|jv_prost)$/.test(k)){sv(k,r.data[k]);n++}});
+      var n=0;Object.keys(r.data).forEach(function(k){if(k.indexOf("jv_")===0&&typeof r.data[k]==="string"&&!/^(jv_sycode|jv_syurl|jv_hist|jv_mem|jv_memdel|jv_lite|jv_ringpos|jv_agenda|jv_prost)$/.test(k)){sv(k,r.data[k]);n++}});
       syMsg("Got "+n+" settings. Reloading...");setTimeout(function(){location.reload()},700);
     },function(e){syMsg(syErr(e))});
   });
@@ -3000,7 +3011,7 @@ function hcFind(name){
 }
 function hcTitle(s){return String(s).replace(/\b\w/g,function(m){return m.toUpperCase()})}
 function hcSize(){
-  HG.W=window.innerWidth;HG.H=window.innerHeight;HG.d=HG.q>=2?1:Math.min(window.devicePixelRatio||1,HG.ar?1.25:(HG.desk?1:1.5));
+  HG.W=window.innerWidth;HG.H=window.innerHeight;HG.d=HG.q>=2?1:Math.min(window.devicePixelRatio||1,HG.ar?1.25:(HG.desk?1:(LITE?1.1:1.5)));
   HG.cv.width=Math.round(HG.W*HG.d);HG.cv.height=Math.round(HG.H*HG.d);HG.cx=HG.W/2;
 }
 function hcRad(){var pk=Math.max(0,Math.min(1,(.45-HG.cyF)/.11));return Math.min(HG.W*.44,HG.H*(.3-.03*pk))*HG.zoom}
@@ -3893,7 +3904,7 @@ function xrFrame(ts){
   }
 }
 function xrStream(){
-  var big=window.innerWidth>700;
+  var big=window.innerWidth>700&&!LITE;
   return camGet(XR.face,big?640:480,big?480:360,30).then(function(st){
     if(!XR.on){st.getTracks().forEach(function(t){t.stop()});return false}
     XR.stream=st;var v=$("xVid");v.srcObject=st;v.play().catch(function(){});XR.lastT=-1;return true;
@@ -3905,7 +3916,7 @@ function xrOn(speak){
   try{if(HG.on)hcClose()}catch(e){}try{if(gest.on)gestClose()}catch(e){}try{if(eyes.on)eyesClose()}catch(e){}
   unlockSpeech();ctx();XR.busy=true;
   var h=$("xr");XR.on=true;xrLive=true;document.body.classList.add("xrOn");h.classList.add("on");h.classList.toggle("mir",XR.mir);
-  XR.q=0;XR.ema=8;XR.n=0;XR.egap=70;XR.fgap=33;XR.hs=[];XR.pulse=null;$("xE").style.display="";$("xCap").textContent="";
+  XR.q=LITE?1:0;XR.ema=8;XR.n=0;XR.egap=LITE?1e9:70;XR.fgap=LITE?40:33;XR.hs=[];XR.pulse=null;$("xE").style.display=LITE?"none":"";$("xCap").textContent="";
   xrSize();xrTint(XR.tint);XR.tc=XTINT[XR.tint].c.split(",").map(Number);
   xrStream().then(function(ok){
     XR.busy=false;if(!ok)return;
@@ -4030,7 +4041,7 @@ function lvIss(){
     var vis=dk<s.fp/2;
     lvSay("ISS tracking online, Sir. Eyes in orbit. It is "+lvIssNear(s.lat,s.lon)+", "+lvNum(s.alt)+" kilometres up, moving at "+lvNum(s.vel)+" kilometres per hour. "+(vis?"It is above your horizon over Kuala Lumpur right now.":"It is "+lvNum(dk)+" kilometres from Kuala Lumpur."),
       "Penjejakan ISS dalam talian, Tuan. Mata di orbit. Ia berada "+lvNum(s.alt)+" kilometer di atas, bergerak pada "+lvNum(s.vel)+" kilometer sejam. "+(vis?"Ia berada di ufuk anda di atas Kuala Lumpur sekarang.":"Ia "+lvNum(dk)+" kilometer dari Kuala Lumpur."));
-    LV.iv2=setInterval(function(){if(!HG.on||!HG.lv||!HG.lv.i||document.hidden)return;lvIssPoll(false).catch(function(){if(++LV.fail===4)hcCap("a","ISS · SIGNAL LOST · RETRYING")})},5000);
+    LV.iv2=setInterval(function(){if(!HG.on||!HG.lv||!HG.lv.i||document.hidden)return;lvIssPoll(false).catch(function(){if(++LV.fail===4)hcCap("a","ISS · SIGNAL LOST · RETRYING")})},LITE?8000:5000);
     LV.iv3=setInterval(function(){if(!HG.on||!HG.lv||!HG.lv.i||document.hidden)return;lvIssTrail().catch(function(){})},300000);
   }).catch(function(){if(id!==HG.cmd)return;hcCap("a","ISS FEED UNREACHABLE");lvSay("I could not reach the ISS feed, Sir. Check the connection and try again.","Saya tidak dapat mencapai suapan ISS, Tuan. Semak sambungan dan cuba lagi.");HG.lv=null});
 }
@@ -4159,8 +4170,17 @@ function g2Clouds(g,cx,cy,R,t,c0,s0,cp,sp,zm){
     if(Z<.12)continue;var X=cx+xx*R*el,Y=cy-yy*R*el,rr=R*q.r*(.6+.4*Z);p.moveTo(X+rr,Y);p.arc(X,Y,rr,0,6.2832);n++}
   if(n){g.fillStyle="#dffcf8";g.globalAlpha=.06*a;g.fill(p)}
 }
+function litePut(v,speak){
+  LITE=!!v;sv("jv_lite",LITE?"1":"0");try{document.body.classList.toggle("lite",LITE)}catch(e){}
+  var ps=$("perfSel");if(ps)ps.value=LITE?"1":"0";
+  if(HG&&HG.on){HG.q=LITE?Math.max(HG.q,1):0;HG.n=0;HG.ema=12;hcSize()}
+  if(speak)reply(LITE?LT("Lite mode on. Effects reduced for a smoother, cooler run.","Mod ringan dihidupkan. Kesan dikurangkan untuk prestasi lebih lancar.","轻量模式已开启。已降低特效，运行更流畅。",null,"Облегчённый режим включён. Эффекты снижены для плавной работы.","ライトモードをオンにしました。エフェクトを減らして滑らかに動作します。"):LT("Full graphics restored.","Grafik penuh dipulihkan.","已恢复完整画质。",null,"Полная графика восстановлена.","フルグラフィックスに戻しました。"));
+}
 function holoIntent(raw,n){
   var w=n.split(" ").length;if(w>12)return null;
+  if(/^(?:(?:hey |yo |ok |okay )?jarvis,? )?(?:please )?(?:(?:turn on|enable|activate|start|switch to|go to|enter|use|engage|set) (?:the |to )?)?(?:lite|performance|smooth|eco|low graphics|battery saver)(?: mode)?$/.test(n)&&/lite|performance|smooth|eco|low graphics|battery/.test(n)&&!/^(?:smooth|eco|performance)$/.test(n)||/^(?:(?:hey |yo |ok |okay )?jarvis,? )?(?:please )?(?:turn on|enable|activate|switch to|use|engage) (?:the )?light mode$/.test(n))return{k:"lite",on:true};
+  if(/^(?:(?:hey |yo |ok |okay )?jarvis,? )?(?:please )?(?:(?:turn off|disable|exit|leave|stop|cancel) (?:the )?(?:lite|light|performance|smooth|eco) mode|(?:full|high|ultra|max) (?:graphics|quality)(?: mode)?|(?:switch|go|back) (?:back )?to (?:full|high) (?:graphics|quality|mode)|full mode)$/.test(n))return{k:"lite",on:false};
+
   var LP="^(?:(?:hey |yo |ok |okay )?jarvis,? )?(?:please )?",ISSR="(?:iss|i s s|i ss|international space station|space station)";
   if(HG.lv&&new RegExp(LP+"(?:hide|clear|remove|stop|turn off|exit|close|disable)(?: the| all)?(?: live)? (?:earthquakes?|quakes?|seismic|iss|space station|tracker|layers?|feeds?)(?: layer| feed)?$").test(n))return{k:"lvoff"};
   if(new RegExp(LP+"(?:(?:show|open|display|bring up|pull up|track|initiate|activate|start|launch|give|let me see|see)(?: me)?(?: the| all)?(?: live| latest| recent| current| global| world| todays)? )(?:earthquakes?|quakes?|seismic(?: activity| feed| data| map| monitor| intelligence)?)(?: right now| now| today| live| on the globe| on the map| map)?$").test(n)||new RegExp(LP+"(?:live|latest|recent|current) (?:earthquakes?|quakes?)$").test(n)||new RegExp(LP+"(?:where was|where is|where s|wheres|what was|whats|what is) (?:the )?(?:latest|last|most recent|biggest|strongest|largest|newest) (?:earthquake|quake)(?: today| now| right now)?$").test(n)||new RegExp(LP+"(?:any|are there any|were there any|is there an?) (?:new |recent |latest )?(?:earthquakes?|quakes?)(?: today| now| right now| recently)?$").test(n))return{k:"quake"};
@@ -4197,6 +4217,7 @@ function holoIntent(raw,n){
   return null;
 }
 function holoRun(h){
+  if(h.k==="lite"){litePut(h.on,true);return}
   if(h.k==="quake"){lvQuakes();return}
   if(h.k==="iss"){lvIss();return}
   if(h.k==="lvoff"){lvOff();hcPan([]);hcCap("a","LIVE LAYERS OFF");reply(LT("Live layers off, Sir.","Lapisan langsung dimatikan, Tuan.","实时图层已关闭，先生。",null,"Живые слои отключены, сэр.","ライブレイヤーをオフにしました、サー。"));return}
@@ -4313,13 +4334,14 @@ function hcRingPath(g,rg,c0,s0,cp,sp,cx,cy,R){var mx=-2,k,xx,yy,zz,Z,Ln;g.beginP
 function hcLbl(g,txt,x,y,right,pl,fs){var w=txt.length*fs*.74,l=right?x-w:x,r=right?x:x+w,i;for(i=0;i<pl.length;i++){var o=pl[i];if(Math.abs(o.y-y)<fs+3&&l<o.r+3&&r>o.l-3)return false}pl.push({l:l,r:r,y:y});g.textAlign=right?"right":"left";g.fillText(txt,x,y);g.textAlign="left";return true}
 function hcIdle(ts){HG.idl=false;if(HG.ar||HG.desk||HG.down||HG.cam||HG.tgt||HG.hDrag||HG.hZoom)return false;var i=ts-HG.touch;if(i<5000||HG.vx*HG.vx+HG.vy*HG.vy>.0004)return false;HG.idl=true;return ts-HG.last<(i>45000?44:30)}
 function hcFrame(ts){
-  if(!HG.on)return;HG.raf=requestAnimationFrame(hcFrame);if((HG.ar&&ts-HG.last<28)||(HG.desk&&!HG.down&&ts-HG.last<33)||hcIdle(ts))return;var cp0=performance.now();
+  if(!HG.on)return;HG.raf=requestAnimationFrame(hcFrame);if((HG.ar&&ts-HG.last<28)||(HG.desk&&!HG.down&&ts-HG.last<33)||(LITE&&!HG.down&&ts-HG.last<30)||hcIdle(ts))return;var cp0=performance.now();
+  if(LITE&&HG.q<1){HG.q=1;HG.n=0;hcSize()}
   var dt=Math.min(.05,Math.max(.001,(ts-HG.last)/1000));HG.last=ts;
   if(HG.ar&&gest.lm&&!document.hidden){var hv=$("hVid");if(hv.readyState>=2&&hv.currentTime!==HG.lastT&&ts-HG.lastDet>HG.gap){HG.lastDet=ts;HG.lastT=hv.currentTime;var h0=performance.now();try{hcHands(gest.lm.detectForVideo(hv,h0))}catch(e){}HG.gap=Math.max(50,Math.min(140,(performance.now()-h0)*1.8))}}
   if(HG.pl||HG.pt2){var kk=Math.min(1,dt*14);HG.lon+=HG.pl*kk;HG.lat+=HG.pt2*kk;HG.pl*=1-kk;HG.pt2*=1-kk;if(Math.abs(HG.pl)<1e-5)HG.pl=0;if(Math.abs(HG.pt2)<1e-5)HG.pt2=0}
   if(HG.zt)HG.zoom+=(HG.zt-HG.zoom)*Math.min(1,dt*9);
   if(!HG.idl)HG.ema=HG.ema*.93+dt*1000*.07;
-  if(++HG.n>70&&HG.q<2&&HG.ema>(HG.ar?(HG.q?60:46):(HG.q?34:28))){HG.q++;HG.n=0;HG.ema=16;hcSize()}
+  if(++HG.n>70&&HG.q<2&&HG.ema>(HG.ar?(HG.q?60:46):(HG.q?34:28))){HG.q++;HG.n=0;HG.ema=16;hcSize();if(!LITE&&!HG.hintLite){HG.hintLite=1;hcCap("a","TIP \u00b7 SAY \"LITE MODE\" FOR A SMOOTHER GLOBE")}}
   var tcy=HG.cyT;if(tcy<.45)tcy+=(.43-tcy)*Math.max(0,Math.min(1,(HG.zoom-2)/2));HG.cyF+=(tcy-HG.cyF)*Math.min(1,dt*4);HG.cy=HG.H*HG.cyF;
   if(HG.cam)hcCamStep(ts);else if(HG.lv&&lvFollow(dt)){}else if((HG.net||HG.lv)&&HG.mode==="place"&&!HG.down&&!HG.tgt&&!HG.hDrag&&!HG.hZoom&&ts-HG.touch>2500&&(HG.vx*HG.vx+HG.vy*HG.vy)<.0004)HG.lon+=.05*dt;
   if(HG.tgt&&!HG.down){
