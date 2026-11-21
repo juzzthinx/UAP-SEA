@@ -392,7 +392,8 @@ body.nofx .xsw{display:none}
   <div class="orbw"><div class="ringx"><svg class="rl r1" viewBox="0 0 200 200"><circle cx="100" cy="100" r="95" fill="none" stroke="currentColor" stroke-width="5" opacity=".85"/><circle cx="100" cy="100" r="86" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".8"/></svg><svg class="rl r2" viewBox="0 0 200 200"><circle cx="100" cy="100" r="99" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 8" opacity=".7"/></svg><svg class="rl r3" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90.5" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="30 14 5 14" opacity=".55"/></svg><svg class="rl r4" viewBox="0 0 200 200"><path d="M100 4 A96 96 0 0 1 196 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".95"/><path d="M100 196 A96 96 0 0 1 4 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".6"/></svg></div><button type="button" id="orb" aria-label="Talk to Jarvis"><canvas id="viz"></canvas></button><div class="rchip rc1" id="rc1" data-q="what time is it"><span>TIME</span><b id="rv1">--</b></div><div class="rchip rc2" id="rc2" data-q="what is the weather"><span>WEATHER</span><b id="rv2">--</b></div><div class="rchip rc3" id="rc3" data-q="how is the klci"><span>KLCI</span><b id="rv3">--</b></div><div class="rchip rc4" id="rc4" data-q="how is my paper trading"><span>CHIO P/L</span><b id="rv4">--</b></div><div class="rmh" id="rmh"></div><button type="button" class="rmi" data-a="eyes">EYES</button><button type="button" class="rmi" data-a="hands">HANDS</button><button type="button" class="rmi" data-a="chio">CHIO</button><button type="button" class="rmi" data-a="tasks">TASKS</button><button type="button" class="rmi" data-a="waze">WAZE</button><button type="button" class="rmi" data-a="talk">TALK</button><button type="button" class="rmi" data-a="holo">HOLO</button>
 <button type="button" class="rmi" data-a="klcc">KLCC</button>
 <button type="button" class="rmi" data-a="m118">M118</button>
-<button type="button" class="rmi" data-a="xray">XRAY</button></div>
+<button type="button" class="rmi" data-a="xray">XRAY</button>
+<button type="button" class="rmi" data-a="live">LIVE</button></div>
   <div class="status" id="status">tap the circle to talk</div>
 </div>
 <div class="wx" id="wx" title="Tap to refresh weather">
@@ -1262,7 +1263,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.24";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
+var VER="v9.25";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -3083,7 +3084,7 @@ function hcMkPaint(){
 function hcStage(a,b,delay){HG.stg&&clearTimeout(HG.stg);HG.stg=setTimeout(function(){if(HG.on)b()},delay)}
 function hcHL(list){HG.hl=(list||[]).map(function(n){return HG.cmap[String(n).toLowerCase()]}).filter(Boolean);HG.hlT=performance.now()}
 function hcPlace(p,speak){
-  hcInit();var id=++HG.cmd;HG.mode="place";HG.tour=0;HG.hl=[];HG.lm=null;HG.net=null;
+  hcInit();var id=++HG.cmd;HG.mode="place";HG.tour=0;HG.hl=[];HG.lm=null;HG.net=null;lvOff();
   if(p.t==="reg"){
     var r=p.r;hcPan([]);hcFly(r[0],r[1],r[2]);HG.tgtDone=null;
     if(r[3])hcStage(0,function(){hcHL(r[3])},900);
@@ -3123,6 +3124,7 @@ function hcPlace(p,speak){
   });
 }
 function hcMarkets(speak){
+  lvOff();
   hcInit();var id=++HG.cmd;HG.mode="markets";HG.hl=[];HG.tour=0;HG.tourT=performance.now();
   var list=HG.ex.map(function(e){return{k:e.id,id:e.id,v:"…",s:"",fn:function(){hcFocus(e)}}});
   list.push({k:"BITCOIN",id:"btc",v:"…",s:"",fn:function(){send("bitcoin")}},{k:"ETHEREUM",id:"eth",v:"…",s:"",fn:function(){send("ethereum")}});
@@ -3337,6 +3339,7 @@ function hcTowerPart(part,speak){
   }
 }
 function hcTower(speak,part,bd){
+  lvOff();
   TW.b=bd===1?1:0;TW.H=TW.b?678.9:451.9;hcInit();HG.cmd++;HG.mode="tower";HG.tour=0;HG.hl=[];HG.tgt=null;HG.part="all";HG.fy=HG.fyT=TW.b?340:226;
   HG.lon=.2;HG.lat=.16;HG.zoom=.62;HG.vx=HG.vy=0;HG.zt=0;
   hcTowerPart(part||"all",!!speak);
@@ -3519,7 +3522,7 @@ function hcCamStep(ts){
   if(u>=K[n-1].t)HG.cam=null;
 }
 function hcSea(){
-  hcOpen(true);hcInit();var id=++HG.cmd;HG.mode="place";HG.tour=0;HG.hl=[];HG.lm=null;HG.net=null;hcPan([]);
+  hcOpen(true);hcInit();var id=++HG.cmd;HG.mode="place";HG.tour=0;HG.hl=[];HG.lm=null;HG.net=null;lvOff();hcPan([]);
   var R=HREG["southeast asia"],T=[],go=function(ms,fn){T.push(setTimeout(function(){if(id===HG.cmd&&HG.on)fn()},ms))},D=Math.PI/180;
   var mal=HG.cmap["malaysia"],kl=HG.city[0];
   hcCap("u","initiate southeast asia intelligence");hcCap("a","SOUTHEAST ASIA INTELLIGENCE \u00b7 INITIATING");
@@ -3676,7 +3679,7 @@ function c2Explain(){
   });
 }
 function hcTrade(speak){
-  hcOpen(true);hcInit();var id=++HG.cmd;HG.mode="markets";HG.hl=[];HG.tour=0;HG.tourT=performance.now();HG.lm=null;HG.net=null;
+  hcOpen(true);hcInit();var id=++HG.cmd;HG.mode="markets";HG.hl=[];HG.tour=0;HG.tourT=performance.now();HG.lm=null;HG.net=null;lvOff();
   hcPan([{k:"PAPER ACCOUNT",id:"pa",v:"…",s:"",fn:function(){send("open chio")}},{k:"TODAY",id:"td",v:"…",s:""},
     {k:"BITCOIN",id:"btc",v:"…",s:"",fn:function(){send("bitcoin")}},{k:"ETHEREUM",id:"eth",v:"…",s:"",fn:function(){send("ethereum")}}],false);
   hcFly(18,108,1.12);hcCap("a","TRADING DESK · LIVE");
@@ -3703,7 +3706,7 @@ function dkOn(speak){
   if(!DK.bound){DK.bound=1;h.addEventListener("pointerdown",function(){if(!HG.desk)return;h.classList.add("rev");clearTimeout(DK.rt);DK.rt=setTimeout(function(){h.classList.remove("rev")},4500)},true);document.addEventListener("visibilitychange",function(){if(DK.on&&!document.hidden)dkWake()})}
   DK.on=true;HG.desk=true;h.classList.add("desk");HG.q=Math.max(HG.q,1);hcSize();
   HG.touch=performance.now()-65000;
-  hcPan([]);HG.cyF=HG.cyT=dkCy();HG.lm=null;HG.net=null;HG.cam=null;DK.i=-1;dkScene();dkTick();
+  hcPan([]);HG.cyF=HG.cyT=dkCy();HG.lm=null;HG.net=null;lvOff();HG.cam=null;DK.i=-1;dkScene();dkTick();
   DK.clk=setInterval(dkTick,1000);
   DK.sc=setInterval(function(){if(!HG.desk||!HG.on)return;if(performance.now()-HG.touch<60000)return;dkScene()},45000);
   dkData();DK.dat=setInterval(dkData,60000);dkWake();
@@ -3728,7 +3731,7 @@ function dkScene(){
   if(c)c.classList.add("dkf");
   setTimeout(function(){
     if(!HG.desk||!HG.on)return;
-    HG.lm=null;HG.net=null;
+    HG.lm=null;HG.net=null;lvOff();
     if(i===0){var kl=HG.city[0];HG.mode="free";HG.part="all";HG.tgt={lon:kl.lon*Math.PI/180,lat:.12,zoom:dkLand()?.95:1.15};hcHL(["Malaysia"]);hcPan([]);
       setTimeout(function(){if(HG.desk&&HG.mode==="free")HG.tgt=null},4500)}
     else{hcTower(false,i===1?"all":"all",i===2?1:0);hcPan([])}
@@ -3927,8 +3930,170 @@ function xrFlip(){
   if(XR.stream){try{XR.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}XR.stream=null}
   xrStream().then(function(){XR.busy=false}).catch(function(){XR.busy=false;XR.face=XR.face==="user"?"environment":"user";XR.mir=XR.face==="user";xrOff();add("e","I cannot switch the camera.")});
 }
+/* ---------- v9.25: live earthquakes (USGS) + ISS tracker on the hologram globe ---------- */
+var LV={q:[],iss:null,prev:null,path:[],seen:{},iv1:0,iv2:0,iv3:0,tk:0,fail:0};
+var LVQ="https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson",LVI="https://api.wheretheiss.at/v1/satellites/25544";
+function lvSay(en,ms){seaSay(en,ms,en,en,en)}
+function lvVec(lat,lon){var D=Math.PI/180,cl=Math.cos(lat*D);return[cl*Math.cos(lon*D),cl*Math.sin(lon*D),Math.sin(lat*D)]}
+function lvKm(a,b,c,d){var D=Math.PI/180,p=(c-a)*D,l=(d-b)*D,x=Math.sin(p/2)*Math.sin(p/2)+Math.cos(a*D)*Math.cos(c*D)*Math.sin(l/2)*Math.sin(l/2);return 12742*Math.asin(Math.min(1,Math.sqrt(x)))}
+function lvAgo(ms){var m=Math.max(0,Math.round(ms/60000));if(m<1)return"just now";if(m<60)return m+" min ago";var h=Math.round(m/60);return h+(h===1?" hour ago":" hours ago")}
+function lvPlace(p){p=String(p||"");var i=p.indexOf(" of ");if(i>0&&i<22)p=p.slice(i+4);return p}
+function lvNum(n){return Math.round(n).toLocaleString("en-US")}
+function lvOff(){
+  clearInterval(LV.iv1);clearInterval(LV.iv2);clearInterval(LV.iv3);LV.iv1=LV.iv2=LV.iv3=0;HG.lv=null;HG.lvHit=null;
+}
+function lvLoadQ(){
+  return withTO(fetch(LVQ,{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}),9000).then(function(j){
+    var f=(j&&j.features)||[],o=[],i,x,p,c;
+    for(i=0;i<f.length&&o.length<220;i++){x=f[i];p=x.properties||{};c=x.geometry&&x.geometry.coordinates;if(!c||typeof p.mag!=="number")continue;
+      var v=lvVec(c[1],c[0]);o.push({id:x.id||i,m:p.mag,pl:p.place||"",t:p.time||0,lat:c[1],lon:c[0],d:c[2]||0,url:p.url||"",ts:p.tsunami|0,x:v[0],y:v[1],z:v[2]})}
+    o.sort(function(a,b){return b.t-a.t});return o});
+}
+function lvQInfo(q){
+  if(!q)return;var id=HG.cmd;
+  hcPan([{k:"M"+q.m.toFixed(1),id:"a",v:lvPlace(q.pl).toUpperCase().slice(0,26),s:lvAgo(Date.now()-q.t)+" · "+Math.round(q.d)+" km deep"+(q.ts?" · TSUNAMI FLAG":""),fn:function(){if(q.url)try{window.open(q.url,"_blank")}catch(e){}}},
+    {k:"LATITUDE",id:"b",v:Math.abs(q.lat).toFixed(2)+(q.lat<0?"S":"N"),s:Math.abs(q.lon).toFixed(2)+(q.lon<0?"W":"E")},
+    {k:"KUALA LUMPUR",id:"c",v:lvNum(lvKm(q.lat,q.lon,3.139,101.687))+" km",s:"distance from here"}]);
+  hcFly(q.lat,q.lon,Math.max(HG.zoom,2));hcCap("a","M"+q.m.toFixed(1)+" · "+lvPlace(q.pl).toUpperCase());
+}
+function lvQPan(){
+  var Q=LV.q,mx=null,lt=Q[0],i,sea=0,id=HG.cmd;
+  for(i=0;i<Q.length;i++){if(!mx||Q[i].m>mx.m)mx=Q[i];if(Q[i].lat>-11&&Q[i].lat<28&&Q[i].lon>92&&Q[i].lon<141)sea++}
+  hcPan([{k:"QUAKES 24H",id:"n",v:String(Q.length),s:"magnitude 2.5 and above"},
+    {k:"STRONGEST",id:"mx",v:mx?"M"+mx.m.toFixed(1):"—",s:mx?lvPlace(mx.pl)+" · "+lvAgo(Date.now()-mx.t):"",fn:function(){lvQInfo(mx)}},
+    {k:"LATEST",id:"lt",v:lt?"M"+lt.m.toFixed(1):"—",s:lt?lvPlace(lt.pl)+" · "+lvAgo(Date.now()-lt.t):"",fn:function(){lvQInfo(lt)}},
+    {k:"SEA REGION",id:"sea",v:String(sea),s:"southeast asia · 24h"}]);
+  return{mx:mx,lt:lt,sea:sea};
+}
+function lvQuakes(){
+  hcOpen(true);hcInit();var id=++HG.cmd;lvOff();HG.mode="place";HG.hl=[];HG.lm=null;HG.net=null;hcPan([]);
+  HG.lv={q:true,i:false,t:performance.now()};hcCap("u","live earthquakes");hcCap("a","LIVE SEISMIC · CONNECTING…");
+  lvLoadQ().then(function(o){
+    if(id!==HG.cmd||!HG.on||!HG.lv)return;LV.q=o;LV.seen={};o.forEach(function(q){LV.seen[q.id]=1});
+    var r=lvQPan(),mx=r.mx;HG.lv.t=performance.now();
+    if(!o.length){hcCap("a","NO QUAKES REPORTED");lvSay("The seismic feed returned no quakes, Sir.","Suapan seismik tidak melaporkan gempa bumi, Tuan.");return}
+    hcCap("a","LIVE SEISMIC · "+o.length+" QUAKES · 24H");
+    var D=Math.PI/180,tg=mx||o[0];
+    hcCamGo(id,[{t:0,lat:HG.lat,lon:HG.lon,z:Math.log(Math.max(.6,HG.zoom))},{t:1.4,lat:HG.lat*.5+10*D*.5,lon:HG.lon,z:Math.log(.95)},{t:3.8,lat:tg.lat*D,lon:tg.lon*D,z:Math.log(2.1)}]);
+    var pl=lvPlace(mx.pl);
+    lvSay("Live seismic feed online, Sir. "+o.length+" earthquakes of magnitude 2.5 or above in the last 24 hours. Strongest: magnitude "+mx.m.toFixed(1)+", "+pl+". "+r.sea+" in Southeast Asia.","Suapan seismik langsung dalam talian, Tuan. "+o.length+" gempa bumi magnitud 2.5 ke atas dalam 24 jam lalu. Terkuat: magnitud "+mx.m.toFixed(1)+", "+pl+". "+r.sea+" di Asia Tenggara.");
+    LV.iv1=setInterval(function(){
+      if(!HG.on||!HG.lv||!HG.lv.q||document.hidden)return;
+      lvLoadQ().then(function(n){if(!HG.lv||!HG.lv.q)return;var fresh=n.filter(function(q){return!LV.seen[q.id]});n.forEach(function(q){LV.seen[q.id]=1});LV.q=n;lvQPan();
+        if(fresh.length){var b=fresh[0];b.born=performance.now();hcCap("a","NEW · M"+b.m.toFixed(1)+" · "+lvPlace(b.pl).toUpperCase())}}).catch(function(){})},60000);
+  }).catch(function(){if(id!==HG.cmd)return;hcCap("a","SEISMIC FEED UNREACHABLE");lvSay("I could not reach the earthquake feed, Sir. Check the connection and try again.","Saya tidak dapat mencapai suapan gempa bumi, Tuan. Semak sambungan dan cuba lagi.");HG.lv=null});
+}
+/* ---- ISS ---- */
+function lvIssNear(lat,lon){
+  var b=null,bd=1e9,i,c,d;for(i=0;i<HG.city.length;i++){c=HG.city[i];d=lvKm(lat,lon,c.lat,c.lon);if(d<bd){bd=d;b=c}}
+  return b&&bd<1100?"near "+b.n+", "+b.country:"over open ocean";
+}
+function lvIssPoll(first){
+  return withTO(fetch(LVI,{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}),7000).then(function(j){
+    if(!j||typeof j.latitude!=="number")throw new Error("bad");
+    var s={lat:j.latitude,lon:((j.longitude+540)%360)-180,alt:j.altitude,vel:j.velocity,fp:j.footprint||4500,vis:j.visibility,ts:performance.now()};
+    LV.prev=LV.iss;LV.iss=s;LV.fail=0;
+    if(HG.lv&&HG.lv.i){var dk=lvKm(s.lat,s.lon,3.139,101.687);
+      hcSet("al",lvNum(s.alt)+" km",first?"orbital altitude":null);hcSet("sp",lvNum(s.vel)+" km/h","about "+(s.vel/3600).toFixed(1)+" km per second");
+      hcSet("ov",Math.abs(s.lat).toFixed(1)+(s.lat<0?"S":"N")+" "+Math.abs(s.lon).toFixed(1)+(s.lon<0?"W":"E"),lvIssNear(s.lat,s.lon));
+      hcSet("kl",lvNum(dk)+" km",dk<s.fp/2?"above your horizon":"below your horizon",dk<s.fp/2?"up":null)}
+    return s});
+}
+function lvIssTrail(){
+  var n=Math.floor(Date.now()/1000),off=[-30,-20,-10,0,10,20,30,45,60,75],ts=off.map(function(m){return n+m*60});
+  return withTO(fetch("https://api.wheretheiss.at/v1/satellites/25544/positions?timestamps="+ts.join(",")+"&units=kilometers",{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}),9000).then(function(a){
+    if(!a||!a.length)throw new Error("none");
+    var P=[],i,k,M=7;
+    for(i=0;i<a.length-1;i++){var A=lvVec(a[i].latitude,a[i].longitude),B=lvVec(a[i+1].latitude,a[i+1].longitude),dot=Math.max(-1,Math.min(1,A[0]*B[0]+A[1]*B[1]+A[2]*B[2])),om=Math.acos(dot),so=Math.sin(om)||1;
+      for(k=0;k<M;k++){var s=k/M,w0=Math.sin((1-s)*om)/so,w1=Math.sin(s*om)/so;P.push({v:[w0*A[0]+w1*B[0],w0*A[1]+w1*B[1],w0*A[2]+w1*B[2]],t:(a[i].timestamp+(a[i+1].timestamp-a[i].timestamp)*s)*1000})}}
+    var L=a[a.length-1];P.push({v:lvVec(L.latitude,L.longitude),t:L.timestamp*1000});LV.path=P;LV.pathT=Date.now()});
+}
+function lvIssPos(now){
+  var s=LV.iss,p=LV.prev;if(!s)return null;
+  if(!p||s.ts<=p.ts)return{lat:s.lat,lon:s.lon};
+  var f=Math.max(0,Math.min(2.4,(now-p.ts)/(s.ts-p.ts))),A=lvVec(p.lat,p.lon),B=lvVec(s.lat,s.lon),dot=Math.max(-1,Math.min(1,A[0]*B[0]+A[1]*B[1]+A[2]*B[2])),om=Math.acos(dot);
+  if(om<1e-6)return{lat:s.lat,lon:s.lon};var so=Math.sin(om),w0=Math.sin((1-f)*om)/so,w1=Math.sin(f*om)/so,x=w0*A[0]+w1*B[0],y=w0*A[1]+w1*B[1],z=w0*A[2]+w1*B[2];
+  return{lat:Math.asin(Math.max(-1,Math.min(1,z)))*180/Math.PI,lon:Math.atan2(y,x)*180/Math.PI};
+}
+function lvIss(){
+  hcOpen(true);hcInit();var id=++HG.cmd;lvOff();HG.mode="place";HG.hl=[];HG.lm=null;HG.net=null;LV.iss=null;LV.prev=null;LV.path=[];hcPan([]);
+  HG.lv={q:false,i:true,fol:false,t:performance.now()};hcCap("u","where is the iss");hcCap("a","ISS · ACQUIRING SIGNAL…");
+  lvIssPoll(true).then(function(s){
+    if(id!==HG.cmd||!HG.on||!HG.lv)return;var D=Math.PI/180,dk=lvKm(s.lat,s.lon,3.139,101.687);
+    hcPan([{k:"ALTITUDE",id:"al",v:lvNum(s.alt)+" km",s:"orbital altitude"},{k:"SPEED",id:"sp",v:lvNum(s.vel)+" km/h",s:"about 7.7 km per second"},
+      {k:"OVER",id:"ov",v:Math.abs(s.lat).toFixed(1)+(s.lat<0?"S":"N")+" "+Math.abs(s.lon).toFixed(1)+(s.lon<0?"W":"E"),s:lvIssNear(s.lat,s.lon)},
+      {k:"FROM KL",id:"kl",v:lvNum(dk)+" km",s:dk<s.fp/2?"above your horizon":"below your horizon"}]);
+    hcCap("a","ISS · TRACKING · "+lvNum(s.alt)+" KM · "+lvNum(s.vel)+" KM/H");
+    hcCamGo(id,[{t:0,lat:HG.lat,lon:HG.lon,z:Math.log(Math.max(.6,HG.zoom))},{t:1.3,lat:HG.lat*.5,lon:HG.lon,z:Math.log(.95)},{t:3.6,lat:s.lat*D,lon:s.lon*D,z:Math.log(1.7)}]);
+    setTimeout(function(){if(id===HG.cmd&&HG.lv&&HG.lv.i)HG.lv.fol=true},4200);
+    lvIssTrail().catch(function(){});
+    var vis=dk<s.fp/2;
+    lvSay("ISS tracking online, Sir. Eyes in orbit. It is "+lvIssNear(s.lat,s.lon)+", "+lvNum(s.alt)+" kilometres up, moving at "+lvNum(s.vel)+" kilometres per hour. "+(vis?"It is above your horizon over Kuala Lumpur right now.":"It is "+lvNum(dk)+" kilometres from Kuala Lumpur."),
+      "Penjejakan ISS dalam talian, Tuan. Mata di orbit. Ia berada "+lvNum(s.alt)+" kilometer di atas, bergerak pada "+lvNum(s.vel)+" kilometer sejam. "+(vis?"Ia berada di ufuk anda di atas Kuala Lumpur sekarang.":"Ia "+lvNum(dk)+" kilometer dari Kuala Lumpur."));
+    LV.iv2=setInterval(function(){if(!HG.on||!HG.lv||!HG.lv.i||document.hidden)return;lvIssPoll(false).catch(function(){if(++LV.fail===4)hcCap("a","ISS · SIGNAL LOST · RETRYING")})},5000);
+    LV.iv3=setInterval(function(){if(!HG.on||!HG.lv||!HG.lv.i||document.hidden)return;lvIssTrail().catch(function(){})},300000);
+  }).catch(function(){if(id!==HG.cmd)return;hcCap("a","ISS FEED UNREACHABLE");lvSay("I could not reach the ISS feed, Sir. Check the connection and try again.","Saya tidak dapat mencapai suapan ISS, Tuan. Semak sambungan dan cuba lagi.");HG.lv=null});
+}
+function lvFollow(dt){
+  var L=HG.lv;if(!L||!L.fol||!LV.iss||HG.tgt||HG.down||HG.hDrag||HG.hZoom||performance.now()-HG.touch<4500)return false;
+  var p=lvIssPos(performance.now());if(!p)return false;var D=Math.PI/180,k=Math.min(1,dt*2.2),dl=p.lon*D-HG.lon;dl=((dl+Math.PI)%6.2832+6.2832)%6.2832-Math.PI;
+  HG.lon+=dl*k;HG.lat+=(p.lat*D-HG.lat)*k;return true;
+}
+function lvPick(x,y){var H=HG.lvHit,b=null,bd=26,i,d;if(!H)return null;for(i=0;i<H.length;i++){d=Math.hypot(H[i].x-x,H[i].y-y)-H[i].r*.5;if(d<bd){bd=d;b=H[i].q}}return b}
+function lvCycle(){var L=HG.lv;if(!L)lvQuakes();else if(L.q)lvIss();else{lvOff();hcPan([]);hcCap("a","LIVE LAYERS OFF")}}
+/* ---- drawing ---- */
+function hcLvDraw(g,t,cx,cy,R,c0,s0,cp,sp,W,H,pl,fsz,col){
+  var L=HG.lv;if(!L)return;var now=Date.now(),pn=performance.now(),i,xx,yy,zz,Z,x,y,q,sc=.8+Math.min(1,R/160)*.45;
+  g.save();g.lineJoin="round";g.lineCap="round";
+  if(L.q){
+    var Q=LV.q,hit=[],fade=Math.min(1,(pn-L.t)/900),A=[],B=[],C=[],rings=[],lab=[];
+    for(i=0;i<Q.length;i++){q=Q[i];xx=q.y*c0-q.x*s0;zz=q.x*c0+q.y*s0;yy=cp*q.z-sp*zz;Z=sp*q.z+cp*zz;if(Z<=.03)continue;
+      x=cx+xx*R;y=cy-yy*R;var r=(1.3+Math.max(0,q.m-2)*1.25)*sc,age=(now-q.t)/864e5;q._x=x;q._y=y;q._r=r;q._a=(1-.5*age)*Math.min(1,Z*3);
+      var o={x:x,y:y,r:r,a:q._a};if(q.m>=6)C.push(o);else if(q.m>=4.5)B.push(o);else A.push(o);
+      if(now-q.t<36e5||q.m>=5.5||(q.born&&pn-q.born<9000))rings.push(q);
+      if(Z>.15&&(q.m>=5||q===Q[0]))lab.push(q);hit.push({x:x,y:y,q:q,r:r})}
+    function dots(arr,fill,ha,mul){g.fillStyle=fill;for(var k=0;k<arr.length;k++){var d=arr[k];g.globalAlpha=Math.max(.2,d.a)*fade*(mul||1);g.beginPath();g.arc(d.x,d.y,d.r,0,6.2832);g.fill();if(ha){g.globalAlpha=d.a*.25*fade;g.beginPath();g.arc(d.x,d.y,d.r*2.3,0,6.2832);g.fill()}}}
+    dots(A,"#2ee6d6",false,.85);dots(B,"#b8fff6",true,1);dots(C,"#ffb347",true,1);
+    for(i=0;i<rings.length&&i<14;i++){q=rings[i];var big=q.m>=5.5,per=big?2.6:1.8,ph=((t+i*.37)%per)/per;g.globalAlpha=(1-ph)*.8*fade;g.strokeStyle=big?"#ffb347":"#9ffcf0";g.lineWidth=1.5;g.beginPath();g.arc(q._x,q._y,q._r+ph*(big?30:20)*sc,0,6.2832);g.stroke()}
+    g.font="600 "+Math.round(8+Math.min(3,R/110))+"px Michroma,ui-monospace,monospace";g.textBaseline="middle";
+    for(i=0;i<lab.length&&i<4;i++){q=lab[i];g.fillStyle=q.m>=6?"#ffc66b":"#e8fffc";g.globalAlpha=.95*fade;hcLbl(g,"M"+q.m.toFixed(1)+" "+lvPlace(q.pl).toUpperCase().slice(0,16),q._x+q._r+6,q._y-4,false,pl,fsz)}
+    HG.lvHit=hit;
+  }
+  if(L.i&&LV.iss){
+    var P=lvIssPos(pn),EL=1.066,vv=lvVec(P.lat,P.lon),D2=Math.PI/180;
+    var scr=function(v,el){var a=v[1]*c0-v[0]*s0,b=v[0]*c0+v[1]*s0,c=cp*v[2]-sp*b,zz2=sp*v[2]+cp*b;return{x:cx+a*R*el,y:cy-c*R*el,vis:zz2>=0||(a*a+c*c)*el*el>1.0,Z:zz2}};
+    /* footprint ring on the surface */
+    var fpAng=(LV.iss.fp/2)/6371,sa=Math.sin(fpAng),ca=Math.cos(fpAng),pl0=Math.sin(P.lat*D2),cl0=Math.cos(P.lat*D2),pen=false,j;
+    g.strokeStyle=col;g.lineWidth=1.2;g.globalAlpha=.55;g.setLineDash([3,5]);g.beginPath();
+    for(j=0;j<=64;j++){var th=j/64*6.2832,la=Math.asin(pl0*ca+cl0*sa*Math.cos(th)),lo=P.lon*D2+Math.atan2(Math.sin(th)*sa*cl0,ca-pl0*Math.sin(la)),p2=scr(lvVec(la/D2,lo/D2),1);
+      if(p2.Z>.02){if(pen)g.lineTo(p2.x,p2.y);else{g.moveTo(p2.x,p2.y);pen=true}}else pen=false}
+    g.stroke();g.setLineDash([]);
+    /* orbit path: solid behind, dashed ahead */
+    var PP=LV.path,pa=new Path2D(),pf=new Path2D(),a1=false,a2=false,pr,ka;
+    for(i=0;i<PP.length;i++){pr=scr(PP[i].v,EL);var past=PP[i].t<=now;
+      if(pr.vis){if(past){if(a1)pa.lineTo(pr.x,pr.y);else{pa.moveTo(pr.x,pr.y);a1=true}a2=false}else{if(a2)pf.lineTo(pr.x,pr.y);else{pf.moveTo(pr.x,pr.y);a2=true}a1=false}}else{a1=false;a2=false}}
+    g.strokeStyle=col;g.lineWidth=5;g.globalAlpha=.1;g.stroke(pa);g.stroke(pf);
+    g.strokeStyle="#9ffcf0";g.lineWidth=1.6;g.globalAlpha=.85;g.stroke(pa);g.setLineDash([2,6]);g.globalAlpha=.6;g.lineWidth=1.4;g.stroke(pf);g.setLineDash([]);
+    /* the station */
+    var gp=scr(vv,1),sp2=scr(vv,EL);
+    if(sp2.vis){
+      if(gp.Z>0){g.strokeStyle="#9ffcf0";g.globalAlpha=.4;g.lineWidth=1;g.beginPath();g.moveTo(gp.x,gp.y);g.lineTo(sp2.x,sp2.y);g.stroke();g.fillStyle="#9ffcf0";g.beginPath();g.arc(gp.x,gp.y,2,0,6.2832);g.fill()}
+      var pu=(t*.9)%1;g.globalAlpha=(1-pu)*.7;g.strokeStyle="#e8fffc";g.lineWidth=1.4;g.beginPath();g.arc(sp2.x,sp2.y,6+pu*22,0,6.2832);g.stroke();
+      g.globalAlpha=1;g.strokeStyle="#e8fffc";g.fillStyle="#e8fffc";g.lineWidth=1.8;
+      g.beginPath();g.moveTo(sp2.x-9,sp2.y);g.lineTo(sp2.x+9,sp2.y);g.moveTo(sp2.x,sp2.y-5);g.lineTo(sp2.x,sp2.y+5);g.stroke();
+      g.fillRect(sp2.x-14,sp2.y-4,7,8);g.fillRect(sp2.x+7,sp2.y-4,7,8);g.beginPath();g.arc(sp2.x,sp2.y,3.4,0,6.2832);g.fill();
+      g.font="600 "+Math.round(9+Math.min(3,R/110))+"px Michroma,ui-monospace,monospace";g.textBaseline="middle";g.globalAlpha=.95;
+      var rt=sp2.x<cx;hcLbl(g,"ISS · "+lvNum(LV.iss.alt)+" KM",rt?sp2.x+20:sp2.x-20,sp2.y-14,!rt,pl,fsz)}
+  }
+  g.restore();g.globalAlpha=1;
+}
 function holoIntent(raw,n){
   var w=n.split(" ").length;if(w>12)return null;
+  var LP="^(?:(?:hey |yo |ok |okay )?jarvis,? )?(?:please )?",ISSR="(?:iss|i s s|i ss|international space station|space station)";
+  if(HG.lv&&new RegExp(LP+"(?:hide|clear|remove|stop|turn off|exit|close|disable)(?: the| all)?(?: live)? (?:earthquakes?|quakes?|seismic|iss|space station|tracker|layers?|feeds?)(?: layer| feed)?$").test(n))return{k:"lvoff"};
+  if(new RegExp(LP+"(?:(?:show|open|display|bring up|pull up|track|initiate|activate|start|launch|give|let me see|see)(?: me)?(?: the| all)?(?: live| latest| recent| current| global| world| todays)? )(?:earthquakes?|quakes?|seismic(?: activity| feed| data| map| monitor| intelligence)?)(?: right now| now| today| live| on the globe| on the map| map)?$").test(n)||new RegExp(LP+"(?:live|latest|recent|current) (?:earthquakes?|quakes?)$").test(n)||new RegExp(LP+"(?:where was|where is|where s|wheres|what was|whats|what is) (?:the )?(?:latest|last|most recent|biggest|strongest|largest|newest) (?:earthquake|quake)(?: today| now| right now)?$").test(n)||new RegExp(LP+"(?:any|are there any|were there any|is there an?) (?:new |recent |latest )?(?:earthquakes?|quakes?)(?: today| now| right now| recently)?$").test(n))return{k:"quake"};
+  if(new RegExp(LP+"(?:where is|where s|wheres|where are|locate|find|track|follow|show|show me|display|bring up|pull up|initiate|activate|start|launch|open)(?: me)?(?: the)? "+ISSR+"(?: live| now| right now| tracker| tracking| position| location| on the globe| today)?$").test(n)||new RegExp(LP+ISSR+"(?: tracker| tracking| position| location| live)$").test(n)||new RegExp(LP+"(?:is the |can i see the |can you see the )"+ISSR+"(?: above me| overhead| visible| above us| over kuala lumpur| over malaysia)(?: now| right now| tonight)?$").test(n))return{k:"iss"};
+
   var XP="^(?:(?:hey |yo |ok |okay )?jarvis,? )?(?:please )?",XR_="x[ -]?ray";
   if(XR.on&&new RegExp("^(?:(?:exit|stop|leave|close|end|turn off|disable|cancel|back|go back|hide|dismiss|tutup)(?: the)?(?: "+XR_+")?(?: mode| scanner| scan| vision| view)?)$").test(n))return{k:"xrayoff"};
   if(new RegExp(XP+"(?:exit|stop|leave|close|end|turn off|disable|cancel|shut down) (?:the )?"+XR_+"(?: mode| scanner| scan| vision| view)?$").test(n))return{k:"xrayoff"};
@@ -3960,6 +4125,9 @@ function holoIntent(raw,n){
   return null;
 }
 function holoRun(h){
+  if(h.k==="quake"){lvQuakes();return}
+  if(h.k==="iss"){lvIss();return}
+  if(h.k==="lvoff"){lvOff();hcPan([]);hcCap("a","LIVE LAYERS OFF");reply(LT("Live layers off, Sir.","Lapisan langsung dimatikan, Tuan.","实时图层已关闭，先生。",null,"Живые слои отключены, сэр.","ライブレイヤーをオフにしました、サー。"));return}
   if(XR.on&&!/^(xray|xrayoff)$/.test(h.k))xrOff();
   if(h.k==="xray"){xrOn(true);return}
   if(h.k==="xrayoff"){if(XR.on)xrOff(true);else reply(LT("X-ray is not running.","Sinar-X tidak aktif, Tuan.","X光未运行，先生。",null,"Рентген не запущен, сэр.","X線は起動していません、サー。"));return}
@@ -3994,6 +4162,7 @@ function hcSelectAt(x,y){
   var el=document.elementFromPoint(x,y),t=el&&el.closest?el.closest(".gp,#hExit,#hTalk,#hHands,#hKl,#hBd"):null;
   if(t){t.click();return}
   if(HG.mode==="tower"){var tpk=hcTowerHit(x,y);if(tpk)hcTowerPart(tpk,false);return}
+  if(HG.lvHit&&HG.lv&&HG.lv.q&&HG.mode==="place"){var qb=lvPick(x,y);if(qb){lvQInfo(qb);return}}
   if(HG.lmHit&&HG.lm&&HG.mode==="place"){for(var li=0;li<HG.lmHit.length;li++){var lh=HG.lmHit[li];if(Math.hypot(lh.x-x,lh.y-y)<34){hcTower(true,"all",lh.b);return}}}
   var best=null,bd=40,i,q;for(i=0;i<HG.cp.length;i++){q=HG.cp[i];var d=Math.hypot(q.x-x,q.y-y);if(d<bd){bd=d;best=q}}
   if(best){if(best.ex)hcFocus(best.ex);else hcPlace({t:"city",c:best.c},false)}
@@ -4053,14 +4222,14 @@ function hcOpen(quiet){
   hcInit();if(HG.on)return;if(XR.on)xrOff();try{if(gest.on)gestClose()}catch(e){}
   HG.on=true;holoLive=true;document.body.classList.add("holoOn");
   var h=$("holo");h.classList.add("on");HG.q=Math.min(HG.q,1);HG.ema=16;HG.n=0;hcSize();
-  HG.cyF=HG.cyT=.45;HG.mode="free";HG.hl=[];HG.lm=null;HG.net=null;hcPan([]);$("hCapU").textContent="";$("hCapA").textContent="";
+  HG.cyF=HG.cyT=.45;HG.mode="free";HG.hl=[];HG.lm=null;HG.net=null;lvOff();hcPan([]);$("hCapU").textContent="";$("hCapA").textContent="";
   var kl=HG.city[0];HG.lon=kl.lon*Math.PI/180+1.6;HG.lat=.05;HG.zoom=1;HG.vx=HG.vy=0;HG.touch=performance.now();
   HG.tgt={lon:kl.lon*Math.PI/180,lat:kl.lat*Math.PI/180*.8,zoom:1};
   HG.col=(getComputedStyle(document.body).getPropertyValue("--c")||"").trim()||"#2ee6d6";
   HG.last=performance.now();HG.t0=HG.last;cancelAnimationFrame(HG.raf);HG.raf=requestAnimationFrame(hcFrame);
 }
 function hcClose(){
-  if(!HG.on)return;if(HG.desk)dkOff(true);HG.on=false;holoLive=false;HG.cmd++;cancelAnimationFrame(HG.raf);clearTimeout(HG.stg);if(HG.ar)hcAr(false);
+  if(!HG.on)return;if(HG.desk)dkOff(true);lvOff();HG.on=false;holoLive=false;HG.cmd++;cancelAnimationFrame(HG.raf);clearTimeout(HG.stg);if(HG.ar)hcAr(false);
   document.body.classList.remove("holoOn");$("holo").classList.remove("on");hcPan([]);
 }
 /* ---- render ---- */
@@ -4080,7 +4249,7 @@ function hcFrame(ts){
   if(!HG.idl)HG.ema=HG.ema*.93+dt*1000*.07;
   if(++HG.n>70&&HG.q<2&&HG.ema>(HG.ar?(HG.q?60:46):(HG.q?34:28))){HG.q++;HG.n=0;HG.ema=16;hcSize()}
   var tcy=HG.cyT;if(tcy<.45)tcy+=(.43-tcy)*Math.max(0,Math.min(1,(HG.zoom-2)/2));HG.cyF+=(tcy-HG.cyF)*Math.min(1,dt*4);HG.cy=HG.H*HG.cyF;
-  if(HG.cam)hcCamStep(ts);else if(HG.net&&HG.mode==="place"&&!HG.down&&!HG.tgt&&!HG.hDrag&&!HG.hZoom&&ts-HG.touch>2500&&(HG.vx*HG.vx+HG.vy*HG.vy)<.0004)HG.lon+=.05*dt;
+  if(HG.cam)hcCamStep(ts);else if(HG.lv&&lvFollow(dt)){}else if((HG.net||HG.lv)&&HG.mode==="place"&&!HG.down&&!HG.tgt&&!HG.hDrag&&!HG.hZoom&&ts-HG.touch>2500&&(HG.vx*HG.vx+HG.vy*HG.vy)<.0004)HG.lon+=.05*dt;
   if(HG.tgt&&!HG.down){
     var dl=HG.tgt.lon-HG.lon;dl=((dl+Math.PI)%6.2832+6.2832)%6.2832-Math.PI;
     HG.lon+=dl*Math.min(1,dt*3.4);HG.lat+=(HG.tgt.lat-HG.lat)*Math.min(1,dt*3.4);
@@ -4194,6 +4363,7 @@ function hcFrame(ts){
   }
   if(HG.mode!=="tower")hcSeaDraw(g,t,cx,cy,R,c0,s0,cp,sp,W,H,pl,fsz,col);
   if(HG.net&&HG.mode==="place")hcNetDraw(g,t,cx,cy,R,c0,s0,cp,sp,col);
+  if(HG.lv&&HG.mode==="place")hcLvDraw(g,t,cx,cy,R,c0,s0,cp,sp,W,H,pl,fsz,col);
   g.globalAlpha=1;
   if(HG.ar&&HG.hands.length){
     g.strokeStyle="#9ffcf0";g.lineWidth=1.4;g.globalAlpha=.7;g.beginPath();
@@ -4236,6 +4406,7 @@ function hcFrame(ts){
       if(now-HG.touch>90)HG.vx=HG.vy=0;
       if(HG.moved<9&&now-HG.tm<380){
         if(HG.mode==="tower"){hcTowerTap(e.clientX,e.clientY,now);HG.tapT=now;HG.vx=HG.vy=0;return}
+        if(HG.lvHit&&HG.lv&&HG.lv.q&&HG.mode==="place"){var qb2=lvPick(e.clientX,e.clientY);if(qb2){lvQInfo(qb2);HG.tapT=now;HG.vx=HG.vy=0;return}}
         if(HG.lmHit&&HG.lm&&HG.mode==="place"){var lj,lq;for(lj=0;lj<HG.lmHit.length;lj++){lq=HG.lmHit[lj];if(Math.hypot(lq.x-e.clientX,lq.y-e.clientY)<34){hcTower(true,"all",lq.b);HG.tapT=now;HG.vx=HG.vy=0;return}}}
         var best=null,bd=34,i,q;for(i=0;i<HG.cp.length;i++){q=HG.cp[i];var dd=Math.hypot(q.x-e.clientX,q.y-e.clientY);if(dd<bd){bd=dd;best=q}}
         if(best){if(best.ex)hcFocus(best.ex);else hcPlace({t:"city",c:best.c},false)}
@@ -4277,6 +4448,7 @@ function rmGo(a){
   else if(a==="talk")$("talkBtn").click();
   else if(a==="holo")hcOpen();
   else if(a==="klcc"){unlockSpeech();ctx();hcOpen(true);hcTower(true)}
+  else if(a==="live"){unlockSpeech();ctx();hcOpen(true);lvCycle()}
   else if(a==="xray"){unlockSpeech();ctx();xrOn(true)}
   else if(a==="m118"){unlockSpeech();ctx();hcOpen(true);hcTower(true,"all",1)}
   else if(a==="tasks"){var t=document.querySelector('button[data-v="tasks"]');if(t)t.click()}
