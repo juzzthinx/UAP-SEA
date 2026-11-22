@@ -407,6 +407,14 @@ body.lite .xsw{display:none}
 #skTs .skd button{padding:5px 8px;font-size:8px}
 #skTs input{width:100%;accent-color:#2ee6d6;margin:0}
 #skTs span{flex:1;text-align:center;font:500 9.5px/1 Michroma,ui-monospace,monospace;color:#9ffcf0;letter-spacing:.08em}
+
+/* v9.34 camera filters */
+#xr.m1 #xVid{filter:grayscale(1) brightness(1.8) contrast(1.35) sepia(1) hue-rotate(62deg) saturate(4.5)}
+#xr.m1 .xvg{background:radial-gradient(circle at 50% 46%,rgba(0,0,0,0) 26%,rgba(0,14,2,.94) 66%),repeating-linear-gradient(0deg,rgba(0,0,0,0) 0 2px,rgba(0,20,4,.28) 2px 3px)}
+#xr.m1 #xE{opacity:.55;mix-blend-mode:screen}
+#xr.m2 #xVid{filter:grayscale(1) contrast(1.15) brightness(.3) sepia(1) hue-rotate(var(--xh)) saturate(1.5)}
+#xr.m2 #xE{opacity:1}
+.xbt button#xMode{padding:8px 9px}
 </style>
 </head>
 <body>
@@ -697,7 +705,7 @@ body.lite .xsw{display:none}
 <div id="gest"><video id="gVid" playsinline muted autoplay></video><div class="gdot" id="gd0"></div><div class="gdot" id="gd1"></div><div id="gRing"></div>
 <div class="gtop"><span>HAND CONTROL</span><span id="gSt">STARTING</span></div><div class="ghint" id="gHint"></div><div class="gcap" id="gCap"></div>
 <div class="gtb"><button type="button" id="gTalk" class="hot">TALK</button><button type="button" id="gReset">RESET</button><button type="button" id="gExit">EXIT</button></div></div>
-<div id="xr"><video id="xVid" playsinline muted autoplay></video><canvas id="xE"></canvas><canvas id="xB"></canvas><div class="xvg"></div><div class="xsw"></div><div class="xtop"><div><b>X-RAY / SCAN</b><span id="xRead">STANDBY</span></div><div class="xbt"><button id="xTint" type="button">TEAL</button><button id="xFlip" type="button">FLIP</button><button id="xTalk" type="button">TALK</button><button id="xExit" type="button">EXIT</button></div></div><div id="xCap"></div><div class="xhint" id="xHint"></div></div>
+<div id="xr"><video id="xVid" playsinline muted autoplay></video><canvas id="xE"></canvas><canvas id="xB"></canvas><div class="xvg"></div><div class="xsw"></div><div class="xtop"><div><b>X-RAY / SCAN</b><span id="xRead">STANDBY</span></div><div class="xbt"><button id="xMode" type="button">X-RAY</button><button id="xTint" type="button">TEAL</button><button id="xFlip" type="button">FLIP</button><button id="xTalk" type="button">TALK</button><button id="xExit" type="button">EXIT</button></div></div><div id="xCap"></div><div class="xhint" id="xHint"></div></div>
 <div id="holo"><video id="hVid" playsinline muted autoplay></video><canvas id="hc"></canvas><div id="hCur"></div><div class="hsw"></div><div id="hDesk"><div class="dkClock"><b id="dkT">--:--</b><small id="dkS"></small></div><div id="dkD"></div><div id="dkRow"></div></div><div class="htop"><div><b>HOLO / EARTH</b><span id="hRead"></span></div><div class="hbt"><button id="hKl" type="button">KLCC</button><button id="hOrb" type="button">ORBS</button><button id="hHands" type="button">HANDS</button><button id="hTalk" type="button">TALK</button><button id="hExit" type="button">EXIT</button></div></div><div id="hCap"><div id="hCapU"></div><div id="hCapA"></div></div><div id="skTs"><div class="skr"><button type="button" id="skPl">&#9654;</button><input type="range" id="skRg" min="-720" max="720" step="1" value="0"><button type="button" id="skNow">NOW</button></div><div class="skd"><button type="button" id="skDm">&#9664; DAY</button><span id="skDt"></span><button type="button" id="skDp">DAY &#9654;</button></div><div class="skc"><button type="button" data-w="lines">LINES</button><button type="button" data-w="grid">GRID</button><button type="button" data-w="mw">MILKY WAY</button><button type="button" data-w="ecl">ECLIPTIC</button><button type="button" data-w="gnd">GROUND</button><button type="button" data-w="gy">GYRO</button></div></div><div id="solTs"><button type="button" id="solPl">&#9654;</button><input type="range" id="solRg" min="-3650" max="3650" step="1" value="0"><button type="button" id="solNow">NOW</button><span id="solDt"></span></div><div id="hpan"></div><div class="hhint" id="hHint">DRAG TO SPIN · PINCH TO ZOOM · TAP A CITY</div></div>
 <script>
 (function(){
@@ -1311,7 +1319,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.33";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
+var VER="v9.34";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -3675,8 +3683,19 @@ function dkPaint(){
   else dkChip(row,"NEXT","—","no reminders");
 }
 /* ---------- X-RAY mode (v9.23): camera filter + edge scan + bone hands ---------- */
-var XR={on:false,busy:false,face:"environment",mir:false,stream:null,raf:0,last:0,lastDet:0,lastE:0,lastT:-1,gap:70,fgap:33,egap:70,q:0,ema:10,n:0,tint:0,hs:[],ct:0,capT:0,sw:0,sh:0,dpr:1,ew:0,eh:0,vw:0,vh:0};window.__XR=XR;
+var XR={mode:0,on:false,busy:false,face:"environment",mir:false,stream:null,raf:0,last:0,lastDet:0,lastE:0,lastT:-1,gap:70,fgap:33,egap:70,q:0,ema:10,n:0,tint:0,hs:[],ct:0,capT:0,sw:0,sh:0,dpr:1,ew:0,eh:0,vw:0,vh:0};window.__XR=XR;
 var XTINT=[{h:137,c:"46,230,214",n:"TEAL"},{h:172,c:"120,175,255",n:"ICE"},{h:92,c:"130,255,150",n:"GREEN"},{h:0,c:"255,176,64",n:"AMBER"}];
+var XMODES=[{n:"X-RAY",t:"X-RAY / SCAN"},{n:"NIGHT",t:"NIGHT VISION"},{n:"EDGE",t:"EDGE SCAN"}];
+function xrMode(i,speak){
+  XR.mode=((i%3)+3)%3;var h=$("xr"),m=XMODES[XR.mode];h.classList.toggle("m1",XR.mode===1);h.classList.toggle("m2",XR.mode===2);
+  var b=document.querySelector("#xr .xtop b");if(b)b.textContent=m.t;var mb=$("xMode");if(mb)mb.textContent=m.n;
+  if(XR.mode===1){h.style.setProperty("--xh","62deg");h.style.setProperty("--xc","120,255,140");XR.tc=[120,255,140]}
+  else{xrTint(XR.tint);XR.tc=XTINT[XR.tint].c.split(",").map(Number)}
+  var tb=$("xTint");if(tb)tb.style.display=XR.mode===1?"none":"";
+  var g=XR.eg;if(g&&XR.ew)g.clearRect(0,0,XR.ew,XR.eh);XR.lastE=0;
+  xrCap("a",m.t+(XR.mode===1?" · BOOSTS LOW LIGHT":XR.mode===2?" · WIREFRAME VIEW":" · SEE-THROUGH FILTER"));
+  if(speak)reply(XR.mode===1?LT("Night vision on. It boosts whatever light the camera has, so it cannot see in total darkness, Sir.","Penglihatan malam dihidupkan. Ia menguatkan cahaya sedia ada, jadi tidak boleh nampak dalam gelap total, Tuan."):XR.mode===2?LT("Edge scan on. Everything is now a wireframe.","Imbasan tepi dihidupkan. Semuanya kini rangka dawai, Tuan."):LT("X-ray filter on.","Penapis sinar-X dihidupkan, Tuan."))
+}
 var XCH=[[5,6,7,8],[9,10,11,12],[13,14,15,16],[17,18,19,20]];
 function xrSize(){
   var r=$("xB"),e=$("xE"),W=r.clientWidth>40?r.clientWidth:window.innerWidth,H=r.clientHeight>40?r.clientHeight:window.innerHeight;
@@ -3715,7 +3734,13 @@ function xrDetect(v,ts){
       vl.x=vl.x*.5+((p.x-r.x)/dtd)*.5;vl.y=vl.y*.5+((p.y-r.y)/dtd)*.5;r.x=p.x;r.y=p.y;
       var t=o2.tgt[j];t.x=p.x+Math.max(-60,Math.min(60,vl.x*.07));t.y=p.y+Math.max(-60,Math.min(60,vl.y*.07))}}
 }
+function xrNoise(){
+  var o=XR.img.data,n=XR.ew*XR.eh,i,r,a;
+  for(i=0;i<n;i++){r=Math.random();a=r<.04?170:r*58;o[i*4]=160;o[i*4+1]=255;o[i*4+2]=170;o[i*4+3]=a}
+  XR.eg.putImageData(XR.img,0,0)
+}
 function xrEdges(v){
+  if(XR.mode===1){xrNoise();return}
   var W=XR.sw,H=XR.sh,vw=v.videoWidth,vh=v.videoHeight;if(!vw||!vh)return;
   var s=Math.max(W/vw,H/vh),sw=W/s,sh=H/s,sx=(vw-sw)/2,sy=(vh-sh)/2,ew=XR.ew,eh=XR.eh,sg=XR.sg;
   try{sg.drawImage(v,sx,sy,sw,sh,0,0,ew,eh);var d=sg.getImageData(0,0,ew,eh).data}catch(e){return}
@@ -3725,7 +3750,7 @@ function xrEdges(v){
   for(y=1;y<eh-1;y++){for(x=1;x<ew-1;x++){p=y*ew+x;
     gx=L[p-ew+1]+2*L[p+1]+L[p+ew+1]-L[p-ew-1]-2*L[p-1]-L[p+ew-1];
     gy=L[p+ew-1]+2*L[p+ew]+L[p+ew+1]-L[p-ew-1]-2*L[p-ew]-L[p-ew+1];
-    m=Math.abs(gx)+Math.abs(gy);a=m>34?Math.min(255,(m-34)*2.6):0;
+    m=Math.abs(gx)+Math.abs(gy);a=XR.mode===2?(m>24?Math.min(255,(m-24)*3.6):0):(m>34?Math.min(255,(m-34)*2.6):0);
     i=p*4;o[i]=tc[0];o[i+1]=tc[1];o[i+2]=tc[2];o[i+3]=a}}
   XR.eg.putImageData(XR.img,0,0);
 }
@@ -3813,10 +3838,10 @@ function xrOn(speak){
   unlockSpeech();ctx();XR.busy=true;
   var h=$("xr");XR.on=true;xrLive=true;document.body.classList.add("xrOn");h.classList.add("on");h.classList.toggle("mir",XR.mir);
   XR.q=LITE?1:0;XR.ema=8;XR.n=0;XR.egap=LITE?1e9:70;XR.fgap=LITE?40:33;XR.hs=[];XR.pulse=null;$("xE").style.display=LITE?"none":"";$("xCap").textContent="";
-  xrSize();xrTint(XR.tint);XR.tc=XTINT[XR.tint].c.split(",").map(Number);
+  xrSize();xrTint(XR.tint);XR.tc=XTINT[XR.tint].c.split(",").map(Number);xrMode(XR.mode,false);
   xrStream().then(function(ok){
     XR.busy=false;if(!ok)return;
-    if(speak)reply(LT("X-ray scanner online. Show me your hand.","Pengimbas sinar-X dalam talian, Tuan. Tunjukkan tangan anda.","X光扫描仪已上线，先生。请把手伸到镜头前。",null,"Рентгеновский сканер в сети, сэр. Покажите руку.","X線スキャナー起動しました、サー。手をカメラにかざしてください。"));
+    if(speak&&XR.mode===1)reply(LT("Night vision online. It boosts the light the camera already has, Sir.","Penglihatan malam dalam talian, Tuan."));else if(speak&&XR.mode===2)reply(LT("Edge scan online, Sir.","Imbasan tepi dalam talian, Tuan."));else if(speak)reply(LT("X-ray scanner online. Show me your hand.","Pengimbas sinar-X dalam talian, Tuan. Tunjukkan tangan anda.","X光扫描仪已上线，先生。请把手伸到镜头前。",null,"Рентгеновский сканер в сети, сэр. Покажите руку.","X線スキャナー起動しました、サー。手をカメラにかざしてください。"));
     XR.last=performance.now();cancelAnimationFrame(XR.raf);XR.raf=requestAnimationFrame(xrFrame);
     gLoad().then(function(l){XR.lm=l}).catch(function(){$("xHint").textContent="HAND SCANNER COULD NOT LOAD · FILTER ONLY"});
   }).catch(function(e){
@@ -5352,6 +5377,12 @@ function holoIntent(raw,n){
   if(new RegExp(LP+"(?:where is|where s|wheres|where are|locate|find|track|follow|show|show me|display|bring up|pull up|initiate|activate|start|launch|open)(?: me)?(?: the)? "+ISSR+"(?: live| now| right now| tracker| tracking| position| location| on the globe| today)?$").test(n)||new RegExp(LP+ISSR+"(?: tracker| tracking| position| location| live)$").test(n)||new RegExp(LP+"(?:is the |can i see the |can you see the )"+ISSR+"(?: above me| overhead| visible| above us| over kuala lumpur| over malaysia)(?: now| right now| tonight)?$").test(n))return{k:"iss"};
 
   var XP="^(?:(?:hey |yo |ok |okay )?jarvis,? )?(?:please )?",XR_="x[ -]?ray";
+  var NV="(?:night ?vision|night mode|night cam(?:era)?|nvg|night scope)",EG="(?:edge scan(?:ner)?|edge mode|edge vision|blueprint|wire ?frame)";
+  if(new RegExp(XP+"(?:exit|stop|leave|close|end|turn off|disable|cancel|shut down) (?:the )?(?:"+NV+"|"+EG+")(?: mode| view| filter)?$").test(n))return{k:"xrayoff"};
+  if(new RegExp(XP+"(?:(?:activate|start|enter|go to|go into|switch to|turn on|open|begin|initiate|launch|engage|run|show me|enable) (?:the |my )?)?"+NV+"(?: mode| view| filter)?$").test(n))return{k:"xrmode",m:1};
+  if(new RegExp(XP+"(?:(?:activate|start|enter|go to|go into|switch to|turn on|open|begin|initiate|launch|engage|run|show me|enable) (?:the |my )?)?"+EG+"(?: mode| view| filter)?$").test(n))return{k:"xrmode",m:2};
+  if(XR.on&&new RegExp(XP+"(?:next|change|switch|cycle) (?:the )?(?:filter|mode|view)$").test(n))return{k:"xrmode",m:"next"};
+  if(XR.on&&new RegExp(XP+"(?:back to |switch to |go to )?x[ -]?ray(?: mode| filter| view)?$").test(n))return{k:"xrmode",m:0};
   if(XR.on&&new RegExp("^(?:(?:exit|stop|leave|close|end|turn off|disable|cancel|back|go back|hide|dismiss|tutup)(?: the)?(?: "+XR_+")?(?: mode| scanner| scan| vision| view)?)$").test(n))return{k:"xrayoff"};
   if(new RegExp(XP+"(?:exit|stop|leave|close|end|turn off|disable|cancel|shut down) (?:the )?"+XR_+"(?: mode| scanner| scan| vision| view)?$").test(n))return{k:"xrayoff"};
   if(new RegExp(XP+"(?:(?:activate|start|enter|go to|go into|switch to|turn on|open|begin|initiate|launch|engage|run|show me|enable) (?:the |my )?)?"+XR_+"(?: mode| scanner| scan| vision| view| camera| hands?)?$").test(n)||new RegExp(XP+"(?:scan|x ?ray) (?:my |this |the )?hands?$").test(n)||new RegExp(XP+"(?:activate|start|turn on|initiate|launch|engage) (?:the )?(?:scanner|body scanner|hand scanner)$").test(n))return{k:"xray"};
@@ -5400,7 +5431,8 @@ function holoRun(h){
   if(h.k==="quake"){lvQuakes();return}
   if(h.k==="iss"){lvIss();return}
   if(h.k==="lvoff"){lvOff();hcPan([]);hcCap("a","LIVE LAYERS OFF");reply(LT("Live layers off, Sir.","Lapisan langsung dimatikan, Tuan.","实时图层已关闭，先生。",null,"Живые слои отключены, сэр.","ライブレイヤーをオフにしました、サー。"));return}
-  if(XR.on&&!/^(xray|xrayoff)$/.test(h.k))xrOff();
+  if(XR.on&&!/^(xray|xrayoff|xrmode)$/.test(h.k))xrOff();
+  if(h.k==="xrmode"){if(XR.on)xrMode(h.m==="next"?XR.mode+1:h.m,true);else{XR.mode=h.m==="next"?1:h.m;xrOn(true)}return}
   if(h.k==="xray"){xrOn(true);return}
   if(h.k==="xrayoff"){if(XR.on)xrOff(true);else reply(LT("X-ray is not running.","Sinar-X tidak aktif, Tuan.","X光未运行，先生。",null,"Рентген не запущен, сэр.","X線は起動していません、サー。"));return}
   if(DK.on&&!/^(desk|deskoff|recap|explain)$/.test(h.k))dkOff(true);
@@ -5715,6 +5747,11 @@ function hcFrame(ts){
   $("hHands").addEventListener("click",function(){unlockSpeech();ctx();hcAr(!HG.ar)});
   $("xExit").addEventListener("click",function(){xrOff(false)});
   $("xFlip").addEventListener("click",function(){xrFlip()});
+  $("xMode").addEventListener("click",function(){xrMode(XR.mode+1,false)});
+  (function(){var sx=0,sy=0,st=0,on=false,r=$("xr");
+    r.addEventListener("pointerdown",function(e){if(e.target.closest&&e.target.closest(".xbt"))return;on=true;sx=e.clientX;sy=e.clientY;st=performance.now()});
+    r.addEventListener("pointerup",function(e){if(!on)return;on=false;var dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)>70&&Math.abs(dy)<60&&performance.now()-st<650&&XR.on)xrMode(XR.mode+(dx<0?1:-1),false)});
+    r.addEventListener("pointercancel",function(){on=false})})();
   $("xTint").addEventListener("click",function(){xrTint(XR.tint+1);XR.tc=XTINT[XR.tint].c.split(",").map(Number)});
   $("xTalk").addEventListener("click",function(){unlockSpeech();ctx();$("talkBtn").click()});
   window.addEventListener("resize",function(){if(XR.on)xrSize()});
