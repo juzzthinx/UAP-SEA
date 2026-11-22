@@ -418,10 +418,6 @@ body.lite .xsw{display:none}
 #xr.m3 #xVid{opacity:0}
 #xr.m3 .xvg{background:radial-gradient(ellipse at 50% 46%,rgba(0,0,0,0) 50%,rgba(10,0,20,.6) 100%)}
 #xr.m3 #xE{opacity:1}
-#xr.m4 #xVid{filter:grayscale(1) contrast(1.1) brightness(.4) sepia(1) hue-rotate(var(--xh)) saturate(1.4)}
-#xr.m4 #xE{opacity:1;mix-blend-mode:screen}
-#xr.m5 #xVid{filter:grayscale(1) brightness(.2) sepia(1) hue-rotate(var(--xh)) saturate(1.6)}
-#xr.m5 #xE{opacity:0}
 </style>
 </head>
 <body>
@@ -1326,7 +1322,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.35";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
+var VER="v9.36";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1744,6 +1740,7 @@ function proScan(){
   if(!pro.tk.c||now-pro.tk.c>5*60000){pro.tk.c=now;proCrypto()}
   if(!pro.tk.b||now-pro.tk.b>60000){pro.tk.b=now;proBursa()}
   if(!pro.tk.r||now-pro.tk.r>30*60000){pro.tk.r=now;proRain()}
+  if(!pro.tk.i||now-pro.tk.i>90000){pro.tk.i=now;try{proIss()}catch(e){}}
 }
 setInterval(proScan,60000);setTimeout(proScan,25000);
 
@@ -3692,10 +3689,10 @@ function dkPaint(){
 /* ---------- X-RAY mode (v9.23): camera filter + edge scan + bone hands ---------- */
 var XR={mode:0,on:false,busy:false,face:"environment",mir:false,stream:null,raf:0,last:0,lastDet:0,lastE:0,lastT:-1,gap:70,fgap:33,egap:70,q:0,ema:10,n:0,tint:0,hs:[],ct:0,capT:0,sw:0,sh:0,dpr:1,ew:0,eh:0,vw:0,vh:0};window.__XR=XR;
 var XTINT=[{h:137,c:"46,230,214",n:"TEAL"},{h:172,c:"120,175,255",n:"ICE"},{h:92,c:"130,255,150",n:"GREEN"},{h:0,c:"255,176,64",n:"AMBER"}];
-var XMODES=[{n:"X-RAY",t:"X-RAY / SCAN",h:"SEE-THROUGH FILTER"},{n:"NIGHT",t:"NIGHT VISION",h:"BOOSTS LOW LIGHT"},{n:"EDGE",t:"EDGE SCAN",h:"WIREFRAME VIEW"},{n:"THERMAL",t:"THERMAL VIEW",h:"STYLISED HEAT LOOK"},{n:"GHOST",t:"MOTION GHOST",h:"MOVEMENT LEAVES TRAILS"},{n:"RADAR",t:"RADAR SWEEP",h:"PINGS WHAT MOVES"}];
-function xrModeSay(){return XR.mode===3?LT("Thermal view on. It is a stylised heat look made from brightness and movement, not a real temperature reading, Sir.","Paparan terma dihidupkan. Ia gaya haba daripada kecerahan dan gerakan, bukan bacaan suhu sebenar, Tuan."):XR.mode===4?LT("Motion ghost on. Wave your hand.","Hantu gerakan dihidupkan. Lambai tangan anda, Tuan."):LT("Radar sweep on. Anything that moves will ping.","Imbasan radar dihidupkan. Apa yang bergerak akan dikesan, Tuan.")}
+var XMODES=[{n:"X-RAY",t:"X-RAY / SCAN",h:"SEE-THROUGH FILTER"},{n:"NIGHT",t:"NIGHT VISION",h:"BOOSTS LOW LIGHT"},{n:"EDGE",t:"EDGE SCAN",h:"WIREFRAME VIEW"},{n:"THERMAL",t:"THERMAL VIEW",h:"STYLISED HEAT LOOK"}];
+function xrModeSay(){return LT("Thermal view on. It is a stylised heat look made from brightness and movement, not a real temperature reading, Sir.","Paparan terma dihidupkan. Ia gaya haba daripada kecerahan dan gerakan, bukan bacaan suhu sebenar, Tuan.")}
 function xrMode(i,speak){
-  XR.mode=((i%6)+6)%6;var h=$("xr"),m=XMODES[XR.mode],q9;for(q9=1;q9<6;q9++)h.classList.toggle("m"+q9,XR.mode===q9);
+  XR.mode=((i%4)+4)%4;var h=$("xr"),m=XMODES[XR.mode],q9;for(q9=1;q9<4;q9++)h.classList.toggle("m"+q9,XR.mode===q9);
   var b=document.querySelector("#xr .xtop b");if(b)b.textContent=m.t;var mb=$("xMode");if(mb)mb.textContent=m.n;
   if(XR.mode===1){h.style.setProperty("--xh","62deg");h.style.setProperty("--xc","120,255,140");XR.tc=[120,255,140]}
   else if(XR.mode===3){h.style.setProperty("--xh","20deg");h.style.setProperty("--xc","255,190,90");XR.tc=[255,190,90]}
@@ -3771,13 +3768,6 @@ function xrFx(){
       var pi=Math.min(255,hh*255|0)*3;i=p*4;o[i]=XPAL[pi];o[i+1]=XPAL[pi+1];o[i+2]=XPAL[pi+2];o[i+3]=255}
     for(x=0;x<ew;x++){i=x*4;o[i+3]=0;i=((eh-1)*ew+x)*4;o[i+3]=0}
     var hx=bi%ew,hy=bi/ew|0;if(XR.hot){XR.hot.x+=(hx-XR.hot.x)*.35;XR.hot.y+=(hy-XR.hot.y)*.35;XR.hot.v=best}else XR.hot={x:hx,y:hy,v:best};
-  }else if(md===4){
-    for(i=0;i<n;i++){T[i]=Math.max(T[i]*.88,M[i]);var a=T[i]*3.4;a=a>255?255:a;var hot=T[i]>70?60:0;o[i*4]=Math.min(255,tc[0]+hot);o[i*4+1]=Math.min(255,tc[1]+hot);o[i*4+2]=Math.min(255,tc[2]+hot);o[i*4+3]=a}
-  }else{
-    for(i=0;i<n;i++)o[i*4+3]=0;
-    var cs=[],bw=8,cx,cy,sm,cnt;
-    for(cy=0;cy+bw<=eh;cy+=bw)for(cx=0;cx+bw<=ew;cx+=bw){sm=0;for(y=cy;y<cy+bw;y++)for(x=cx;x<cx+bw;x++)sm+=M[y*ew+x];sm/=bw*bw;if(sm>5)cs.push({x:(cx+bw/2)/ew,y:(cy+bw/2)/eh,m:sm,t:0})}
-    XR.cells=cs
   }
   XR.eg.putImageData(XR.img,0,0)
 }
@@ -3791,20 +3781,6 @@ function xrOver(ts,dt){
     var h=XR.hot;if(h&&h.v>.35){var hx=(h.x+.5)/XR.ew*W,hy=(h.y+.5)/XR.eh*H;if(XR.mir)hx=W-hx;
       g.strokeStyle="#fff";g.globalAlpha=.95;var r=16+3*Math.sin(ts/220);g.beginPath();g.arc(hx,hy,r,0,6.2832);g.moveTo(hx-r-8,hy);g.lineTo(hx-r+4,hy);g.moveTo(hx+r-4,hy);g.lineTo(hx+r+8,hy);g.moveTo(hx,hy-r-8);g.lineTo(hx,hy-r+4);g.moveTo(hx,hy+r-4);g.lineTo(hx,hy+r+8);g.stroke();
       g.fillStyle="#fff";g.font="600 9px Michroma,ui-monospace,monospace";g.fillText("HOTSPOT",Math.min(W-90,hx+r+10),hy-r)}
-  }else if(md===5){
-    var cx=W/2,cy=H*.52,R=Math.hypot(cx,cy)*.98,sp=2.4,a1=XR.ang||0,a0=a1;a1+=sp*dt;XR.ang=a1%6.2832;
-    g.strokeStyle=rc;g.globalAlpha=.28;for(i=1;i<=3;i++){g.beginPath();g.arc(cx,cy,R*i/3*.62,0,6.2832);g.stroke()}
-    g.beginPath();g.moveTo(cx-R,cy);g.lineTo(cx+R,cy);g.moveTo(cx,cy-R);g.lineTo(cx,cy+R);g.stroke();
-    for(i=0;i<36;i++){var ta=i*.1745,l=i%3===0?10:5;g.beginPath();g.moveTo(cx+Math.cos(ta)*R*.62*.98,cy+Math.sin(ta)*R*.62*.98);g.lineTo(cx+Math.cos(ta)*(R*.62*.98+l),cy+Math.sin(ta)*(R*.62*.98+l));g.stroke()}
-    for(i=0;i<26;i++){var aa=1-i/26;g.fillStyle="rgba("+tc.join(",")+","+(.34*aa*aa)+")";g.beginPath();g.moveTo(cx,cy);g.arc(cx,cy,R,a1-(i+1)*.045,a1-i*.045);g.closePath();g.fill()}
-    g.strokeStyle=rc;g.globalAlpha=.95;g.lineWidth=1.6;g.beginPath();g.moveTo(cx,cy);g.lineTo(cx+Math.cos(a1)*R,cy+Math.sin(a1)*R);g.stroke();g.lineWidth=1.2;
-    /* pings: cells whose angle the sweep just crossed */
-    var cl=XR.cells||[];for(i=0;i<cl.length;i++){var c=cl[i],sx=c.x*W,sy=c.y*H;if(XR.mir)sx=W-sx;var ca=Math.atan2(sy-cy,sx-cx);if(ca<0)ca+=6.2832;
-      var d1=((ca-a0)%6.2832+6.2832)%6.2832,dd=((a1-a0)%6.2832+6.2832)%6.2832;if(d1<=dd+.02&&ts-c.t>1500){c.t=ts;(XR.blips=XR.blips||[]).push({x:sx,y:sy,t:ts,m:c.m})}}
-    var bl=XR.blips||[];for(i=bl.length-1;i>=0;i--){var b=bl[i],age=(ts-b.t)/2400;if(age>1){bl.splice(i,1);continue}
-      g.globalAlpha=(1-age)*.95;g.fillStyle="#eafffb";g.beginPath();g.arc(b.x,b.y,3+Math.min(6,b.m/6),0,6.2832);g.fill();g.strokeStyle=rc;g.globalAlpha=(1-age)*.7;g.beginPath();g.arc(b.x,b.y,8+age*24,0,6.2832);g.stroke()}
-    if(bl.length>60)bl.splice(0,bl.length-60);
-    g.globalAlpha=.9;g.fillStyle=rc;g.font="600 8px Michroma,ui-monospace,monospace";g.fillText("CONTACTS "+bl.length,16,H-46)
   }
   g.restore()
 }
@@ -4854,7 +4830,7 @@ function orbIntent(n){
 }
 
 /* ===== v9.33 night sky over Kuala Lumpur: real stars, planets, Moon ===== */
-var SKY={off:0,rate:0,sel:null,hits:[],anc:null,lines:1,grid:0,mw:1,ecl:0,gnd:1,gy:0,gyAz:0,gyAl:0,gyT:0,gyEv:0,go:null,lastP:0,lastS:0,lastR:0,lastIss:0,jd:0,lst:0,py:-99,ok:0,rd:"",B:{},ob:[],fb:0,iss:null};
+var SKY={hn:0,off:0,rate:0,sel:null,hits:[],anc:null,lines:1,grid:0,mw:1,ecl:0,gnd:1,gy:0,gyAz:0,gyAl:0,gyT:0,gyEv:0,go:null,lastP:0,lastS:0,lastR:0,lastIss:0,jd:0,lst:0,py:-99,ok:0,rd:"",B:{},ob:[],fb:0,iss:null};
 var SKL=[3.139,101.687];
 var SKYS="sir:Sirius|CMa|6.7525|-16.716|-1.46|8.6|A;can:Canopus|Car|6.3992|-52.696|-0.74|310|F;arc:Arcturus|Boo|14.261|19.182|-0.05|37|K;rgl:Alpha Centauri|Cen|14.660|-60.834|-0.01|4.4|G;veg:Vega|Lyr|18.6157|38.784|0.03|25|A;cap:Capella|Aur|5.2782|45.998|0.08|43|G;rig:Rigel|Ori|5.2423|-8.202|0.13|860|B;pro:Procyon|CMi|7.655|5.225|0.34|11.5|F;ach:Achernar|Eri|1.6286|-57.237|0.46|139|B;bet:Betelgeuse|Ori|5.9195|7.407|0.50|550|M;had:Hadar|Cen|14.0637|-60.373|0.61|390|B;alt:Altair|Aql|19.8464|8.868|0.76|17|A;acr:Acrux|Cru|12.4433|-63.099|0.76|320|B;ald:Aldebaran|Tau|4.5987|16.509|0.86|65|K;ant:Antares|Sco|16.4901|-26.432|0.96|550|M;spi:Spica|Vir|13.4199|-11.161|0.97|250|B;pol:Pollux|Gem|7.7553|28.026|1.14|34|K;fom:Fomalhaut|PsA|22.9608|-29.622|1.16|25|A;den:Deneb|Cyg|20.6905|45.280|1.25|2600|A;mim:Mimosa|Cru|12.7953|-59.689|1.25|280|B;reg:Regulus|Leo|10.1395|11.967|1.35|79|B;adh:Adhara|CMa|6.9771|-28.972|1.50|430|B;cas:Castor|Gem|7.5767|31.888|1.58|51|A;gac:Gacrux|Cru|12.5194|-57.113|1.64|88|M;sha:Shaula|Sco|17.5601|-37.104|1.62|570|B;bel:Bellatrix|Ori|5.4188|6.350|1.64|250|B;eln:Elnath|Tau|5.4382|28.608|1.65|130|B;mia:Miaplacidus|Car|9.2200|-69.717|1.68|110|A;aln:Alnilam|Ori|5.6036|-1.202|1.69|2000|B;alr:Alnair|Gru|22.1372|-46.961|1.74|100|B;alk:Alnitak|Ori|5.6793|-1.943|1.77|1260|O;ali:Alioth|UMa|12.9005|55.960|1.77|83|A;dub:Dubhe|UMa|11.0621|61.751|1.79|124|K;mir:Mirfak|Per|3.4054|49.861|1.79|590|F;wez:Wezen|CMa|7.1399|-26.393|1.84|1600|F;sar:Sargas|Sco|17.6220|-42.998|1.87|270|F;kau:Kaus Australis|Sgr|18.4029|-34.385|1.85|143|B;avi:Avior|Car|8.3752|-59.509|1.86|630|K;alka:Alkaid|UMa|13.7923|49.313|1.86|104|B;mnk:Menkalinan|Aur|5.9921|44.948|1.90|81|A;atr:Atria|TrA|16.8111|-69.028|1.92|415|K;alh:Alhena|Gem|6.6285|16.399|1.93|105|A;pea:Peacock|Pav|20.4275|-56.735|1.94|180|B;als:Alsephina|Vel|8.7450|-54.709|1.96|80|A;mrz:Mirzam|CMa|6.3783|-17.956|1.98|500|B;alp:Alphard|Hya|9.4598|-8.659|1.98|177|K;pln:Polaris|UMi|2.5303|89.264|1.98|433|F;ham:Hamal|Ari|2.1195|23.463|2.00|66|K;alg:Algieba|Leo|10.3329|19.842|2.01|130|K;dip:Diphda|Cet|0.7265|-17.987|2.04|96|K;nun:Nunki|Sgr|18.9211|-26.297|2.05|228|B;mnt:Menkent|Cen|14.1114|-36.370|2.06|59|K;mrc:Mirach|And|1.1622|35.621|2.05|200|M;alf:Alpheratz|And|0.1398|29.091|2.06|97|B;ras:Rasalhague|Oph|17.5822|12.560|2.08|49|A;koc:Kochab|UMi|14.8451|74.156|2.08|130|K;sai:Saiph|Ori|5.7959|-9.670|2.06|650|B;dnb:Denebola|Leo|11.8177|14.572|2.14|36|A;agl:Algol|Per|3.1361|40.956|2.12|90|B;mph:Muhlifain|Cen|12.6915|-48.960|2.17|130|A;asp:Aspidiske|Car|9.2848|-59.275|2.21|690|A;suh:Suhail|Vel|9.1331|-43.433|2.21|545|K;alc:Alphecca|CrB|15.5781|26.715|2.23|75|A;miz:Mizar|UMa|13.3988|54.925|2.23|83|A;sad:Sadr|Cyg|20.3705|40.257|2.23|1800|F;sch:Schedar|Cas|0.6751|56.537|2.24|228|K;elt:Eltanin|Dra|17.9434|51.489|2.23|150|K;min:Mintaka|Ori|5.5334|-0.299|2.23|1200|O;cph:Caph|Cas|0.1530|59.150|2.27|55|F;dsc:Dschubba|Sco|16.0056|-22.622|2.29|400|B;wei:Wei|Sco|16.8360|-34.293|2.29|65|K;ecg:Gienah|Cyg|20.7702|33.970|2.48|72|K;mer:Merak|UMa|11.0307|56.382|2.37|79|A;izr:Izar|Boo|14.7498|27.074|2.37|202|K;enf:Enif|Peg|21.7364|9.875|2.39|690|K;ank:Ankaa|Phe|0.4381|-42.306|2.39|85|K;phe:Phecda|UMa|11.8972|53.695|2.44|84|A;sab:Sabik|Oph|17.1730|-15.725|2.43|88|A;sht:Scheat|Peg|23.0629|28.083|2.42|200|M;ade:Alderamin|Cep|21.3097|62.586|2.51|49|A;mar:Markab|Peg|23.0793|15.205|2.49|133|B;nav:Navi|Cas|0.9451|60.717|2.47|610|B;ruc:Ruchbah|Cas|1.4303|60.235|2.68|99|A;seg:Segin|Cas|1.9066|63.670|3.37|440|B;kap:Girtab|Sco|17.7081|-39.030|2.41|480|B;zng:Zubenelgenubi|Lib|14.8479|-16.042|2.75|77|A;zns:Zubeneschamali|Lib|15.2835|-9.383|2.61|185|B;glb:Gamma Librae|Lib|15.5923|-14.789|3.91|152|K;bra:Brachium|Lib|15.0678|-25.282|3.29|290|M;she:Sheratan|Ari|1.9107|20.808|2.64|60|A;mes:Mesarthim|Ari|1.8928|19.294|3.88|160|A;les:Lesath|Sco|17.5127|-37.296|2.69|580|B;acb:Acrab|Sco|16.0906|-19.805|2.62|290|B;pis:Pi Scorpii|Sco|15.9808|-26.114|2.89|590|B;tau:Tau Scorpii|Sco|16.5984|-28.216|2.82|470|B;sgs:Sigma Scorpii|Sco|16.3532|-25.593|2.89|735|B;mu1:Mu Scorpii|Sco|16.8645|-38.047|3.04|500|B;zsc:Zeta Scorpii|Sco|16.9091|-42.362|3.62|0|K;esc:Eta Scorpii|Sco|17.2025|-43.239|3.33|72|F;iot:Iota Scorpii|Sco|17.7933|-40.127|3.03|1800|F;zph:Zeta Ophiuchi|Oph|16.6194|-10.567|2.56|366|O;ceb:Cebalrai|Oph|17.7246|4.567|2.77|82|K;ypr:Yed Prior|Oph|16.2394|-3.694|2.74|170|M;ypo:Yed Posterior|Oph|16.3053|-4.693|3.24|63|G;asc:Ascella|Sgr|19.0435|-29.880|2.60|89|A;tsg:Tau Sagittarii|Sgr|19.1156|-27.670|3.32|120|K;phs:Phi Sagittarii|Sgr|18.7616|-26.991|3.17|240|B;kab:Kaus Borealis|Sgr|18.4662|-25.422|2.81|78|K;kam:Kaus Media|Sgr|18.3499|-29.828|2.70|350|K;gsg:Alnasl|Sgr|18.0969|-30.424|2.99|96|K;meg:Megrez|UMa|12.2571|57.033|3.31|81|A;yil:Yildun|UMi|17.5369|86.586|4.36|183|A;eum:Epsilon Ursae Minoris|UMi|16.7662|82.037|4.21|347|G;zum:Zeta Ursae Minoris|UMi|15.7343|77.795|4.32|380|A;hum:Eta Ursae Minoris|UMi|16.2918|75.755|4.95|97|F;gum:Pherkad|UMi|15.3455|71.834|3.05|480|A;alb:Albireo|Cyg|19.5120|27.960|3.18|430|K;dcy:Delta Cygni|Cyg|19.7496|45.131|2.87|165|B;zel:Zeta Lyrae|Lyr|18.7461|37.605|4.34|154|A;shl:Sheliak|Lyr|18.8347|33.363|3.52|960|B;sul:Sulafat|Lyr|18.9822|32.690|3.24|620|B;dly:Delta Lyrae|Lyr|18.9087|36.899|4.30|900|M;tar:Tarazed|Aql|19.7710|10.613|2.72|395|K;ash:Alshain|Aql|19.9219|6.407|3.71|45|G;epc:Epsilon Centauri|Cen|13.6649|-53.466|2.30|376|B;zec:Zeta Centauri|Cen|13.9254|-47.288|2.55|385|B;etc:Eta Centauri|Cen|14.5916|-42.158|2.31|310|B;dcn:Delta Centauri|Cen|12.1394|-50.722|2.60|395|B;dcr:Delta Crucis|Cru|12.2524|-58.749|2.80|345|B;etl:Eta Leonis|Leo|10.1222|16.763|3.52|2000|A;zll:Adhafera|Leo|10.2782|23.417|3.44|274|F;mul:Rasalas|Leo|9.8794|26.007|3.88|133|K;ell:Algenubi|Leo|9.7641|23.774|2.98|247|K;zos:Zosma|Leo|11.2351|20.524|2.56|58|A;cht:Chertan|Leo|11.2373|15.430|3.34|165|A;was:Wasat|Gem|7.3353|21.982|3.53|60|F;meb:Mebsuta|Gem|6.7322|25.131|3.06|840|G;tej:Tejat|Gem|6.3828|22.514|2.88|230|M;prp:Propus|Gem|6.2479|22.507|3.31|350|M;mek:Mekbuda|Gem|7.0685|20.570|3.79|1200|G;zta:Tianguan|Tau|5.6274|21.143|3.00|440|B;th2:Theta Tauri|Tau|4.4776|15.871|3.40|150|A;gmt:Gamma Tauri|Tau|4.3298|15.628|3.65|154|K;lmt:Lambda Tauri|Tau|4.0112|12.490|3.47|370|B;etu:Epsilon Tauri|Tau|4.4770|19.180|3.53|147|G;aly:Alcyone|Tau|3.7914|24.105|2.87|440|B;ats:Atlas|Tau|3.8194|24.053|3.62|440|B;ele:Electra|Tau|3.7479|24.113|3.70|440|B;maa:Maia|Tau|3.7634|24.368|3.87|440|B;mep:Merope|Tau|3.7721|23.948|4.18|440|B;tay:Taygeta|Tau|3.7535|24.467|4.30|440|B;ple:Pleione|Tau|3.8190|24.138|5.05|440|B;alu:Aludra|CMa|7.4016|-29.303|2.45|2000|B;gom:Gomeisa|CMi|7.4525|8.289|2.89|162|B;mah:Mahasim|Aur|5.9953|37.213|2.65|170|A;hss:Hassaleh|Aur|4.9500|33.166|2.69|500|K;gap:Gamma Persei|Per|3.0798|53.506|2.93|250|G;dpe:Delta Persei|Per|3.7154|47.788|3.01|520|B;epe:Epsilon Persei|Per|3.9642|40.010|2.89|640|B;zpe:Atik|Per|3.9020|31.884|2.85|980|B;xpe:Menkib|Per|3.9858|35.791|4.04|1200|O;dan:Delta Andromedae|And|0.6558|30.861|3.27|101|K;alm:Almach|And|2.0650|42.330|2.10|350|K;gpe:Algenib|Peg|0.2206|15.184|2.83|390|B;hom:Homam|Peg|22.6910|10.831|3.40|204|B;mup:Muphrid|Boo|13.9114|18.398|2.68|37|G;nek:Nekkar|Boo|15.0324|40.391|3.50|219|G;sgn:Seginus|Boo|14.5348|38.308|3.04|85|A;rho:Rho Bootis|Boo|14.5311|30.371|3.58|150|K;zav:Zavijava|Vir|11.8450|1.765|3.59|36|F;por:Porrima|Vir|12.6944|-1.449|2.74|38|F;mnl:Minelauva|Vir|12.9265|3.398|3.38|202|M;vin:Vindemiatrix|Vir|13.0363|10.959|2.83|110|G;hez:Heze|Vir|13.5782|-0.596|3.37|74|A;tcb:Theta Coronae Borealis|CrB|15.5493|31.359|4.14|380|B;nus:Nusakan|CrB|15.4639|29.106|3.68|112|A;gcb:Gamma Coronae Borealis|CrB|15.7126|26.296|3.84|146|B;dcb:Delta Coronae Borealis|CrB|15.8268|26.068|4.63|179|G;ecb:Epsilon Coronae Borealis|CrB|15.9594|26.878|4.15|230|K;men:Menkar|Cet|3.0380|4.090|2.53|250|M;gct:Kaffaljidhma|Cet|2.7213|3.236|3.47|82|A;dct:Delta Ceti|Cet|2.6606|0.329|4.07|650|B;zct:Baten Kaitos|Cet|1.8581|-10.335|3.73|235|K;ect:Eta Ceti|Cet|1.1431|-10.182|3.45|125|K;cur:Cursa|Eri|5.1308|-5.086|2.79|89|A;zau:Zaurak|Eri|3.9672|-13.509|2.95|203|M;aca:Acamar|Eri|2.9710|-40.305|2.90|161|A;mkb:Markeb|Vel|9.3686|-55.011|2.50|540|B;gag:Aldhanab|Gru|21.8985|-37.365|3.01|211|B;tia:Tiaki|Gru|22.7111|-46.885|2.11|170|M;btr:Beta Trianguli Australis|TrA|15.9190|-63.431|2.85|40|F;gtr:Gamma Trianguli Australis|TrA|15.3150|-68.679|2.87|184|A;pha:Phact|Col|5.6608|-34.074|2.65|260|B;arn:Arneb|Lep|5.5455|-17.822|2.58|2200|F;nih:Nihal|Lep|5.4707|-20.759|2.84|160|G;mei:Meissa|Ori|5.5855|9.934|3.54|1100|O;alfi:Alfirk|Cep|21.4776|70.561|3.23|700|B;err:Errai|Cep|23.6558|77.632|3.21|45|K;icp:Iota Cephei|Cep|22.8283|66.200|3.52|115|K;dcp:Delta Cephei|Cep|22.4863|58.415|3.75|887|F;rsn:Rastaban|Dra|17.5072|52.301|2.79|380|G;nud:Nu Draconis|Dra|17.5365|55.173|4.88|100|A;grm:Grumium|Dra|17.8929|56.873|3.75|380|K;thb:Thuban|Dra|14.0731|64.376|3.65|303|A;eth:Eta Herculis|Her|16.7149|38.922|3.53|112|G;zhe:Zeta Herculis|Her|16.6881|31.603|2.81|35|F;ehe:Epsilon Herculis|Her|17.0050|30.926|3.92|160|A;pih:Pi Herculis|Her|17.2505|36.809|3.16|377|K;kor:Kornephoros|Her|16.5037|21.490|2.77|140|G;sah:Sarin|Her|17.2504|24.840|3.14|75|A;rgt:Rasalgethi|Her|17.2441|14.390|3.31|360|M;dca:Deneb Algedi|Cap|21.7840|-16.127|2.87|39|A;dab:Dabih|Cap|20.3500|-14.781|3.05|330|F;alga:Algedi|Cap|20.2943|-12.545|3.57|109|G;nas:Nashira|Cap|21.6680|-16.662|3.68|139|A;psc:Psi Capricorni|Cap|20.4683|-25.271|4.14|48|F;omc:Omega Capricorni|Cap|20.4768|-26.919|4.11|574|K;zcp:Zeta Capricorni|Cap|21.4442|-22.411|3.74|380|G;sdd:Sadalsuud|Aqr|21.5259|-5.571|2.91|540|G;sdm:Sadalmelik|Aqr|22.0964|-0.320|2.96|520|G;sdb:Sadachbia|Aqr|22.3609|-1.387|3.84|158|A;zaq:Zeta Aquarii|Aqr|22.4804|-0.020|3.65|100|F;ska:Skat|Aqr|22.9108|-15.821|3.27|160|A;tarf:Tarf|Cnc|8.2753|9.186|3.52|290|K;asl:Asellus Australis|Cnc|8.7447|18.154|3.94|181|K;acu:Acubens|Cnc|8.9747|11.858|4.26|174|A;asb:Asellus Borealis|Cnc|8.7220|21.469|4.66|181|A;icn:Iota Cancri|Cnc|8.7783|28.760|4.02|330|G;gcr:Gienah Corvi|Crv|12.2634|-17.542|2.59|165|B;dcv:Algorab|Crv|12.4977|-16.516|2.95|87|B;bcr:Kraz|Crv|12.5731|-23.397|2.65|140|G;ecr:Minkar|Crv|12.1688|-22.620|3.00|303|K";
 var SKYD="m31:Andromeda Galaxy|And|0.7123|41.269|3.4|2.5 million light years|galaxy;m42:Orion Nebula|Ori|5.5881|-5.39|4.0|1,340 light years|nebula;omc:Omega Centauri|Cen|13.4464|-47.48|3.9|17,000 light years|cluster;m44:Beehive Cluster|Cnc|8.6683|19.67|3.7|580 light years|cluster;m13:Hercules Cluster|Her|16.6949|36.46|5.8|22,000 light years|cluster;lmc:Large Magellanic Cloud|Dor|5.3925|-69.76|0.9|160,000 light years|galaxy;smc:Small Magellanic Cloud|Tuc|0.8772|-72.83|2.7|200,000 light years|galaxy;car:Carina Nebula|Car|10.7516|-59.87|1.0|7,500 light years|nebula;m7:Ptolemy Cluster|Sco|17.8|-34.8|3.3|980 light years|cluster;m8:Lagoon Nebula|Sgr|18.063|-24.38|6.0|4,100 light years|nebula;m22:Sagittarius Cluster|Sgr|18.6067|-23.9|5.1|10,600 light years|cluster;m6:Butterfly Cluster|Sco|17.67|-32.25|4.2|1,600 light years|cluster";
@@ -4865,6 +4841,7 @@ var SKYCL={O:[170,200,255],B:[180,205,255],A:[220,232,255],F:[255,250,240],G:[25
 var SKYMO=["January","February","March","April","May","June","July","August","September","October","November","December"];
 var SKYDIR=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
 var SKYPLN=["mercury","venus","mars","jupiter","saturn","uranus","neptune"];
+function skyHit(t,o,x,y,r,p){var h=SKY.hits[SKY.hn];if(!h){h=SKY.hits[SKY.hn]={}}h.t=t;h.o=o;h.x=x;h.y=y;h.r=r;h.p=p;SKY.hn++}
 function skyRng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function skyDirW(az){return SKYDIR[Math.round(((az%6.2832+6.2832)%6.2832)/6.2832*16)%16]}
 function skyDirLong(az){var d=skyDirW(az),M={N:"north",E:"east",S:"south",W:"west"},o="",i;if(M[d])return M[d];for(i=0;i<d.length;i++)o+=(o?"-":"")+M[d[i]]||"";return o}
@@ -4985,7 +4962,7 @@ function skyAll(){
 }
 function skyAzAlt(o){return{az:(Math.atan2(o.E,o.N)+6.2832)%6.2832,al:Math.asin(Math.max(-1,Math.min(1,o.U)))}}
 /* projection (stereographic) */
-function skyBasis(az,al){var ca=Math.cos(al),sa=Math.sin(al),cz=Math.cos(az),sz=Math.sin(az),B=SKY.B2={};B.F0=ca*sz;B.F1=ca*cz;B.F2=sa;B.R0=cz;B.R1=-sz;B.U0=-sa*sz;B.U1=-sa*cz;B.U2=ca}
+function skyBasis(az,al){var ca=Math.cos(al),sa=Math.sin(al),cz=Math.cos(az),sz=Math.sin(az),B=SKY.B2||(SKY.B2={});B.F0=ca*sz;B.F1=ca*cz;B.F2=sa;B.R0=cz;B.R1=-sz;B.U0=-sa*sz;B.U1=-sa*cz;B.U2=ca}
 function skyPr(o){
   var B=SKY.B2,E=o.E,N=o.N,U=o.U,d=E*B.F0+N*B.F1+U*B.F2;
   if(d<-.97){o.vis=false;return false}
@@ -5070,7 +5047,7 @@ function skyDraw(ts,t,dt,ka){
   if(SKY.gy&&SKY.gyEv){var da=((SKY.gyAz-HG.lon+3.14159)%6.2832+6.2832)%6.2832-3.14159;HG.lon+=da*Math.min(1,dt*9);HG.lat+=(SKY.gyAl-HG.lat)*Math.min(1,dt*9);HG.vx=HG.vy=0}
   HG.lat=Math.max(-.35,Math.min(1.5708,HG.lat));HG.zoom=Math.max(.6,Math.min(6.5,HG.zoom));
   var fov=75*SD/HG.zoom,half=Math.min(W,H)*.5;SKY.f=half/(2*Math.tan(fov/4));SKY.cx=HG.cx;SKY.cy=HG.cy;HG.R=SKY.f;
-  skyBasis(HG.lon,HG.lat);SKY.fb=0;SKY.ob=[];SKY.hits=[];SKY.anc=null;
+  skyBasis(HG.lon,HG.lat);SKY.fb=0;SKY.ob.length=0;SKY.hn=0;SKY.anc=null;
   var dl=skyDaylight(),lim=skyLimit(),fs=Math.max(8,Math.min(11,W/38));
   /* sky colour */
   g.save();
@@ -5115,7 +5092,7 @@ function skyDraw(ts,t,dt,ka){
   for(i=0;i<SKY.D.length;i++){o=SKY.D[i];if(o.U<-.05||!skyPr(o))continue;if(o.sx<-20||o.sx>W+20||o.sy<-20||o.sy>H+20)continue;
     var da=Math.max(0,Math.min(1,(lim-o.m)/1.5))*.8;if(da<.05)continue;
     g.strokeStyle="#b7a6ff";g.globalAlpha=da;g.lineWidth=1;g.beginPath();var rs=o.ty==="galaxy"?[8,4]:[5,5];g.ellipse(o.sx,o.sy,rs[0]*(HG.zoom>2?1.6:1),rs[1]*(HG.zoom>2?1.6:1),-.5,0,TW2);g.stroke();
-    SKY.hits.push({t:"dso",o:o,x:o.sx,y:o.sy,r:9,p:2})}
+    skyHit("dso",o,o.sx,o.sy,9,2)}
   g.globalAlpha=1;
   /* stars */
   var zs=1+.14*(HG.zoom-1),twk=!LITE,lmag=2.15+(HG.zoom-1)*.85;if(SKY.lines)lmag-=.1;
@@ -5128,26 +5105,26 @@ function skyDraw(ts,t,dt,ka){
     g.globalAlpha=al2;var gr=r*(o.m<1.5?7:5);g.drawImage(sp2,o.sx-gr,o.sy-gr,gr*2,gr*2);
     if(o.m<.9&&al2>.5&&!LITE){g.strokeStyle="rgba(255,255,255,.55)";g.lineWidth=.8;g.beginPath();g.moveTo(o.sx-gr*1.3,o.sy);g.lineTo(o.sx+gr*1.3,o.sy);g.moveTo(o.sx,o.sy-gr*1.3);g.lineTo(o.sx,o.sy+gr*1.3);g.stroke()}
     var sl=SKY.sel===o;
-    SKY.hits.push({t:"star",o:o,x:o.sx,y:o.sy,r:Math.max(10,r*2),p:o.m<2.5?1:0});
+    skyHit("star",o,o.sx,o.sy,Math.max(10,r*2),o.m<2.5?1:0);
     if(sl)SKY.anc={x:o.sx,y:o.sy,c:"#cfeee9"}}
   g.globalAlpha=1;
   /* star names + constellation names */
   g.font="500 "+fs+"px Michroma,ui-monospace,monospace";g.textBaseline="middle";
   if(TUNE.lab&&vis>.15){
-    var nm=SKY.S.slice().sort(function(a,b){return a.m-b.m});
+    var nm=SKY.SN||(SKY.SN=SKY.S.slice().sort(function(a,b){return a.m-b.m}));
     for(i=0;i<nm.length;i++){o=nm[i];if(o.m>lmag)break;if(!o.vis||o.sx<12||o.sx>W-12||o.sy<92||o.sy>H-110)continue;if(o.U<0)continue;
       skyLab(g,o.n,o.sx+7,o.sy-6,fs,"#d9f7f3",.78*vis,false)}
     if(SKY.lines){g.font="500 "+(fs-1)+"px Michroma,ui-monospace,monospace";
       for(i=0;i<SKY.C.length;i++){var cc2=SKY.C[i];if(cc2.U<-.05||!skyPr(cc2)||cc2.sx<30||cc2.sx>W-30||cc2.sy<95||cc2.sy>H-120)continue;
-        g.textAlign="center";if(skyLabC(g,cc2.n.toUpperCase(),cc2.sx,cc2.sy+16,fs-1,col,.55*vis))SKY.hits.push({t:"con",o:cc2,x:cc2.sx,y:cc2.sy+16,r:22,p:-1});g.textAlign="left"}}
+        g.textAlign="center";if(skyLabC(g,cc2.n.toUpperCase(),cc2.sx,cc2.sy+16,fs-1,col,.55*vis))skyHit("con",cc2,cc2.sx,cc2.sy+16,22,-1);g.textAlign="left"}}
     g.font="500 "+fs+"px Michroma,ui-monospace,monospace"}
   /* ISS */
   if(SKY.iss&&!SKY.off&&typeof lvIssPos==="function"&&LV.iss){var ip=lvIssPos(performance.now()),ia=skyIssLook(ip);
     if(ia){var q2={};skyPv(Math.sin(ia.az)*Math.cos(ia.al),Math.cos(ia.az)*Math.cos(ia.al),Math.sin(ia.al),q2);
       if(q2.vis&&ia.al>-.05&&skyPr(q2)){g.fillStyle="#fff";g.globalAlpha=.95;g.fillRect(q2.sx-5,q2.sy-1,10,2);g.fillRect(q2.sx-1,q2.sy-4,2,8);g.strokeStyle="#e8fffc";g.lineWidth=1;g.globalAlpha=.7;g.beginPath();g.arc(q2.sx,q2.sy,9,0,TW2);g.stroke();
-        skyLab(g,"ISS",q2.sx+12,q2.sy,fs,"#e8fffc",.95,false);SKY.hits.push({t:"iss",o:{n:"ISS",ia:ia,E:q2.E,N:q2.N,U:q2.U,sx:q2.sx,sy:q2.sy},x:q2.sx,y:q2.sy,r:14,p:3});SKY.issA=ia}}}
+        skyLab(g,"ISS",q2.sx+12,q2.sy,fs,"#e8fffc",.95,false);skyHit("iss",{n:"ISS",ia:ia,E:q2.E,N:q2.N,U:q2.U,sx:q2.sx,sy:q2.sy},q2.sx,q2.sy,14,3);SKY.issA=ia}}}
   /* planets, Sun, Moon */
-  var B=SKY.B,bo=["sun","moon"].concat(SKYPLN);
+  var B=SKY.B,bo=SKY.BO||(SKY.BO=["sun","moon"].concat(SKYPLN));
   for(i=0;i<bo.length;i++){o=B[bo[i]];if(!skyPr(o))continue;if(o.sx<-60||o.sx>W+60||o.sy<-60||o.sy>H+60)continue;
     var id=o.k,sl2=SKY.sel===o,rr2;
     if(id==="sun"){skySunDraw(g,o.sx,o.sy,t);rr2=14;skyLab(g,"SUN",o.sx+16,o.sy-12,fs,"#ffe3a8",.95,false)}
@@ -5157,7 +5134,7 @@ function skyDraw(ts,t,dt,ka){
       g.globalAlpha=pa;g.fillStyle="rgb("+Math.min(255,c3[0]+30)+","+Math.min(255,c3[1]+30)+","+Math.min(255,c3[2]+30)+")";g.beginPath();g.arc(o.sx,o.sy,pr,0,TW2);g.fill();
       if(id==="saturn"&&HG.zoom>1.6){g.strokeStyle="rgba(232,208,150,.8)";g.lineWidth=1.2;g.beginPath();g.ellipse(o.sx,o.sy,pr*2.2,pr*.8,-.4,0,TW2);g.stroke()}
       skyLab(g,o.n.toUpperCase(),o.sx+pr+7,o.sy-pr-4,fs,"#ffe9c4",.95*Math.max(.4,pa),false);rr2=Math.max(14,pr*2)}
-    g.globalAlpha=1;SKY.hits.push({t:"body",o:o,x:o.sx,y:o.sy,r:rr2,p:id==="sun"||id==="moon"?4:3});
+    g.globalAlpha=1;skyHit("body",o,o.sx,o.sy,rr2,id==="sun"||id==="moon"?4:3);
     if(sl2)SKY.anc={x:o.sx,y:o.sy,c:"#ffd27a"}}
   g.globalAlpha=1;
   /* ground + compass */
@@ -5273,7 +5250,7 @@ function skySay(S){
 /* tap selection */
 function skyTapAt(x,y){
   var best=null,bd=1e9,i,h,d;
-  for(i=0;i<SKY.hits.length;i++){h=SKY.hits[i];d=Math.hypot(h.x-x,h.y-y);var lim=Math.max(24,h.r+12);if(h.t==="con")lim=26;if(d>lim)continue;var sc=d-h.p*9;if(sc<bd){bd=sc;best=h}}
+  for(i=0;i<SKY.hn;i++){h=SKY.hits[i];d=Math.hypot(h.x-x,h.y-y);var lim=Math.max(24,h.r+12);if(h.t==="con")lim=26;if(d>lim)continue;var sc=d-h.p*9;if(sc<bd){bd=sc;best=h}}
   if(!best){skyDeselect();return}
   var S=best.o;if(best.t==="iss")S={t:"iss",o:best.o};
   if(SKY.sel===S||(SKY.sel&&SKY.sel.o&&S.o&&SKY.sel.t==="iss"&&S.t==="iss")){skySay2(S);return}
@@ -5399,6 +5376,7 @@ function skyIntent(n){
   var s=n.replace(/^(?:hey |yo |ok |okay )?jarvis,? /,"").replace(/^please /,"").replace(/ please$/,"").replace(/,? sir$/,""),m,on=HG.on&&HG.mode==="sky";
   if(/^(?:show|open|display|bring up|pull up|launch|start|activate|take me to|go to|load|let s see|lets see)(?: me)?(?: the| my| our)? (?:night sky|sky|stars|star map|star chart|planetarium|sky view|sky map|constellations|stargazing|star gazing|heavens|night sky view|sky tonight|stars tonight)(?: view| mode| tonight| above me| over kl| over kuala lumpur)?$/.test(s)||/^(?:night sky|star map|star chart|stargazing|planetarium|sky view|look at the stars|look at the sky|what is in the sky tonight|whats in the sky tonight|what s in the sky tonight|what is in the sky|whats in the sky|what can i see tonight|what can i see in the sky|what is up tonight|whats up tonight|what s up tonight|the night sky|sky tonight)$/.test(s)){return{k:"sky",tonight:/tonight|what/.test(s)}}
   if(/^(?:which|what) planets (?:are|can i see)(?: visible| up| out)?(?: tonight| now| right now)?$/.test(s)||/^(?:what|which) (?:planets|stars) (?:can i see|are visible|are up)(?: tonight| now)?$/.test(s))return{k:"skytonight"};
+  if(/\b(?:iss|space station)\b/.test(s)&&/^(?:when|what time|can i see|will i see|could i see|is the|next|show me when|tell me when|any)\b/.test(s)&&/\b(?:next pass|pass|fly over|go over|overhead|visible|see|when|tonight)\b/.test(s)&&!/^where/.test(s))return{k:"issnext"};
   if(!on)m=s.match(/^(?:where is|where s|where are|find|locate|show me|point (?:me )?(?:to|at)|point out) (?:the )?(.+?)(?: in the sky| tonight| in the night sky| right now| up there| overhead)?$/);
   else m=s.match(/^(?:where is|where s|where are|find|locate|show me|show|point (?:me )?(?:to|at)|point out|look at|go to|take me to|focus on|zoom (?:in )?(?:on|to)|center on|centre on|select|tap|identify|what is|what s) (?:the |that )?(.+?)(?: in the sky| tonight| right now)?$/);
   if(m){
@@ -5432,6 +5410,64 @@ function skyIntent(n){
   return null
 }
 
+/* ===== v9.36: ISS pass alerts (Sophon lines) ===== */
+function issProp(s,p,age,dm){
+  var D=Math.PI/180,inc=51.64*D,n=6.2832/92.9,asc=p?(s.lat>=p.lat):true,sl=Math.max(-1,Math.min(1,Math.sin(s.lat*D)/Math.sin(inc))),u0=Math.asin(sl);if(!asc)u0=Math.PI-u0;
+  function lm(u){var w=Math.atan2(Math.cos(inc)*Math.sin(u),Math.cos(u))-u;w-=6.2832*Math.round(w/6.2832);return u+w}
+  var t=age+dm,u=u0+n*t,v=s.lon*D+(lm(u)-lm(u0))-.0043752*t;v=((v+Math.PI)%6.2832+6.2832)%6.2832-Math.PI;
+  return{lat:Math.asin(Math.sin(inc)*Math.sin(u))/D,lon:v/D}
+}
+function issLit(lat,lon,h,jd){
+  var D=Math.PI/180,th=lon*D+skyLstAt(jd)-SKL[1]*D,cp=Math.cos(lat*D),R=6371+h,x=R*cp*Math.cos(th),y=R*cp*Math.sin(th),z=R*Math.sin(lat*D),sv=skySunEq(jd).v,dt=x*sv[0]+y*sv[1]+z*sv[2];
+  if(dt>0)return true;var px=x-dt*sv[0],py=y-dt*sv[1],pz=z-dt*sv[2];return Math.sqrt(px*px+py*py+pz*pz)>6371
+}
+/* first pass above 10 degrees within maxMin minutes; vis=true keeps only passes you could actually see */
+function issPassNext(maxMin,vis){
+  var s=LV.iss,p=LV.prev;if(!s)return null;
+  var age=(performance.now()-s.ts)/60000,t,w=null,h=s.alt||420,D=Math.PI/180;
+  for(t=0;t<=maxMin;t+=.5){
+    var pos=issProp(s,p,age,t),lk=skyIssLook(pos),al=lk.al/D;
+    if(al>10){
+      var jd=(Date.now()+t*60000)/86400000+2440587.5;
+      if(!w)w={t0:t,az0:lk.az,peak:al,azp:lk.az,tp:t,jd:jd,lat:pos.lat,lon:pos.lon};
+      if(al>w.peak){w.peak=al;w.azp=lk.az;w.tp=t;w.jd=jd;w.lat=pos.lat;w.lon=pos.lon}
+      w.last=t
+    }else if(w){
+      w.dark=skyAltV(skySunEq(w.jd).v,w.jd)/D<-5;w.lit=issLit(w.lat!=null?w.lat:pos.lat,w.lon!=null?w.lon:pos.lon,h,w.jd);
+      if(!vis||(w.dark&&w.lit&&w.peak>=15))return w;
+      w=null
+    }
+  }
+  if(w){w.dark=skyAltV(skySunEq(w.jd).v,w.jd)/D<-5;w.lit=issLit(w.lat!=null?w.lat:0,w.lon!=null?w.lon:0,h,w.jd);if(!vis||(w.dark&&w.lit&&w.peak>=15))return w}
+  return null
+}
+function proIss(){
+  var jd=Date.now()/86400000+2440587.5;if(skyAltV(skySunEq(jd).v,jd)/(Math.PI/180)>-3)return;
+  var s=LV.iss,age=s?(performance.now()-s.ts)/1000:1e9;
+  if(!s||age>170||(!LV.prev&&age>25)){lvIssPoll(false).then(proIssEval).catch(function(){});return}
+  proIssEval()
+}
+function proIssEval(){
+  if(!LV.iss||!LV.prev)return;
+  var r=issPassNext(26,true);if(!r||r.t0>14||r.peak<18)return;
+  var pk=skyDirLong(r.azp),n=Math.round(r.t0),en;
+  if(n<=1)en="Sir, Sophon alert. The International Space Station is crossing over Kuala Lumpur right now, climbing to "+Math.round(r.peak)+" degrees in the "+pk+". If the sky is clear, look "+pk+".";
+  else en="Sir, Sophon alert. The International Space Station will pass over Kuala Lumpur in about "+n+" minutes. It rises in the "+skyDirLong(r.az0)+" and climbs to "+Math.round(r.peak)+" degrees in the "+pk+". Say show me the night sky and I will point it out.";
+  proAuto("iss",en.replace(/, Sir\.$/,"."),1.2)
+}
+function issNextSay(){
+  reply(LLs("Checking the station's track, Sir.","Menyemak lintasan stesen, Tuan."));
+  var age=LV.iss?(performance.now()-LV.iss.ts)/1000:1e9,ready=LV.iss&&LV.prev&&age<150&&LV.iss.ts>LV.prev.ts+3000,job;
+  if(ready)job=Promise.resolve();
+  else job=lvIssPoll(true).then(function(){return new Promise(function(r){setTimeout(r,9000)})}).then(function(){return lvIssPoll(false)});
+  job.then(function(){
+    var v=issPassNext(360,true),a=v||issPassNext(360,false),fm=function(w){return skyHM(Date.now()+w.t0*60000)},en;
+    if(v){var m=Math.round(v.t0);en=m<=1?"The station is crossing over Kuala Lumpur right now, peaking at "+Math.round(v.peak)+" degrees in the "+skyDirLong(v.azp)+". Look up.":"The next pass you can see is in about "+m+" minutes, at "+fm(v)+". It rises in the "+skyDirLong(v.az0)+" and peaks at "+Math.round(v.peak)+" degrees in the "+skyDirLong(v.azp)+". That is an estimate from its current orbit, so allow a few minutes either way."}
+    else if(a)en="The station passes over Kuala Lumpur in about "+Math.round(a.t0)+" minutes, but you will not be able to see it: "+(!a.dark?"it will still be daylight.":"it will be in Earth's shadow, so it is not lit.")+" Nothing visible in the next six hours.";
+    else en="No pass over Kuala Lumpur in the next six hours.";
+    reply(LLs(en))
+  }).catch(function(){reply(LLs("I cannot reach the ISS tracker right now, Sir.","Penjejak ISS tidak dapat dicapai sekarang, Tuan."))})
+}
 function holoIntent(raw,n){
   var w=n.split(" ").length;if(w>14)return null;
   var sk=skyIntent(n);if(sk)return sk;
@@ -5451,12 +5487,10 @@ function holoIntent(raw,n){
   if(new RegExp(XP+"(?:exit|stop|leave|close|end|turn off|disable|cancel|shut down) (?:the )?(?:"+NV+"|"+EG+")(?: mode| view| filter)?$").test(n))return{k:"xrayoff"};
   if(new RegExp(XP+"(?:(?:activate|start|enter|go to|go into|switch to|turn on|open|begin|initiate|launch|engage|run|show me|enable) (?:the |my )?)?"+NV+"(?: mode| view| filter)?$").test(n))return{k:"xrmode",m:1};
   if(new RegExp(XP+"(?:(?:activate|start|enter|go to|go into|switch to|turn on|open|begin|initiate|launch|engage|run|show me|enable) (?:the |my )?)?"+EG+"(?: mode| view| filter)?$").test(n))return{k:"xrmode",m:2};
-  var TH="(?:thermal(?: vision| camera| cam| mode| view| imaging)?|heat ?(?:vision|map|view|camera))",GH="(?:motion ghost|ghost mode|ghost|motion trails?|ghost trails?)",RD="(?:radar sweep|radar mode|radar|motion radar)";
+  var TH="(?:thermal(?: vision| camera| cam| mode| view| imaging)?|heat ?(?:vision|map|view|camera))";
   var ONV="(?:(?:activate|start|enter|go to|go into|switch to|turn on|open|begin|initiate|launch|engage|run|show me|enable) (?:the |my )?)?";
-  if(new RegExp(XP+"(?:exit|stop|leave|close|end|turn off|disable|cancel|shut down) (?:the )?(?:"+TH+"|"+GH+"|"+RD+")(?: mode| view| filter)?$").test(n))return{k:"xrayoff"};
+  if(new RegExp(XP+"(?:exit|stop|leave|close|end|turn off|disable|cancel|shut down) (?:the )?(?:"+TH+")(?: mode| view| filter)?$").test(n))return{k:"xrayoff"};
   if(new RegExp(XP+ONV+TH+"(?: mode| view| filter)?$").test(n))return{k:"xrmode",m:3};
-  if(new RegExp(XP+ONV+GH+"(?: mode| view| filter)?$").test(n))return{k:"xrmode",m:4};
-  if(new RegExp(XP+ONV+RD+"(?: mode| view| filter)?$").test(n))return{k:"xrmode",m:5};
   if(XR.on&&new RegExp(XP+"(?:next|change|switch|cycle) (?:the )?(?:filter|mode|view)$").test(n))return{k:"xrmode",m:"next"};
   if(XR.on&&new RegExp(XP+"(?:back to |switch to |go to )?x[ -]?ray(?: mode| filter| view)?$").test(n))return{k:"xrmode",m:0};
   if(XR.on&&new RegExp("^(?:(?:exit|stop|leave|close|end|turn off|disable|cancel|back|go back|hide|dismiss|tutup)(?: the)?(?: "+XR_+")?(?: mode| scanner| scan| vision| view)?)$").test(n))return{k:"xrayoff"};
@@ -5492,6 +5526,7 @@ function holoRun(h){
   if(h.k==="solar"){if(HG.on&&HG.mode==="solar"&&h.p){solFocus(h.p,true)}else{hcOpen(true);solarOpen(!h.p,h.p||null);if(h.p)solFocus(h.p,true)}return}
   if(h.k==="soltime"){solTime(h.r);return}
   if(h.k==="orbs"){hcOpen(true);orbsOpen(true);return}
+  if(h.k==="issnext"){issNextSay();return}
   if(h.k==="sky"){hcOpen(true);skyOpen({tonight:h.tonight});return}
   if(h.k==="skyfind"){skyFind(h.o,true);return}
   if(h.k==="skytog"){skyToggle(h.w,h.on);return}
@@ -6921,7 +6956,6 @@ $("goBtn").addEventListener("click",function(){
         curK=lkey();
         var g=startGreeting(gwv,curK);
         add("a",g);speak(g);
-        add("a","\u201C"+randQuote(curK)+"\u201D");
         if(wakeMode){conv.on=true;conv.miss=0;paintConv();wlOn();bargeWatch();afterSpeech(function(){if(conv.on)startListen(true)})}
         if(!gwv)gw.then(function(){paintWx()});
         setTimeout(function(){B.style.display="none"},1000);
