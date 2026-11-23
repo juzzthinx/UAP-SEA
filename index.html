@@ -1400,7 +1400,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.42";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
+var VER="v9.43";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1726,8 +1726,16 @@ function sndN(f,t,dur,g,type,sw,atk){
     o.connect(e);e.connect(b.i);o.start(s0);o.stop(s0+dur+.05)}catch(e){}
 }
 function sndB(f,t,dur,g){sndN(f,t,dur,g);sndN(f*2.76,t,dur*.45,g*.22)}
+function sndSoft(f,t,dur,g){
+  try{var c=ctx();if(!c||!SND.on)return;var o=c.createOscillator(),e=c.createGain(),lp=c.createBiquadFilter(),s0=c.currentTime+t;
+    o.type="sine";o.frequency.value=f;lp.type="lowpass";lp.frequency.value=3600;
+    e.gain.setValueAtTime(.0001,s0);e.gain.exponentialRampToValueAtTime(g,s0+.012);e.gain.exponentialRampToValueAtTime(.0001,s0+dur);
+    o.connect(e);e.connect(lp);lp.connect(c.destination);o.start(s0);o.stop(s0+dur+.04)}catch(e){}
+}
 function sndPlay(k){
-  if(!SND.on)return;var E5=659.25,G5=830.61,B5=987.77,E6=1318.51;
+  if(!SND.on)return;
+  if(k==="ready"){sndSoft(987.77,0,.15,.05);sndSoft(1318.51,.07,.2,.045);return}
+  if(k==="heard"){sndSoft(1318.51,0,.1,.04);sndSoft(987.77,.06,.17,.034);return}var E5=659.25,G5=830.61,B5=987.77,E6=1318.51;
   if(k==="boot"){sndN(82.41,0,2.6,.11,"triangle",0,.7);sndN(164.81,.2,2.2,.05,"sine",0,.6);[329.63,493.88,659.25,987.77,1318.51].forEach(function(f,i){sndB(f,.45+i*.16,1.5,.1)});sndN(2093,1.3,1.3,.025,"sine",2637,.3)}
   else if(k==="sophon"){sndB(B5,0,1.7,.13);sndB(E5,.24,1.9,.12);sndN(1500,.55,.7,.035,"sine",2800,.2)}
   else if(k==="due"){sndB(E5,0,1,.13);sndB(G5,.13,1,.12);sndB(B5,.26,1.3,.12)}
@@ -7030,6 +7038,7 @@ function runStream(msgs){
 /* ---------- voice in ---------- */
 var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 function tick(){
+  if(SND.on){sndPlay("heard");return}
   try{var c=ctx();if(!c)return;var o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=1500;g.gain.value=0.035;
   o.connect(g);g.connect(c.destination);var t0=c.currentTime;g.gain.setValueAtTime(0.035,t0);g.gain.exponentialRampToValueAtTime(0.0001,t0+0.07);o.start(t0);o.stop(t0+0.08)}catch(e){}
 }
@@ -7040,7 +7049,7 @@ function endWait(txt,fin){
   var tx=String(txt||"").trim(),wc=tx.split(/\s+/).length,base=parseInt(cfg.sil,10)||1800;
   if(HANG_RE.test(tx))return base+500;
   if(FAST_RE.test(tx.replace(/[.!?,]+$/,"")))return Math.max(420,base*.4);
-  if(fin)return Math.max(450,base*.3);
+  if(fin)return Math.max(340,base*.2);
   if(/[.?!]$/.test(tx)&&wc>=3)return Math.max(450,base*.4);
   if(wc>=5)return Math.max(520,base*.62);
   if(wc>=3)return Math.max(560,base*.8);
@@ -7060,22 +7069,29 @@ function warmNet(wait){
   if(cfg.prov==="groq"&&cfg.key)return withTO(fetch(PROV.groq.base+"/models",{headers:{authorization:"Bearer "+cfg.key}}).then(function(r){return r.ok||r.status===401||r.status===403}),2200).catch(function(){return false});
   return Promise.resolve(true);
 }
-function startListen(quiet){
+function fixHeard(t){
+  t=String(t||"");
+  t=t.replace(/^(\s*(?:(?:yo|hey|hi|ok|okay)\s+)?)(?:jervis|jarvas|javis|jarves|jarvice|jarbis|darvis|garvis|gervis|charvis|jarvus)\b/i,function(m,p){return p+"Jarvis"});
+  t=t.replace(/^(\s*(?:yo|hey|hi|ok|okay)\s+)travis\b/i,function(m,p){return p+"Jarvis"});
+  t=t.replace(/\b(?:and(?:roid)? ?(?:ro)?me(?:da|der)|and ?from ?(?:eda|ida)|android meter)\b/gi,"Andromeda");
+  return t
+}
+function startListen(quiet,retry){
   if(!SR){add("e","This browser has no speech recognition. Open it in Safari, or type instead.");return}
   if(busy)return;
   standbyPause();bargeAbort();
   unlockSpeech();ctx();warmNet();
-  var finalText="",lastTxt="",sent=false,silT=0,me=null;
+  var finalText="",lastTxt="",sent=false,silT=0,me=null,t0=Date.now(),errSeen=false;
   function fire(){
     if(sent)return;var tx=(lastTxt||"").trim();if(!tx)return;
     sent=true;clearTimeout(silT);listening=false;
     try{me.stop()}catch(e){}
     asType("playback");
-    tick();send(tx);
+    tick();send(fixHeard(tx));
   }
   me=new SR();rec=me;
   me.lang=cfg.lang;me.interimResults=true;me.continuous=true;
-  me.onstart=function(){listening=true;setState("listen","listening...")};
+  me.onstart=function(){listening=true;setState("listen","listening...");if(!retry)sndPlay("ready")};
   me.onresult=function(e){
     if(sent)return;
     var interim="";finalText="";
@@ -7087,6 +7103,8 @@ function startListen(quiet){
   };
   me.onerror=function(e){
     listening=false;clearTimeout(silT);asType("playback");
+    if(!retry&&!sent&&(e.error==="network"||e.error==="audio-capture")){errSeen=true;sent=true;setTimeout(function(){startListen(quiet,true)},350);return}
+    errSeen=true;
     if(conv.on&&(e.error==="not-allowed"||e.error==="service-not-allowed"))convOff();
     if(e.error==="not-allowed"||e.error==="service-not-allowed"){if(!quiet)add("e","Mic blocked. Settings > Safari > Microphone, and make sure Dictation is on in Settings > General > Keyboard.")}
     else if(!quiet&&e.error!=="no-speech"&&e.error!=="aborted"){add("e","Mic error: "+e.error)}
@@ -7095,7 +7113,9 @@ function startListen(quiet){
   me.onend=function(){
     listening=false;clearTimeout(silT);asType("playback");
     if(sent)return;
-    if(lastTxt.trim()){sent=true;send(lastTxt)}else if(!busy){if(conv.on)convMiss();else idle()}
+    if(lastTxt.trim()){sent=true;send(fixHeard(lastTxt))}
+    else if(!errSeen&&!retry&&!busy&&Date.now()-t0<2500){sent=true;setTimeout(function(){startListen(quiet,true)},220)}
+    else if(!busy){if(conv.on)convMiss();else idle()}
   };
   asType("play-and-record");
   try{me.start()}catch(e){asType("playback");idle()}
@@ -7105,7 +7125,7 @@ function standbySoon(){clearTimeout(standby.timer);standby.timer=setTimeout(stan
 function findWake(text){
   var t=String(text).toLowerCase().replace(/['’]/g,"").replace(/[^a-z0-9\s]/g," ").replace(/\s+/g," ").trim();
   if(/\b(daddy is home|daddys home|daddy home|dad is home|dads home|daddy dah balik|ayah dah balik|abah dah balik)\b/.test(t)||/(爸爸回来了|爸爸回家了|папа дома|папа вернулся|パパが帰った|ただいま)/.test(String(text).toLowerCase()))return{home:true};
-  if(/\b(jarvis|jarvis)\b/.test(t)||/(贾维斯|джарвис|ジャービス|ジャーヴィス)/.test(String(text).toLowerCase()))return{home:false};
+  if(/\b(jarvis|jervis|jarvas|javis|jarves|jarvice|jarbis|darvis|garvis|gervis|charvis|jarvus)\b/.test(t)||/\b(?:yo|hey|hi|ok|okay) travis\b/.test(t)||/(贾维斯|джарвис|ジャービス|ジャーヴィス)/.test(String(text).toLowerCase()))return{home:false};
   return null;
 }
 function standbyListen(){
@@ -7132,11 +7152,11 @@ function standbyListen(){
   try{r.start()}catch(e){standby.rec=null;standbySoon()}
 }
 function standbyWake(chunk,w){
-  standbyTTL();
+  standbyTTL();sndPlay("heard");
   var r=standby.rec;standby.rec=null;if(r){try{r.abort()}catch(e){}}
-  var rest=chunk.replace(/^[\s\S]*?(?:jarvis|джарвис|ジャービス|ジャーヴィス|贾维斯)[\s,.:;!?-]*/i,"").trim();
+  var rest=chunk.replace(/^[\s\S]*?(?:jarvis|jervis|jarvas|javis|jarves|jarvice|jarbis|darvis|garvis|gervis|charvis|jarvus|(?:yo|hey|hi|ok|okay) travis|джарвис|ジャービス|ジャーヴィス|贾维斯)[\s,.:;!?-]*/i,"").trim();
   if(!w.home&&/(^|\W)yo(\W|$)/i.test(chunk)&&rest.length<3){add("s","// heard: yo jarvis");send("Yo Jarvis");return}
-  if(!w.home&&rest.length>2){add("s","// heard: "+rest);send(rest);return}
+  if(!w.home&&rest.length>2){add("s","// heard: "+rest);send(fixHeard(rest));return}
   curK=lkey();
   var ack=w.home?LT("Welcome home, Sir. All systems are green. What do you need?","Selamat pulang, Tuan. Semua sistem hijau. Apa yang anda perlukan?","欢迎回家，先生。所有系统正常。需要什么？",null,"С возвращением домой, сэр. Все системы в норме. Что вам нужно?","おかえりなさい、サー。全システム正常です。ご用件は？"):pick([LT("Yes, Sir?","Ya, Tuan?","请说，先生。",null,"Да, сэр?","はい、サー？"),LT("Listening.","Saya mendengar.","我在听。",null,"Слушаю.","聞いています。"),LT("At your service.","Sedia membantu.","随时为您效劳。",null,"К вашим услугам.","お任せください。")]);
   add("a",ack);speak(ack);
