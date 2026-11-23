@@ -180,6 +180,24 @@ body.mnm #log{padding-top:8px}
 #andro .anh{margin-top:12px;font-family:"Michroma","Eurostile",sans-serif;font-size:6.5px;letter-spacing:.4em;color:var(--dim);opacity:.6}
 @media (max-height:640px){#anL{min-height:96px}}
 
+/* v9.41 arc reactor start-up */
+#andro .ans{transition:opacity 1.2s ease .5s,color .8s,text-shadow .8s}
+#andro.ini .ans{color:#eafffb;text-shadow:0 0 18px var(--c)}
+#andro.ini .ant{text-shadow:0 0 46px rgba(46,230,214,.75),0 0 100px rgba(120,175,255,.3)}
+#andro.t2 #anL,#andro.t2 .anb,#andro.t2 .anh{opacity:0;transition:opacity .7s}
+#anR{position:absolute;left:50%;top:36%;width:min(300px,76vw,40vh);aspect-ratio:1;transform:translate(-50%,-50%) scale(.86);opacity:0;transition:opacity 1s ease,transform 1.8s cubic-bezier(.2,.7,.2,1);pointer-events:none}
+#anR.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#anR::before{content:"";position:absolute;inset:16%;border-radius:50%;background:radial-gradient(circle,rgba(0,210,190,.28),transparent 70%);animation:bbr 3.2s ease-in-out infinite}
+#anR svg{position:absolute;inset:0;width:100%;height:100%}
+#anR .rarc{transform:rotate(-90deg)}
+#anR.on .rl1{animation-duration:7s}#anR.on .rl2{animation-duration:4.5s}#anR.on .rl3{animation-duration:2.8s}
+#anArc{filter:drop-shadow(0 0 5px #00d2be)}
+#anR.lit{filter:drop-shadow(0 0 24px rgba(0,210,190,.7));transition:filter .8s}
+#anN{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;white-space:nowrap}
+#anN b{font-family:"Michroma","Eurostile",sans-serif;font-weight:400;font-size:34px;text-shadow:0 0 18px rgba(0,210,190,.6)}
+#anN b i{font-style:normal;font-size:12px;opacity:.7;margin-left:3px}
+#anN>span{display:block;margin-top:8px;font-family:"Michroma","Eurostile",sans-serif;font-size:6.5px;letter-spacing:.26em;color:var(--c)}
+
 /* ---------- v9.38 minimal, second take: giant clock, breathing aura, transcript stream, floating glass bar ---------- */
 body.mnm .sig{display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 20px 0;letter-spacing:0;font-size:inherit}
 body.mnm .sig i{font-style:normal;font-family:"Barlow","Avenir Next","Helvetica Neue",Arial,sans-serif;font-weight:200;font-size:60px;letter-spacing:.05em;line-height:1;color:#eef3f4;text-shadow:0 0 28px rgba(46,230,214,.18)}
@@ -751,7 +769,7 @@ body.lite .xsw{display:none}
   <div id="bList"></div>
 </div>
 
-<div id="andro"><canvas id="anC"></canvas><div class="anw"><div class="ant">ANDROMEDA</div><div class="ans">SEQUENCE</div><div id="anL"></div><div class="anb"><i id="anP"></i></div><div class="anh">TAP TO SKIP</div></div></div>
+<div id="andro"><canvas id="anC"></canvas><div id="anR"></div><div class="anw"><div class="ant">ANDROMEDA</div><div class="ans">SEQUENCE</div><div id="anL"></div><div class="anb"><i id="anP"></i></div><div class="anh">TAP TO SKIP</div></div></div>
 <div id="eyes"><video id="eyeVid" playsinline muted autoplay></video><div class="cn a"></div><div class="cn b"></div>
 <div class="top"><span>VISUAL FEED</span><span id="eyeSt">LIVE</span></div>
 <div class="ringw" id="eyeRing"><svg class="rl r1" viewBox="0 0 200 200"><circle cx="100" cy="100" r="92" fill="none" stroke="currentColor" stroke-width="6" opacity=".9"/><circle cx="100" cy="100" r="64" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".85"/></svg><svg class="rl r2" viewBox="0 0 200 200"><circle cx="100" cy="100" r="78" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="2 7" opacity=".7"/></svg><svg class="rl r3" viewBox="0 0 200 200"><circle cx="100" cy="100" r="98" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="26 14 4 14" opacity=".55"/></svg><svg class="rl r4" viewBox="0 0 200 200"><path d="M100 16 A84 84 0 0 1 184 100" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".85"/></svg>
@@ -1376,7 +1394,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.40";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
+var VER="v9.41";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -5694,49 +5712,65 @@ function objIdent(){
   eyes.face="environment";eyesOpen();
   var n=0,iv=setInterval(function(){n++;var v=$("eyeVid");if(eyes.on&&v&&v.videoWidth>0&&v.readyState>=2){clearInterval(iv);setTimeout(function(){if(eyes.on)eyesAction("id")},700)}else if(n>24)clearInterval(iv)},250)
 }
-/* ===== v9.40: "Initiate Andromeda sequence" ===== */
-var AND={on:false,raf:0,tm:[],t0:0,N:0,P:null,q:null,done:false,bad:0};
-function andGalaxy(){
-  var n=LITE?750:1500,P=[],i,r,arm,th,k=2.6;
-  for(i=0;i<n;i++){
-    if(i%3===2){r=Math.sqrt(Math.random())*.96;th=Math.random()*6.2832;P.push({r:r,th:th,z:0,s:Math.random()*1.1+.4,c:Math.random()*.4,d:1});continue}
-    r=Math.pow(Math.random(),.62)*.98+.02;arm=(Math.random()<.5?0:Math.PI);th=k*Math.log(r*4+.35)*1.9+arm+(Math.random()+Math.random()+Math.random()-1.5)*(.8-.35*r);
-    P.push({r:r,th:th,z:(Math.random()-.5)*.05,s:Math.random()*1.4+.5,c:Math.random()});
-  }
-  var st=[];for(i=0;i<130;i++)st.push({x:Math.random(),y:Math.random(),s:Math.random()*1.3+.3,p:Math.random()*6.28});
-  AND.P=P;AND.S=st
-}
+/* ===== v9.41: Andromeda sequence = globe -> Kuala Lumpur -> arc reactor start-up -> "Andromeda initiated" ===== */
+var AND={on:false,raf:0,tm:[],t0:0,dur:9.4,q:null,done:false,bad:0,st:""};
 function andDraw(ts){
   if(!AND.on)return;AND.raf=requestAnimationFrame(andDraw);
   var cv=$("anC"),dpr=Math.min(window.devicePixelRatio||1,LITE?1:1.5),W=innerWidth,H=innerHeight;
   if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}
-  var g=cv.getContext("2d"),e=(performance.now()-AND.t0)/1000,ap=Math.min(1,e/4.2),ez=1-Math.pow(1-ap,3),sc=.5+.5*ez,R=Math.min(W,H)*.5*sc*(W<H?1.25:1),cx=W/2,cy=H*.4,rot=-.62,cr=Math.cos(rot),sr=Math.sin(rot),tilt=.38,i,P=AND.P,S=AND.S;
-  g.setTransform(dpr,0,0,dpr,0,0);g.globalCompositeOperation="source-over";g.fillStyle="#02070a";g.fillRect(0,0,W,H);
-  g.globalCompositeOperation="lighter";
-  for(i=0;i<S.length;i++){var q=S[i];g.globalAlpha=.25+.35*Math.sin(ts/900+q.p)*.5+.2;g.fillStyle="#cfe6ff";g.fillRect(q.x*W,q.y*H,q.s,q.s)}
-  var gl=g.createRadialGradient(cx,cy,0,cx,cy,R*.9);gl.addColorStop(0,"rgba(255,245,225,.55)");gl.addColorStop(.12,"rgba(170,215,255,.22)");gl.addColorStop(.5,"rgba(46,230,214,.07)");gl.addColorStop(1,"rgba(0,0,0,0)");
-  g.globalAlpha=Math.min(1,ez*1.4);g.fillStyle=gl;g.save();g.translate(cx,cy);g.rotate(rot);g.scale(1,tilt+.08);g.translate(-cx,-cy);g.fillRect(cx-R,cy-R,R*2,R*2);g.restore();
-  for(i=0;i<P.length;i++){
-    var p=P[i],a=p.th+e*(.16/(.35+p.r)),x=Math.cos(a)*p.r*R,y=Math.sin(a)*p.r*R*tilt,rx=cx+x*cr-y*sr,ry=cy+x*sr+y*cr;
-    g.globalAlpha=Math.min(1,ez*1.6)*(p.d?.14+.2*(1-p.r):.18+.5*(1-p.r)+.18*p.c);
-    g.fillStyle=p.r<.25?"#fff0d8":p.c>.62?"#8fe9ff":p.c>.3?"#b9c8ff":"#46e6d6";
-    g.fillRect(rx,ry,p.s,p.s)
+  var g=cv.getContext("2d"),e=(performance.now()-AND.t0)/1000,D=Math.PI/180,i,
+      k1=Math.min(1,e/3.5),ez=k1<.5?2*k1*k1:1-Math.pow(-2*k1+2,2)/2,
+      fade=Math.max(0,Math.min(1,(e-4.5)/.9)),ga=Math.min(1,e/1.0)*(1-fade),
+      cx=W/2,cy=H*.36,R=Math.min(W*.34,H*.2)*(.8+.3*ez),
+      lon=101.69*D-(1-ez)*2.4,lat=3.14*D+(1-ez)*.42,c0=Math.cos(lon),s0=Math.sin(lon),cp=Math.cos(lat),sp=Math.sin(lat);
+  g.setTransform(dpr,0,0,dpr,0,0);g.globalCompositeOperation="source-over";g.globalAlpha=1;g.fillStyle="#02070a";g.fillRect(0,0,W,H);
+  if(ga>.01){
+    var gl=g.createRadialGradient(cx,cy,R*.6,cx,cy,R*1.5);gl.addColorStop(0,"rgba(46,230,214,.10)");gl.addColorStop(1,"rgba(0,0,0,0)");
+    g.globalAlpha=ga;g.fillStyle=gl;g.fillRect(cx-R*1.6,cy-R*1.6,R*3.2,R*3.2);
+    g.globalAlpha=ga*.32;g.strokeStyle="#46e6d6";g.lineWidth=1;g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();
+    g.globalAlpha=ga*.13;g.lineWidth=.8;g.beginPath();
+    var G=HG.grat,L,j,P,xx,yy,zz,Z,oz;
+    for(i=0;i<G.length;i++){L=G[i];oz=-1;for(j=0;j<L.length;j++){P=L[j];xx=P[1]*c0-P[0]*s0;zz=P[0]*c0+P[1]*s0;yy=cp*P[2]-sp*zz;Z=sp*P[2]+cp*zz;if(Z>.02){if(oz>.02)g.lineTo(cx+xx*R,cy-yy*R);else g.moveTo(cx+xx*R,cy-yy*R)}oz=Z}}
+    g.stroke();
+    var A=HG.lat0,n=A.N,st=LITE?2:1,b,Zs=A.sZ,xs=A.sX,ys=A.sY;
+    for(i=0;i<n;i+=st){var px=A.px[i],py=A.py[i],pz=A.pz[i];xx=py*c0-px*s0;zz=px*c0+py*s0;yy=cp*pz-sp*zz;Z=sp*pz+cp*zz;xs[i]=cx+xx*R;ys[i]=cy-yy*R;Zs[i]=Z}
+    g.fillStyle="#7ff5e8";
+    for(b=0;b<3;b++){g.globalAlpha=ga*(b===0?.22:b===1?.5:.9);g.beginPath();
+      for(i=0;i<n;i+=st){Z=Zs[i];if(Z>.03&&(b===0?Z<.3:b===1?Z<.65:Z>=.65))g.rect(xs[i]-.7,ys[i]-.7,1.5,1.5)}g.fill()}
+    if(e>2.9){
+      var la=Math.min(1,(e-2.9)/.7)*ga,ph=((e-2.9)*.9)%1;
+      g.strokeStyle="#9ffcf0";g.fillStyle="#e8fffc";g.lineWidth=1.2;
+      g.globalAlpha=la*(1-ph);g.beginPath();g.arc(cx,cy,4+ph*30,0,6.2832);g.stroke();
+      g.globalAlpha=la;g.beginPath();g.arc(cx,cy,3,0,6.2832);g.fill();
+      g.beginPath();g.moveTo(cx-14,cy);g.lineTo(cx-7,cy);g.moveTo(cx+7,cy);g.lineTo(cx+14,cy);g.moveTo(cx,cy-14);g.lineTo(cx,cy-7);g.moveTo(cx,cy+7);g.lineTo(cx,cy+14);g.stroke();
+      var lx=cx+R*.2,ly=cy-R*.34,right=cx+R*.2+120<W-8;
+      if(!right){lx=cx-R*.2}
+      g.globalAlpha=la*.7;g.beginPath();g.moveTo(cx+(right?6:-6),cy-6);g.lineTo(lx,ly);g.lineTo(lx+(right?110:-110),ly);g.stroke();
+      g.globalAlpha=la;g.textAlign=right?"left":"right";g.textBaseline="alphabetic";
+      g.font="600 10px Michroma,ui-monospace,Menlo,monospace";g.fillText("KUALA LUMPUR",lx+(right?2:-2),ly-6);
+      g.globalAlpha=la*.65;g.font="500 8px ui-monospace,Menlo,monospace";g.fillText("3.14°N  101.69°E",lx+(right?2:-2),ly+12)
+    }
   }
-  g.globalAlpha=1;g.globalCompositeOperation="source-over";
-  var pr=$("anP");if(pr)pr.style.width=Math.min(100,e/AND.dur*100)+"%"
+  g.globalAlpha=1;
+  var p=Math.max(0,Math.min(1,(e-4.9)/2.2)),pe=1-Math.pow(1-p,2),arc=$("anArc");
+  if(arc)arc.style.strokeDashoffset=String(527.8*(1-pe));
+  var pc=$("anPc"),sx=p>=1?"ONLINE":p>0?"POWER UP":"";
+  if(pc){var v=String(Math.round(pe*100));if(pc.textContent!==v)pc.textContent=v}
+  if(sx!==AND.st){AND.st=sx;var sn=$("anSt");if(sn)sn.textContent=sx;if(p>=1)$("anR").classList.add("lit")}
+  var pr=$("anP");if(pr)pr.style.width=Math.min(100,e/4.5*100)+"%"
 }
 function andLines(){
-  var q=AND.q,L=[
+  return[
     ["VOICE CORE",function(){return(window.speechSynthesis||window.SpeechRecognition||window.webkitSpeechRecognition)?["ONLINE",1]:["TEXT ONLY",0]}],
     ["HOLOGRAM ENGINE",function(){return["ONLINE",1]}],
-    ["SKY ENGINE",function(){try{skyInit();skyCalc();skyAll();var S=skyLookup("andromeda galaxy"),p=skyPos(S);return["M31 "+(p.up?p.al+"° UP":"BELOW HORIZON"),1]}catch(e){return["STANDBY",0]}}],
+    ["SKY ENGINE",function(){try{skyInit();skyCalc();skyAll();return["ONLINE",1]}catch(e){return["STANDBY",0]}}],
     ["CAMERA SUITE",function(){return(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)?["5 FILTERS",1]:["UNAVAILABLE",0]}],
     ["BRAIN LINK",function(){return cfg.key?["LINKED",1]:["COMMAND MODE",1]}],
     ["WEATHER",function(){return wx?[wx.t+"°C",1]:["ACQUIRING",0]}],
     ["MARKETS",function(){return mk?["KLCI "+fN(mk.lvl,0),1]:["STANDBY",0]}],
     ["SOPHON LINK",function(){return LV.iss?["ISS TRACKING",1]:["ACQUIRING",0]}],
     ["SEISMIC FEED",function(){return AND.q>=0?[AND.q+" EVENTS · 24H",1]:AND.q===-1?["OFFLINE",0]:["ACQUIRING",0]}]
-  ];return L
+  ]
 }
 function andType(i,L){
   var el=$("anL"),r=L[i][1](),d=document.createElement("div");d.className="anr";
@@ -5745,13 +5779,11 @@ function andType(i,L){
 }
 function andBrief(){
   var h=+new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Kuala_Lumpur",hour:"2-digit",hour12:false}).format(new Date())%24,hm=skyHM(Date.now());
-  var gE=h<4?"Good evening":h<11?"Good morning":h<15?"Good afternoon":"Good evening",gM=h<4?"Selamat malam":h<11?"Selamat pagi":h<15?"Selamat tengah hari":h<19?"Selamat petang":"Selamat malam";
-  var en=["Andromeda sequence complete. "+gE+", Sir. It is "+hm+" in Kuala Lumpur."],ms=["Urutan Andromeda selesai. "+gM+", Tuan. Sekarang pukul "+hm+" di Kuala Lumpur."];
+  var gE=h<4?"Good evening":h<11?"Good morning":h<19?"Good afternoon":"Good evening",gM=h<4?"Selamat malam":h<11?"Selamat pagi":h<14?"Selamat tengah hari":h<19?"Selamat petang":"Selamat malam";
+  var en=["Andromeda initiated. "+gE+", Sir. It is "+hm+" in Kuala Lumpur."],ms=["Andromeda dimulakan. "+gM+", Tuan. Sekarang pukul "+hm+" di Kuala Lumpur."];
   try{if(wx){var k=wx.kind==="rain"||wx.kind==="drizzle"||wx.kind==="storm"?"rain":wx.kind==="clear"?"clear":"";en.push("It is "+wx.t+" degrees outside"+(k==="rain"?", with rain":k==="clear"?", and clear":"")+".");ms.push("Suhu "+wx.t+" darjah"+(k==="rain"?", hujan":"")+".")}}catch(e){}
   try{if(mk&&Date.now()-mk.ts<6*3600000){var up=mk.pct>=0,pc=Math.abs(mk.pct).toFixed(2);en.push("The KLCI is at "+fN(mk.lvl,0)+", "+(up?"up ":"down ")+pc+" percent.");ms.push("KLCI di "+fN(mk.lvl,0)+", "+(up?"naik ":"turun ")+pc+" peratus.")}}catch(e){}
   try{var n=openTasks().length;if(n){en.push("You have "+n+" open task"+(n>1?"s":"")+".");ms.push("Anda ada "+n+" tugasan belum siap.")}}catch(e){}
-  try{var S=skyLookup("andromeda galaxy");if(S){skyCalc();skyAll();var p=skyPos(S),dr=skyDirLong(skyAzAlt(S).az);
-    en.push(p.up?"Andromeda is up now, "+p.al+" degrees in the "+dr+".":"Andromeda is below the horizon right now.");ms.push(p.up?"Andromeda kelihatan, "+p.al+" darjah di "+dr+".":"Andromeda di bawah ufuk sekarang.")}}catch(e){}
   try{if(LV.iss&&LV.prev){var w=issPassNext(300,true);if(w){en.push("The next visible space station pass is in about "+Math.round(w.t0)+" minutes.");ms.push("Lintasan ISS seterusnya dalam kira-kira "+Math.round(w.t0)+" minit.")}}}catch(e){}
   en.push(AND.bad?"All systems are yours, with "+AND.bad+" on standby.":"All systems are yours.");ms.push("Semua sistem di tangan anda.");
   return LT(en.join(" "),ms.join(" "))
@@ -5759,25 +5791,36 @@ function andBrief(){
 function andEnd(skipped){
   if(AND.done)return;AND.done=true;AND.tm.forEach(clearTimeout);AND.tm=[];
   var el=$("andro");
-  try{var S=skyLookup("andromeda galaxy");if(S)skyFind(S,false);hcCap("a","ANDROMEDA SEQUENCE · COMPLETE")}catch(e){}
-  sndPlay("sky");
+  if(skipped)sndPlay("mode");
   el.classList.remove("vis");
   AND.tm.push(setTimeout(function(){
-    AND.on=false;cancelAnimationFrame(AND.raf);el.classList.remove("on","t1");$("anL").innerHTML="";$("anP").style.width="0";
+    AND.on=false;cancelAnimationFrame(AND.raf);el.classList.remove("on","t1","t2","ini");$("anL").innerHTML="";$("anP").style.width="0";
+    var r=$("anR");r.classList.remove("on","lit");$("anArc").style.strokeDashoffset="527.8";
+    var sb=el.querySelector(".ans");if(sb)sb.textContent="SEQUENCE";
     try{reply(andBrief())}catch(e){}
   },760))
 }
 function andStart(){
   if(AND.on)return;
-  AND.on=true;AND.done=false;AND.bad=0;AND.q=null;unlockSpeech();ctx();try{cancelSpeech()}catch(e){}
+  AND.on=true;AND.done=false;AND.bad=0;AND.q=null;AND.st="";unlockSpeech();ctx();try{cancelSpeech()}catch(e){}
   try{if(XR.on)xrOff()}catch(e){}try{if(gest.on)gestClose()}catch(e){}try{if(eyes.on)eyesClose()}catch(e){}
-  var el=$("andro");$("anL").innerHTML="";el.classList.remove("t1");el.classList.add("on");void el.offsetWidth;el.classList.add("vis");
-  andGalaxy();AND.dur=LITE?5.2:6.2;AND.t0=performance.now();cancelAnimationFrame(AND.raf);AND.raf=requestAnimationFrame(andDraw);
+  try{hcInit()}catch(e){}
+  var el=$("andro"),r=$("anR");
+  if(!r.firstChild){
+    var sv0=$("reactor").querySelectorAll("svg"),k;
+    for(k=0;k<sv0.length;k++){var c=sv0[k].cloneNode(true),ar=c.querySelector("#bArc"),gd=c.querySelector("#bgd");if(gd)gd.id="angd";if(ar){ar.id="anArc";ar.setAttribute("stroke","url(#angd)")}r.appendChild(c)}
+    var nn=document.createElement("div");nn.id="anN";nn.innerHTML='<b><span id="anPc">0</span><i>%</i></b><span id="anSt"></span>';r.appendChild(nn)
+  }
+  $("anPc").textContent="0";$("anSt").textContent="";$("anArc").style.strokeDashoffset="527.8";
+  $("anL").innerHTML="";el.classList.remove("t1","t2","ini");el.classList.add("on");void el.offsetWidth;el.classList.add("vis");
+  AND.dur=LITE?8.2:9.4;AND.t0=performance.now();cancelAnimationFrame(AND.raf);AND.raf=requestAnimationFrame(andDraw);
   sndPlay("boot");
   try{lvIssPoll(false).catch(function(){})}catch(e){}try{lvLoadQ().then(function(q){AND.q=q.length}).catch(function(){AND.q=-1})}catch(e){AND.q=-1}
   var L=andLines(),i;
   AND.tm.push(setTimeout(function(){el.classList.add("t1")},500));
-  for(i=0;i<L.length;i++)(function(i){AND.tm.push(setTimeout(function(){if(AND.on&&!AND.done)andType(i,L)},1500+i*340))})(i);
+  for(i=0;i<L.length;i++)(function(i){AND.tm.push(setTimeout(function(){if(AND.on&&!AND.done)andType(i,L)},1300+i*300))})(i);
+  AND.tm.push(setTimeout(function(){el.classList.add("t2");r.classList.add("on");sndPlay("ar")},4600));
+  AND.tm.push(setTimeout(function(){el.classList.add("ini");var sb=el.querySelector(".ans");if(sb)sb.textContent="INITIATED";sndB(659.25,0,1.5,.12);sndB(987.77,.18,1.7,.12);sndB(1318.51,.36,2.4,.12)},7300));
   AND.tm.push(setTimeout(function(){andEnd(false)},AND.dur*1000))
 }
 try{$("andro").addEventListener("click",function(){if(AND.on&&!AND.done&&performance.now()-AND.t0>700)andEnd(true)})}catch(e){}
