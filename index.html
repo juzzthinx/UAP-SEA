@@ -447,6 +447,8 @@ body.lite .xsw{display:none}
 #xr.m2 #xVid{filter:grayscale(1) contrast(1.15) brightness(.3) sepia(1) hue-rotate(var(--xh)) saturate(1.5)}
 #xr.m2 #xE{opacity:1}
 .xbt button#xMode{padding:8px 9px}
+#xr.m4 #xVid{filter:contrast(1.06) brightness(.84) saturate(.92)}
+#xr.m4 #xE{opacity:0}
 #xr.m3 #xVid{opacity:0}
 #xr.m3 .xvg{background:radial-gradient(ellipse at 50% 46%,rgba(0,0,0,0) 50%,rgba(10,0,20,.6) 100%)}
 #xr.m3 #xE{opacity:1}
@@ -1355,7 +1357,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.38";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
+var VER="v9.39";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -3748,18 +3750,19 @@ function dkPaint(){
 /* ---------- X-RAY mode (v9.23): camera filter + edge scan + bone hands ---------- */
 var XR={mode:0,on:false,busy:false,face:"environment",mir:false,stream:null,raf:0,last:0,lastDet:0,lastE:0,lastT:-1,gap:70,fgap:33,egap:70,q:0,ema:10,n:0,tint:0,hs:[],ct:0,capT:0,sw:0,sh:0,dpr:1,ew:0,eh:0,vw:0,vh:0};window.__XR=XR;
 var XTINT=[{h:137,c:"46,230,214",n:"TEAL"},{h:172,c:"120,175,255",n:"ICE"},{h:92,c:"130,255,150",n:"GREEN"},{h:0,c:"255,176,64",n:"AMBER"}];
-var XMODES=[{n:"X-RAY",t:"X-RAY / SCAN",h:"SEE-THROUGH FILTER"},{n:"NIGHT",t:"NIGHT VISION",h:"BOOSTS LOW LIGHT"},{n:"EDGE",t:"EDGE SCAN",h:"WIREFRAME VIEW"},{n:"THERMAL",t:"THERMAL VIEW",h:"STYLISED HEAT LOOK"}];
-function xrModeSay(){return LT("Thermal view on. It is a stylised heat look made from brightness and movement, not a real temperature reading, Sir.","Paparan terma dihidupkan. Ia gaya haba daripada kecerahan dan gerakan, bukan bacaan suhu sebenar, Tuan.")}
+var XMODES=[{n:"X-RAY",t:"X-RAY / SCAN",h:"SEE-THROUGH FILTER"},{n:"NIGHT",t:"NIGHT VISION",h:"BOOSTS LOW LIGHT"},{n:"EDGE",t:"EDGE SCAN",h:"WIREFRAME VIEW"},{n:"THERMAL",t:"THERMAL VIEW",h:"STYLISED HEAT LOOK"},{n:"OBJECTS",t:"OBJECT SCAN",h:"LIVE RECOGNITION"}];
+function xrModeSay(){if(XR.mode===4)return LT("Object recognition on. I will box what I can recognise, around eighty everyday things. Tap a box and I will tell you more about it, Sir.","Pengecaman objek dihidupkan. Saya akan kotakkan apa yang dikenali. Ketik kotak untuk maklumat lanjut, Tuan.");return LT("Thermal view on. It is a stylised heat look made from brightness and movement, not a real temperature reading, Sir.","Paparan terma dihidupkan. Ia gaya haba daripada kecerahan dan gerakan, bukan bacaan suhu sebenar, Tuan.")}
 function xrMode(i,speak){
-  XR.mode=((i%4)+4)%4;var h=$("xr"),m=XMODES[XR.mode],q9;for(q9=1;q9<4;q9++)h.classList.toggle("m"+q9,XR.mode===q9);
+  XR.mode=((i%5)+5)%5;var h=$("xr"),m=XMODES[XR.mode],q9;for(q9=1;q9<5;q9++)h.classList.toggle("m"+q9,XR.mode===q9);
   var b=document.querySelector("#xr .xtop b");if(b)b.textContent=m.t;var mb=$("xMode");if(mb)mb.textContent=m.n;
   if(XR.mode===1){h.style.setProperty("--xh","62deg");h.style.setProperty("--xc","120,255,140");XR.tc=[120,255,140]}
   else if(XR.mode===3){h.style.setProperty("--xh","20deg");h.style.setProperty("--xc","255,190,90");XR.tc=[255,190,90]}
   else{xrTint(XR.tint);XR.tc=XTINT[XR.tint].c.split(",").map(Number)}
   var tb=$("xTint");if(tb)tb.style.display=(XR.mode===1||XR.mode===3)?"none":"";
   XR.pv=0;XR.cells=[];XR.blips=[];XR.hot=null;if(XR.tr)XR.tr.fill(0);
-  XR.egap=XR.mode>=3?((LITE||XR.q)?110:70):(LITE||XR.q>=2?1e9:XR.q===1?140:70);var xe=$("xE");if(xe)xe.style.display=(XR.mode>=3||(!LITE&&XR.q<2))?"":"none";
+  XR.egap=XR.mode===4?1e9:XR.mode>=3?((LITE||XR.q)?110:70):(LITE||XR.q>=2?1e9:XR.q===1?140:70);var xe=$("xE");if(xe)xe.style.display=XR.mode===4?"none":(XR.mode>=3||(!LITE&&XR.q<2))?"":"none";
   var g=XR.eg;if(g&&XR.ew)g.clearRect(0,0,XR.ew,XR.eh);XR.lastE=0;
+  OBJ.tr=[];if(XR.mode===4&&XR.on)objStart();
   xrCap("a",m.t+" · "+m.h);
   if(speak)sndPlay("mode");
   if(speak)reply(XR.mode===1?LT("Night vision on. It boosts whatever light the camera has, so it cannot see in total darkness, Sir.","Penglihatan malam dihidupkan. Ia menguatkan cahaya sedia ada, jadi tidak boleh nampak dalam gelap total, Tuan."):XR.mode===2?LT("Edge scan on. Everything is now a wireframe.","Imbasan tepi dihidupkan. Semuanya kini rangka dawai, Tuan."):XR.mode>=3?xrModeSay():LT("X-ray filter on.","Penapis sinar-X dihidupkan, Tuan."))
@@ -3921,9 +3924,9 @@ function xrFrame(ts){
   if(!XR.on)return;XR.raf=requestAnimationFrame(xrFrame);
   if(ts-XR.last<XR.fgap)return;var dt=Math.min(.08,Math.max(.001,(ts-XR.last)/1000));XR.last=ts;var w0=performance.now();
   var v=$("xVid");
-  if(XR.lm&&v.readyState>=2&&v.currentTime!==XR.lastT&&ts-XR.lastDet>XR.gap){XR.lastDet=ts;XR.lastT=v.currentTime;xrDetect(v,ts)}
-  if((XR.q<2||XR.mode>=3)&&v.readyState>=2&&ts-XR.lastE>XR.egap){XR.lastE=ts;xrEdges(v)}
-  xrHands(ts,dt);if(XR.mode>=3)xrOver(ts,dt);
+  if(XR.lm&&XR.mode!==4&&v.readyState>=2&&v.currentTime!==XR.lastT&&ts-XR.lastDet>XR.gap){XR.lastDet=ts;XR.lastT=v.currentTime;xrDetect(v,ts)}
+  if(XR.mode!==4&&(XR.q<2||XR.mode>=3)&&v.readyState>=2&&ts-XR.lastE>XR.egap){XR.lastE=ts;xrEdges(v)}
+  xrHands(ts,dt);if(XR.mode===4)xrObjs(ts,dt);else if(XR.mode>=3)xrOver(ts,dt);
   var tk=$("xTalk");if(tk){var on=!!(conv&&conv.on);if(tk.classList.contains("on")!==on)tk.classList.toggle("on",on)}
   XR.ema=XR.ema*.92+(performance.now()-w0)*.08;
   if(++XR.n>45){XR.n=0;
@@ -3960,7 +3963,7 @@ function xrOff(speak){
   document.body.classList.remove("xrOn");$("xr").classList.remove("on");
   if(XR.stream){try{XR.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}XR.stream=null}
   try{$("xVid").srcObject=null}catch(e){}
-  XR.hs=[];if(XR.g)XR.g.clearRect(0,0,XR.sw,XR.sh);
+  XR.hs=[];OBJ.tr=[];if(XR.g)XR.g.clearRect(0,0,XR.sw,XR.sh);
   if(speak)reply(LT("X-ray scanner off.","Pengimbas sinar-X dimatikan, Tuan.","X光扫描仪已关闭，先生。",null,"Рентгеновский сканер выключен, сэр.","X線スキャナーをオフにしました、サー。"));
 }
 function xrFlip(){
@@ -5444,6 +5447,9 @@ function skyIntent(n){
   if(/^(?:mute (?:the )?(?:sounds?|chimes?|tones?)|sounds? off|silence (?:the )?(?:chimes?|sounds?)|turn off (?:the )?(?:sounds?|chimes?))$/.test(s))return{k:"snd",on:false};
   if(/^(?:unmute (?:the )?(?:sounds?|chimes?)|sounds? on|turn on (?:the )?(?:sounds?|chimes?)|chimes on)$/.test(s))return{k:"snd",on:true};
   if(/^(?:play|test|let me hear|do) (?:the |my |your )?(?:startup|start up|boot|signature|intro) (?:sound|chime|tone|theme)$/.test(s))return{k:"sndtest"};
+  if(/^(?:(?:turn on |start |open |enable |switch to |activate |go to )?(?:the )?(?:object|objects) (?:detection|recognition|recognizer|recogniser|scanner|scan|mode|vision|view|filter)|detect (?:the )?objects|recogni[sz]e (?:the )?objects|identify (?:the )?objects|start detecting|kenal pasti objek|pengesan objek)$/.test(s))return{k:"xrmode",m:4};
+  if(/^(?:what do you see|what can you see|what objects (?:do you see|are (?:there|here|in front of me))|list (?:the )?objects|count (?:the )?objects|what(?:'s| is) around me|what(?:'s| is) in front of me)$/.test(s))return XR.on&&XR.mode===4?{k:"objlist"}:{k:"ident"};
+  if(/^(?:what(?:'s| is) (?:this|that|it)|whats (?:this|that|it)|what am i (?:looking at|seeing|holding)|identify (?:this|that|it|the object)|recogni[sz]e (?:this|that)|tell me what (?:this|that) is|what kind of (?:thing|object) is (?:this|that)|apa (?:ni|ini|itu|benda ni))$/.test(s))return{k:"ident"};
   if(/\b(?:iss|space station)\b/.test(s)&&/^(?:when|what time|can i see|will i see|could i see|is the|next|show me when|tell me when|any)\b/.test(s)&&/\b(?:next pass|pass|fly over|go over|overhead|visible|see|when|tonight)\b/.test(s)&&!/^where/.test(s))return{k:"issnext"};
   if(!on)m=s.match(/^(?:where is|where s|where are|find|locate|show me|point (?:me )?(?:to|at)|point out) (?:the )?(.+?)(?: in the sky| tonight| in the night sky| right now| up there| overhead)?$/);
   else m=s.match(/^(?:where is|where s|where are|find|locate|show me|show|point (?:me )?(?:to|at)|point out|look at|go to|take me to|focus on|zoom (?:in )?(?:on|to)|center on|centre on|select|tap|identify|what is|what s) (?:the |that )?(.+?)(?: in the sky| tonight| right now)?$/);
@@ -5567,6 +5573,107 @@ function mnApply(){try{document.body.classList.toggle("mnm",MN.on);var b=$("mnBt
 function mnSig(){var e=$("sig");if(!e)return;var t=skyHM(Date.now()).split(":");e.innerHTML="<i>"+t[0]+"<u>:</u>"+t[1]+"</i><small>"+skyDay(Date.now()).toUpperCase()+" &middot; KUALA LUMPUR &middot; 3.14&deg;N 101.69&deg;E</small>"}
 function mnSet(on,say){MN.on=on;sv("jv_mnm",on?"1":"0");mnApply();sndPlay("mode");if(say)reply(on?LLs("Minimal view on, Sir. Say full view to bring everything back.","Paparan minimum dihidupkan, Tuan."):LLs("Full view restored, Sir.","Paparan penuh dipulihkan, Tuan."))}
 try{mnApply();var mb=$("mnBtn");if(mb)mb.addEventListener("click",function(){mnSet(!MN.on,false)});setInterval(mnSig,20000)}catch(e){}
+/* ===== v9.39: live object recognition (MediaPipe EfficientDet-Lite0, on-device) + "what is this" ===== */
+var OBJ_MODELS=["https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/1/efficientdet_lite0.tflite","https://huggingface.co/litert-community/MediaPipe-ObjectDetector-EfficientDet-Lite0/resolve/main/efficientdet_lite0_float32.tflite"];
+var OBJ={det:null,p:null,err:0,last:0,lastT:-1,gap:110,ema:20,tr:[],id:0,sel:null,ask:0};
+function objLoad(){
+  if(OBJ.det)return Promise.resolve(OBJ.det);if(OBJ.p)return OBJ.p;var i=0;
+  function tryB(){if(i>=G_BUNDLES.length)return Promise.reject(new Error("bundle"));return import(G_BUNDLES[i++]).catch(tryB)}
+  OBJ.p=tryB().then(function(m){
+    var FR=m.FilesetResolver||(m.default&&m.default.FilesetResolver),OD=m.ObjectDetector||(m.default&&m.default.ObjectDetector);
+    return FR.forVisionTasks(G_WASM).then(function(fs){
+      var j=0;
+      function mk(url,del){return OD.createFromOptions(fs,{baseOptions:{modelAssetPath:url,delegate:del},runningMode:"VIDEO",scoreThreshold:.42,maxResults:10})}
+      function nextM(){if(j>=OBJ_MODELS.length)return Promise.reject(new Error("model"));var u=OBJ_MODELS[j++];return mk(u,"GPU").catch(function(){return mk(u,"CPU")}).catch(nextM)}
+      return nextM()})
+  }).then(function(d){OBJ.det=d;return d}).catch(function(e){OBJ.p=null;throw e});
+  return OBJ.p
+}
+function objStart(){OBJ.err=0;objLoad().catch(function(){OBJ.err=1})}
+function objTrack(dets,v,ts){
+  var W=XR.sw,H=XR.sh,vw=v.videoWidth||640,vh=v.videoHeight||480,sc=Math.max(W/vw,H/vh),ox=(W-vw*sc)/2,oy=(H-vh*sc)/2,T=OBJ.tr,i,j,used={};
+  for(i=0;i<dets.length&&i<10;i++){
+    var d=dets[i],b=d.boundingBox,c=d.categories&&d.categories[0];if(!b||!c)continue;
+    var w=b.width*sc,h=b.height*sc,x=b.originX*sc+ox,y=b.originY*sc+oy;if(XR.mir)x=W-x-w;
+    var best=-1,bd=1e9,cx=x+w/2,cy=y+h/2;
+    for(j=0;j<T.length;j++){var t=T[j];if(used[j]||t.l!==c.categoryName)continue;var dd=Math.hypot(t.tx+t.tw/2-cx,t.ty+t.th/2-cy);if(dd<bd&&dd<Math.max(w,h)*.7){bd=dd;best=j}}
+    if(best>=0){used[best]=1;var u=T[best];u.tx=x;u.ty=y;u.tw=w;u.th=h;u.s=c.score;u.seen=ts}
+    else{T.push({id:++OBJ.id,l:c.categoryName,x:x,y:y,w:w,h:h,tx:x,ty:y,tw:w,th:h,s:c.score,a:0,seen:ts})}
+  }
+}
+function objVisible(){var o=[],i;for(i=0;i<OBJ.tr.length;i++){if(OBJ.tr[i].a>.35&&!OBJ.tr[i].lost)o.push(OBJ.tr[i])}return o}
+function objPhrase(){
+  var v=objVisible(),c={},k,o=[];v.forEach(function(t){c[t.l]=(c[t.l]||0)+1});
+  for(k in c){var n=c[k],nm=String(k).replace(/_/g," ");o.push(n===1?(/^[aeiou]/i.test(nm)?"an ":"a ")+nm:n+" "+(nm==="person"?"people":/s$/.test(nm)?nm:nm+"s"))}
+  if(!o.length)return"";return o.length===1?o[0]:o.slice(0,-1).join(", ")+" and "+o[o.length-1]
+}
+function xrObjs(ts,dt){
+  var g=XR.g,W=XR.sw,H=XR.sh,v=$("xVid"),T=OBJ.tr,i,k=1-Math.exp(-dt*16),rc="rgb("+XR.tc.join(",")+")";
+  if(OBJ.det&&v.readyState>=2&&v.currentTime!==OBJ.lastT&&ts-OBJ.last>OBJ.gap){
+    OBJ.last=ts;OBJ.lastT=v.currentTime;var t0=performance.now(),res=null;
+    try{res=OBJ.det.detectForVideo(v,ts)}catch(e){res=null}
+    OBJ.ema=OBJ.ema*.8+(performance.now()-t0)*.2;OBJ.gap=Math.max(LITE?200:100,Math.min(420,OBJ.ema*3.2));
+    if(res)objTrack(res.detections||[],v,ts)
+  }
+  g.save();g.setTransform(XR.dpr,0,0,XR.dpr,0,0);g.font="600 9px ui-monospace,Menlo,monospace";g.textAlign="left";
+  for(i=T.length-1;i>=0;i--){
+    var t=T[i];t.lost=ts-t.seen>480;t.a+=((t.lost?0:1)-t.a)*Math.min(1,dt*9);
+    if(t.lost&&t.a<.03){T.splice(i,1);continue}
+    t.x+=(t.tx-t.x)*k;t.y+=(t.ty-t.y)*k;t.w+=(t.tw-t.w)*k;t.h+=(t.th-t.h)*k;
+    var x=t.x,y=t.y,w=t.w,h=t.h,bl=Math.max(8,Math.min(20,Math.min(w,h)*.26)),sel=OBJ.sel===t.id&&ts-OBJ.selT<1800;
+    g.globalAlpha=t.a*.2;g.strokeStyle=rc;g.lineWidth=1;g.strokeRect(x,y,w,h);
+    g.globalAlpha=t.a*(sel?1:.92);g.lineWidth=sel?2.4:1.6;g.beginPath();
+    g.moveTo(x,y+bl);g.lineTo(x,y);g.lineTo(x+bl,y);g.moveTo(x+w-bl,y);g.lineTo(x+w,y);g.lineTo(x+w,y+bl);
+    g.moveTo(x,y+h-bl);g.lineTo(x,y+h);g.lineTo(x+bl,y+h);g.moveTo(x+w-bl,y+h);g.lineTo(x+w,y+h);g.lineTo(x+w,y+h-bl);g.stroke();
+    var tx=String(t.l).replace(/_/g," ").toUpperCase()+"  "+Math.round(t.s*100)+"%",tw=g.measureText(tx).width+12,ty=y>24?y-19:y+4;
+    g.globalAlpha=t.a*.78;g.fillStyle="rgba(0,10,12,.78)";g.fillRect(x,ty,tw,16);g.fillStyle=rc;g.fillRect(x,ty,2,16);
+    g.globalAlpha=t.a;g.fillStyle="#e8ffff";g.fillText(tx,x+7,ty+11);
+  }
+  g.restore();
+  var vis=objVisible();
+  $("xRead").textContent=OBJ.det?(vis.length?vis.length+" OBJECT"+(vis.length>1?"S":"")+" LOCKED":"SCANNING"):OBJ.err?"DETECTOR OFFLINE":"LOADING DETECTOR";
+  var hn=$("xHint");if(hn){var tx2=OBJ.det?(vis.length?"TAP A BOX TO ASK ABOUT IT":"POINT AT SOMETHING"):OBJ.err?"COULD NOT LOAD THE DETECTOR · CHECK YOUR INTERNET":"LOADING OBJECT DETECTOR…";if(hn.textContent!==tx2)hn.textContent=tx2}
+}
+function objCrop(t){
+  var v=$("xVid"),W=XR.sw,H=XR.sh,vw=v.videoWidth,vh=v.videoHeight;if(!vw)return null;
+  var sc=Math.max(W/vw,H/vh),ox=(W-vw*sc)/2,oy=(H-vh*sc)/2,bx=XR.mir?W-(t.x+t.w):t.x,
+      sx=(bx-ox)/sc,sy=(t.y-oy)/sc,sw=t.w/sc,sh=t.h/sc,p=Math.max(sw,sh)*.12;
+  sx=Math.max(0,sx-p);sy=Math.max(0,sy-p);sw=Math.min(vw-sx,sw+2*p);sh=Math.min(vh-sy,sh+2*p);if(sw<8||sh<8)return null;
+  var m=Math.min(1,640/Math.max(sw,sh)),c=document.createElement("canvas");c.width=Math.round(sw*m);c.height=Math.round(sh*m);
+  var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(v,sx,sy,sw,sh,0,0,c.width,c.height);
+  var d=c.toDataURL("image/jpeg",.84);return{mime:"image/jpeg",b64:d.split(",")[1],url:d}
+}
+function objWatch(){
+  var n=document.querySelectorAll("#log .m.a").length,t0=Date.now(),last="",iv=setInterval(function(){
+    var ms=$("log").getElementsByClassName("a"),l=ms.length?ms[ms.length-1]:null;
+    if(l&&ms.length>=n&&(l.textContent||"")!==last){last=l.textContent||"";if(XR.on)xrCap("a",last)}
+    if(!XR.on||Date.now()-t0>30000)clearInterval(iv)},600)
+}
+function objAskTap(x,y){
+  var T=objVisible(),best=null,i,ba=1e12;
+  for(i=0;i<T.length;i++){var t=T[i];if(x>=t.x&&x<=t.x+t.w&&y>=t.y&&y<=t.y+t.h&&t.w*t.h<ba){ba=t.w*t.h;best=t}}
+  if(!best)return;OBJ.sel=best.id;OBJ.selT=performance.now();sndPlay("mode");
+  if(!cfg.key){xrCap("a","ADD A BRAIN KEY IN CONFIG SO I CAN LOOK CLOSER");return}
+  if(busy)return;var img=objCrop(best);if(!img)return;
+  xrCap("a","LOOKING CLOSER AT THE "+String(best.l).replace(/_/g," ").toUpperCase()+"…");
+  askPhoto(img,"The on-device detector thinks this is a "+String(best.l).replace(/_/g," ")+". Say exactly what it is, with any detail you can tell (type, brand, colour). One or two short sentences.");objWatch()
+}
+try{$("xr").addEventListener("click",function(e){
+  if(!XR.on||XR.mode!==4)return;if(e.target&&e.target.closest&&e.target.closest("button,.xbtn,.xtop"))return;
+  var r=$("xB").getBoundingClientRect();objAskTap(e.clientX-r.left,e.clientY-r.top)})}catch(e){}
+function objListSay(){
+  var p=objPhrase();
+  if(!OBJ.det){reply(LLs(OBJ.err?"The object detector could not load. Check your internet and try again, Sir.":"The detector is still loading, Sir.","Pengesan masih dimuat, Tuan."));return}
+  reply(p?LLs("I can see "+p+".","Saya nampak "+p+".","I can see "+p+".","I can see "+p+".","I can see "+p+"."):LLs("I do not recognise anything yet, Sir. Point me at something.","Saya belum kenal apa-apa lagi, Tuan. Halakan pada sesuatu."))
+}
+function objIdent(){
+  if(!cfg.key){reply(LLs("Add a brain key in CONFIG so I can see, Sir.","Tambah kunci otak dalam CONFIG supaya saya boleh nampak, Tuan."));return}
+  if(busy)return;
+  if(XR.on){var v=$("xVid");if(v.readyState>=2&&v.videoWidth){var img=drawToJpeg(v,v.videoWidth,v.videoHeight,800);reply(LLs("Looking, Sir.","Saya tengok, Tuan."));askPhoto(img,EYE_Q.id);objWatch();return}}
+  if(eyes.on){eyesAction("id");return}
+  eyes.face="environment";eyesOpen();
+  var n=0,iv=setInterval(function(){n++;var v=$("eyeVid");if(eyes.on&&v&&v.videoWidth>0&&v.readyState>=2){clearInterval(iv);setTimeout(function(){if(eyes.on)eyesAction("id")},700)}else if(n>24)clearInterval(iv)},250)
+}
 function holoIntent(raw,n){
   var w=n.split(" ").length;if(w>14)return null;
   var sk=skyIntent(n);if(sk)return sk;
@@ -5602,7 +5709,6 @@ function holoIntent(raw,n){
   if(new RegExp(JP+"(?:(?:initiate|activate|launch|start|engage) chio(?: intelligence)?|(?:show|open|bring up|display|pull up)(?: me)?(?: my| the)? (?:trading desk|trading view|trade view|trading intelligence|chio intelligence|chio view|chio on (?:the )?globe))$").test(n))return{k:"trade"};
   if(new RegExp(JP+"(?:(?:give me|show me|let me hear|read me|whats|what s|what is) )?(?:my |the |a )?(?:daily |todays |today s |today )?(?:trading|trade|paper|chio) (?:recap|summary|report|review|debrief|briefing|update)(?: for today| of today| today)?$").test(n)||new RegExp(JP+"(?:recap|summarize|summarise|review) (?:my )?(?:trading|trades|paper trading|paper account|portfolio)(?: today| for today)?$").test(n)||new RegExp(JP+"how (?:did|is|are|have) (?:my )?(?:trading|trades|paper trading|paper account|portfolio)(?: go| going| doing| do| been| gone)?(?: today| so far| this week)?$").test(n))return{k:"recap"};
   if(new RegExp(JP+"(?:explain|summarize|summarise|break down|recap|whats happening in|what s happening in|how is|hows|how s) (?:the )?(?:crypto|coin) (?:market|markets)(?: today| right now| now)?$").test(n)||new RegExp(JP+"(?:crypto|coin) market (?:recap|summary|mood|update|overview)$").test(n))return{k:"explain"};
-  if(/^(?:(?:hey |yo |ok |okay )?jarvis,? )?(?:please )?(?:initiate|initialize|initialise|activate|start|launch|begin|engage|run|open|mulakan|aktifkan)(?: the)? (?:southeast|south east|south-east|se|sea|asean) ?(?:asia|asian)? ?(?:intelligence|intel|briefing|mode|sequence|view|overview)?$|^(?:(?:hey |yo |ok |okay )?jarvis,? )?(?:mulakan|aktifkan) (?:risikan|perisikan|intelijen) asia tenggara$/.test(n)&&/\b(intelligence|intel|perisikan|risikan|intelijen|sequence|asean|asia)\b/.test(n))return{k:"sea"};
   if(/^(use|turn on|enable|activate|start|switch on)( my)? (hands?|hand control|hand tracking|gestures?)( control)?$|^(hologram|holo|ar) mode$|^(control|move) (it|the globe) with my hands?$/.test(n))return{k:"ar",on:true};
   if(HG.on&&/^(turn off|disable|stop|switch off)( my)? (hands?|hand control|hand tracking|gestures?)( control)?$|^hands off$/.test(n))return{k:"ar",on:false};
   if(/\b(klcc|petronas|twin towers?|menara berkembar|kuala lumpur city cent(?:re|er))\b/.test(n)&&(/^(show|open|display|bring up|launch|let me see|see|view|tunjuk|papar|take me|fly|go|visit|pull up|hologram|holo|zoom)\b|\bhologram\b/.test(n))&&!/\b(price|prices|stock|share|weather|news|ticket|tickets|opening hours|how tall|how high|history|directions|navigate|waze)\b/.test(n))return{k:"tower",kl:1,part:/sky ?bridge/.test(n)?"bridge":/\b(spire|crown|antenna|pinnacle|observation)\b/.test(n)?"top":"all"};
@@ -5626,6 +5732,8 @@ function holoRun(h){
   if(h.k==="soltime"){solTime(h.r);return}
   if(h.k==="orbs"){hcOpen(true);orbsOpen(true);return}
   if(h.k==="issnext"){issNextSay();return}
+  if(h.k==="objlist"){objListSay();return}
+  if(h.k==="ident"){objIdent();return}
   if(h.k==="skyar"){if(h.on){hcOpen(true);skyAr(true).then(function(ok){if(ok)skyArSay()})}else{skyAr(false);reply(LLs("AR off, Sir.","AR dimatikan, Tuan."))}return}
   if(h.k==="mnm"){mnSet(h.on,true);return}
   if(h.k==="snd"){SND.on=h.on;sv("jv_snd",h.on?"1":"0");if(h.on)sndPlay("alert");reply(h.on?LLs("Sounds on, Sir.","Bunyi dihidupkan, Tuan."):LLs("Sounds muted, Sir.","Bunyi dimatikan, Tuan."));return}
@@ -5652,7 +5760,6 @@ function holoRun(h){
   if(DK.on&&!/^(desk|deskoff|recap|explain)$/.test(h.k))dkOff(true);
   if(h.k==="close"){hcClose();reply(LT("Globe closed.","Glob ditutup.","地球已关闭。",null,"Глобус закрыт.","地球を閉じました。"));return}
   if(h.k==="ar"){hcOpen();if(h.on){hcAr(true).then(function(ok){if(!ok&&HG.on)reply(LT("I need a tap for the camera. Press the HANDS button on the globe, Sir.","Saya perlu anda tekan butang HANDS pada glob untuk kamera.","请点按地球上的 HANDS 按钮以打开摄像头。",null,"Нажмите кнопку HANDS на глобусе.","地球のHANDSボタンを押してください。"));else if(ok)reply(LT("Hand control online. Pinch or open your hand and move it to spin the globe, Sir.","Kawalan tangan aktif. Cubit atau buka tangan dan gerakkan untuk memutar glob.","手势控制已启动。捏合或张开手并移动即可旋转地球。",null,"Управление руками включено.","ハンドコントロールを起動しました。"))})}else{hcAr(false);reply(LT("Hand control off.","Kawalan tangan dimatikan.","手势控制已关闭。",null,"Управление руками выключено.","ハンドコントロールを停止しました。"))}return}
-  if(h.k==="sea"){hcSea();return}
   if(h.k==="desk"){dkOn(true);return}
   if(h.k==="deskoff"){if(DK.on){dkOff(false);reply(LT("Desk mode off, Sir.","Mod meja dimatikan, Tuan.","桌面模式已关闭，先生。",null,"Режим стола выключен, сэр.","デスクモードをオフにしました、サー。"))}else reply(LT("Desk mode is not running, Sir.","Mod meja tidak berjalan, Tuan.","桌面模式没有运行，先生。",null,"Режим стола не запущен, сэр.","デスクモードは動いていません、サー。"));return}
   if(h.k==="trade"){hcTrade(true);return}
@@ -6214,6 +6321,7 @@ function eyesSnapAsk(q){
 var EYE_Q={
   read:"Read out the text you can see, exactly and in order, like reading it aloud to me. If there is a lot, read the most important parts and say briefly what you skipped. No commentary.",
   tr:"Translate any text you can see into English. If it is already English, translate it into Malay. Give the translation first, then one short line on what it is (a sign, a menu, a label).",
+  id:"Identify what is in the middle of this image. Name it, say in one line what it is, and add one useful detail. Keep it under three short sentences.",
   ex:"Explain what this is, what it is for, and anything I should watch out for. Be brief and concrete."
 };
 function eyesHiFrame(){
@@ -6232,7 +6340,7 @@ function eyesAction(k){
   if(!cfg.key){$("eyeCap").textContent="Add a brain key in CONFIG so I can see.";return}
   $("eyeCap").textContent="Hold steady, Sir...";
   var q=EYE_Q[k];
-  (k==="ex"?Promise.resolve(eyesFrame(800)):eyesHiFrame()).then(function(img){
+  (k==="ex"||k==="id"?Promise.resolve(eyesFrame(800)):eyesHiFrame()).then(function(img){
     if(!img){$("eyeCap").textContent="The camera is not ready yet.";return}
     eyes.capT=Date.now();eyes.cap="";askPhoto(img,q);
   });
