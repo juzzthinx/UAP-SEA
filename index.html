@@ -151,6 +151,37 @@ linear-gradient(#00d2be,#00d2be) bottom right/22px 1.5px no-repeat,linear-gradie
 #boot.done #reactor{transform:scale(1.9);opacity:0}
 #boot.done #bList,#boot.done .t,#boot.done .sub{opacity:0}
 @media (max-height:700px){#reactor{width:230px}#bList{min-height:118px}#boot{gap:12px}}
+
+/* ---------- v9.37 minimal interface (theme and settings untouched) ---------- */
+.sig{display:none}.hbtns{display:flex;gap:8px;align-items:center}
+body.mnm .wx,body.mnm .mkt,body.mnm .chips,body.mnm .modes{display:none!important}
+body.mnm .brand small{display:none}
+body.mnm .sig{display:block;text-align:center;font-family:"Michroma","Eurostile",sans-serif;font-size:8px;letter-spacing:.34em;color:var(--dim);padding:0 20px 4px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.mnm .sig b{color:var(--c);font-weight:400;letter-spacing:.3em}
+body.mnm .bar input{border-radius:999px;background:rgba(255,255,255,.035);border:1px solid var(--cardb)}
+body.mnm #log{padding-top:8px}
+@media (min-width:860px){body.mnm .sig{grid-column:1;grid-row:1;align-self:end;text-align:left;padding:0 30px 6px}body.mnm header{padding-bottom:26px}}
+
+/* ---------- v9.38 minimal, second take: giant clock, breathing aura, transcript stream, floating glass bar ---------- */
+body.mnm .sig{display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 20px 0;letter-spacing:0;font-size:inherit}
+body.mnm .sig i{font-style:normal;font-family:"Barlow","Avenir Next","Helvetica Neue",Arial,sans-serif;font-weight:200;font-size:60px;letter-spacing:.05em;line-height:1;color:#eef3f4;text-shadow:0 0 28px rgba(46,230,214,.18)}
+body.mnm .sig u{text-decoration:none;color:var(--c);animation:mnc 1.6s steps(2,jump-none) infinite}
+body.mnm .sig small{font-family:"Michroma","Eurostile",sans-serif;font-size:7px;letter-spacing:.3em;color:var(--dim);white-space:nowrap}
+@keyframes mnc{0%{opacity:1}50%{opacity:.15}}
+body.mnm header{padding-bottom:0}
+body.mnm .iconbtn{border:0;background:none;color:var(--dim);font-size:8px;letter-spacing:.26em;padding:6px 6px}
+body.mnm .hbtns{gap:6px}
+body.mnm .orbw::before{content:"";position:absolute;inset:-34%;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(46,230,214,.17),transparent 62%);background:radial-gradient(circle,color-mix(in srgb,var(--c) 20%,transparent),transparent 62%);animation:mnb 7s ease-in-out infinite}
+@keyframes mnb{0%,100%{transform:scale(.88);opacity:.7}50%{transform:scale(1.06);opacity:1}}
+body.mnm #log{padding:22px 26px 12px;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 26%);mask-image:linear-gradient(to bottom,transparent 0,#000 26%)}
+body.mnm .m.a{border-left:0;padding:2px 0;margin:0 auto 16px;text-align:center;font-size:18px;font-weight:300;line-height:1.5;max-width:100%}
+body.mnm .m.u{background:none;border-radius:0;padding:0;margin:0 auto 8px;text-align:center;font-size:10px;letter-spacing:.22em;color:var(--dim);text-transform:uppercase}
+body.mnm .m.u::before{content:"\203A  ";color:var(--c)}
+body.mnm .m.e{text-align:center;padding-left:0;border-left:0}
+body.mnm .bar{margin:0 14px calc(env(safe-area-inset-bottom) + 10px);width:auto;padding:6px;border:1px solid var(--cardb);border-radius:999px;background:rgba(8,14,16,.62);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 0 30px rgba(46,230,214,.06)}
+body.mnm .bar input{background:none;border:0}
+@media (max-height:700px){body.mnm .sig i{font-size:44px}}
+@media (min-width:860px){body.mnm .sig{align-items:flex-start;padding:0 30px 6px}body.mnm .sig i{font-size:64px}body.mnm header{padding-bottom:104px}body.mnm .m.a{font-size:20px}body.mnm .bar{margin:0 24px 18px 24px}}
 @media (max-height:800px){#orb,#viz{width:160px;height:160px}}
 @media (max-height:700px){#orb,#viz{width:136px;height:136px}}
 .hud.on{display:flex}
@@ -296,6 +327,7 @@ body.gestOn>*:not(#gest):not(#eyes){visibility:hidden!important}
 #holo.on{display:block}
 #hVid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1) translateZ(0);opacity:0;pointer-events:none;background:#000;filter:brightness(.8) contrast(1.1) saturate(.7)}
 #holo.ar{background:#000}#holo.ar #hVid{opacity:.62}
+#holo.skar #hVid{transform:translateZ(0);opacity:.94;filter:brightness(.92) contrast(1.06) saturate(.95)}
 #hCur{position:absolute;left:-23px;top:-23px;width:46px;height:46px;border-radius:50%;border:2px solid #e8fffc;pointer-events:none;opacity:0;z-index:5;transition:transform .09s linear,opacity .15s;background:conic-gradient(rgba(46,230,214,.75) calc(var(--p,0)*360deg),rgba(46,230,214,0) 0);box-shadow:0 0 12px var(--c)}
 #hCur.on{opacity:1}
 #hHands.on{background:var(--c);color:#021012}
@@ -424,8 +456,9 @@ body.lite .xsw{display:none}
 <div class="sbar"></div>
 <header>
   <div class="brand">JARVIS<small>J.NAZREEN &middot; <span id="ver"></span></small></div>
-  <button class="iconbtn" id="openSet">CONFIG</button>
+  <span class="hbtns"><button class="iconbtn" id="mnBtn" type="button">FULL</button><button class="iconbtn" id="openSet">CONFIG</button></span>
 </header>
+<div class="sig" id="sig"></div>
 <div class="hud"><span id="hL"></span><span id="hR"></span></div>
 <div class="stage">
   <div class="orbw"><div class="ringx"><svg class="rl r1" viewBox="0 0 200 200"><circle cx="100" cy="100" r="95" fill="none" stroke="currentColor" stroke-width="5" opacity=".85"/><circle cx="100" cy="100" r="86" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".8"/></svg><svg class="rl r2" viewBox="0 0 200 200"><circle cx="100" cy="100" r="99" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 8" opacity=".7"/></svg><svg class="rl r3" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90.5" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="30 14 5 14" opacity=".55"/></svg><svg class="rl r4" viewBox="0 0 200 200"><path d="M100 4 A96 96 0 0 1 196 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".95"/><path d="M100 196 A96 96 0 0 1 4 100" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".6"/></svg></div><button type="button" id="orb" aria-label="Talk to Jarvis"><canvas id="viz"></canvas></button><div class="rchip rc1" id="rc1" data-q="what time is it"><span>TIME</span><b id="rv1">--</b></div><div class="rchip rc2" id="rc2" data-q="what is the weather"><span>WEATHER</span><b id="rv2">--</b></div><div class="rchip rc3" id="rc3" data-q="how is the klci"><span>KLCI</span><b id="rv3">--</b></div><div class="rchip rc4" id="rc4" data-q="how is my paper trading"><span>CHIO P/L</span><b id="rv4">--</b></div><div class="rmh" id="rmh"></div><button type="button" class="rmi" data-a="eyes">EYES</button><button type="button" class="rmi" data-a="hands">HANDS</button><button type="button" class="rmi" data-a="chio">CHIO</button><button type="button" class="rmi" data-a="tasks">TASKS</button><button type="button" class="rmi" data-a="waze">WAZE</button><button type="button" class="rmi" data-a="talk">TALK</button><button type="button" class="rmi" data-a="holo">HOLO</button>
@@ -709,7 +742,7 @@ body.lite .xsw{display:none}
 <div class="gtop"><span>HAND CONTROL</span><span id="gSt">STARTING</span></div><div class="ghint" id="gHint"></div><div class="gcap" id="gCap"></div>
 <div class="gtb"><button type="button" id="gTalk" class="hot">TALK</button><button type="button" id="gReset">RESET</button><button type="button" id="gExit">EXIT</button></div></div>
 <div id="xr"><video id="xVid" playsinline muted autoplay></video><canvas id="xE"></canvas><canvas id="xB"></canvas><div class="xvg"></div><div class="xsw"></div><div class="xtop"><div><b>X-RAY / SCAN</b><span id="xRead">STANDBY</span></div><div class="xbt"><button id="xMode" type="button">X-RAY</button><button id="xTint" type="button">TEAL</button><button id="xFlip" type="button">FLIP</button><button id="xTalk" type="button">TALK</button><button id="xExit" type="button">EXIT</button></div></div><div id="xCap"></div><div class="xhint" id="xHint"></div></div>
-<div id="holo"><video id="hVid" playsinline muted autoplay></video><canvas id="hc"></canvas><div id="hCur"></div><div class="hsw"></div><div id="hDesk"><div class="dkClock"><b id="dkT">--:--</b><small id="dkS"></small></div><div id="dkD"></div><div id="dkRow"></div></div><div class="htop"><div><b>HOLO / EARTH</b><span id="hRead"></span></div><div class="hbt"><button id="hKl" type="button">KLCC</button><button id="hOrb" type="button">ORBS</button><button id="hHands" type="button">HANDS</button><button id="hTalk" type="button">TALK</button><button id="hExit" type="button">EXIT</button></div></div><div id="hCap"><div id="hCapU"></div><div id="hCapA"></div></div><div id="skTs"><div class="skr"><button type="button" id="skPl">&#9654;</button><input type="range" id="skRg" min="-720" max="720" step="1" value="0"><button type="button" id="skNow">NOW</button></div><div class="skd"><button type="button" id="skDm">&#9664; DAY</button><span id="skDt"></span><button type="button" id="skDp">DAY &#9654;</button></div><div class="skc"><button type="button" data-w="lines">LINES</button><button type="button" data-w="grid">GRID</button><button type="button" data-w="mw">MILKY WAY</button><button type="button" data-w="ecl">ECLIPTIC</button><button type="button" data-w="gnd">GROUND</button><button type="button" data-w="gy">GYRO</button></div></div><div id="solTs"><button type="button" id="solPl">&#9654;</button><input type="range" id="solRg" min="-3650" max="3650" step="1" value="0"><button type="button" id="solNow">NOW</button><span id="solDt"></span></div><div id="hpan"></div><div class="hhint" id="hHint">DRAG TO SPIN · PINCH TO ZOOM · TAP A CITY</div></div>
+<div id="holo"><video id="hVid" playsinline muted autoplay></video><canvas id="hc"></canvas><div id="hCur"></div><div class="hsw"></div><div id="hDesk"><div class="dkClock"><b id="dkT">--:--</b><small id="dkS"></small></div><div id="dkD"></div><div id="dkRow"></div></div><div class="htop"><div><b>HOLO / EARTH</b><span id="hRead"></span></div><div class="hbt"><button id="hKl" type="button">KLCC</button><button id="hOrb" type="button">ORBS</button><button id="hHands" type="button">HANDS</button><button id="hTalk" type="button">TALK</button><button id="hExit" type="button">EXIT</button></div></div><div id="hCap"><div id="hCapU"></div><div id="hCapA"></div></div><div id="skTs"><div class="skr"><button type="button" id="skPl">&#9654;</button><input type="range" id="skRg" min="-720" max="720" step="1" value="0"><button type="button" id="skNow">NOW</button></div><div class="skd"><button type="button" id="skDm">&#9664; DAY</button><span id="skDt"></span><button type="button" id="skDp">DAY &#9654;</button></div><div class="skc"><button type="button" data-w="lines">LINES</button><button type="button" data-w="grid">GRID</button><button type="button" data-w="mw">MILKY WAY</button><button type="button" data-w="ecl">ECLIPTIC</button><button type="button" data-w="gnd">GROUND</button><button type="button" data-w="gy">GYRO</button><button type="button" data-w="ar">AR</button></div></div><div id="solTs"><button type="button" id="solPl">&#9654;</button><input type="range" id="solRg" min="-3650" max="3650" step="1" value="0"><button type="button" id="solNow">NOW</button><span id="solDt"></span></div><div id="hpan"></div><div class="hhint" id="hHint">DRAG TO SPIN · PINCH TO ZOOM · TAP A CITY</div></div>
 <script>
 (function(){
 "use strict";
@@ -819,7 +852,7 @@ function saveTasks(){sv("jv_tasks",JSON.stringify(tasks))}
 /* ---------- audio ---------- */
 var AC=window.AudioContext||window.webkitAudioContext, actx=null;
 function ctx(){try{if(!actx&&AC)actx=new AC();if(actx&&actx.state==="suspended")actx.resume()}catch(e){}return actx}
-function beep(){
+function beep(){sndPlay("timer");return;
   var c=ctx();if(!c)return;
   [0,0.35,0.7].forEach(function(t){
     try{var o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=880;g.gain.value=0.0001;
@@ -1322,7 +1355,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.36";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
+var VER="v9.38";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -1632,9 +1665,35 @@ function proReady(){
   var b=$("boot");if(b&&b.style.display!=="none"&&!b.classList.contains("out"))return false;
   return true;
 }
-function chime(){
-  var c=ctx();if(!c)return;
-  [[0,660],[0.16,990]].forEach(function(p){try{var o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=p[1];g.gain.value=0.0001;o.connect(g);g.connect(c.destination);var s=c.currentTime+p[0];g.gain.exponentialRampToValueAtTime(0.18,s+0.02);g.gain.exponentialRampToValueAtTime(0.0001,s+0.4);o.start(s);o.stop(s+0.45)}catch(e){}});
+/* ===== v9.37: signature sound identity (E open-fifth motif, teal bell + soft echo) ===== */
+var SND={on:ld("jv_snd","1")!=="0",bus:null};
+function sndBus(c){
+  if(SND.bus&&SND.bus.c===c)return SND.bus;
+  var m=c.createGain(),lp=c.createBiquadFilter(),d=c.createDelay(.6),fb=c.createGain(),wl=c.createBiquadFilter(),wg=c.createGain();
+  m.gain.value=.9;lp.type="lowpass";lp.frequency.value=5200;d.delayTime.value=.23;fb.gain.value=.3;wl.type="lowpass";wl.frequency.value=2200;wg.gain.value=.26;
+  m.connect(lp);lp.connect(c.destination);lp.connect(d);d.connect(wl);wl.connect(fb);fb.connect(d);wl.connect(wg);wg.connect(c.destination);
+  return SND.bus={c:c,i:m}
+}
+function sndN(f,t,dur,g,type,sw,atk){
+  try{var c=ctx();if(!c||!SND.on)return;var b=sndBus(c),o=c.createOscillator(),e=c.createGain(),s0=c.currentTime+t;
+    o.type=type||"sine";o.frequency.setValueAtTime(f,s0);if(sw)o.frequency.exponentialRampToValueAtTime(sw,s0+dur);
+    e.gain.setValueAtTime(.0001,s0);e.gain.exponentialRampToValueAtTime(g,s0+(atk||.015));e.gain.exponentialRampToValueAtTime(.0001,s0+dur);
+    o.connect(e);e.connect(b.i);o.start(s0);o.stop(s0+dur+.05)}catch(e){}
+}
+function sndB(f,t,dur,g){sndN(f,t,dur,g);sndN(f*2.76,t,dur*.45,g*.22)}
+function sndPlay(k){
+  if(!SND.on)return;var E5=659.25,G5=830.61,B5=987.77,E6=1318.51;
+  if(k==="boot"){sndN(82.41,0,2.6,.11,"triangle",0,.7);sndN(164.81,.2,2.2,.05,"sine",0,.6);[329.63,493.88,659.25,987.77,1318.51].forEach(function(f,i){sndB(f,.45+i*.16,1.5,.1)});sndN(2093,1.3,1.3,.025,"sine",2637,.3)}
+  else if(k==="sophon"){sndB(B5,0,1.7,.13);sndB(E5,.24,1.9,.12);sndN(1500,.55,.7,.035,"sine",2800,.2)}
+  else if(k==="due"){sndB(E5,0,1,.13);sndB(G5,.13,1,.12);sndB(B5,.26,1.3,.12)}
+  else if(k==="timer"){[0,.2,.4].forEach(function(t){sndB(B5,t,.7,.13)});sndB(E6,.6,1,.1)}
+  else if(k==="sky"){sndN(240,0,.8,.05,"sine",1100,.25);sndB(E6,.5,1.2,.06)}
+  else if(k==="ar"){sndN(200,0,.7,.05,"sine",1500,.2);sndB(E5,.35,.9,.08);sndB(B5,.5,1.1,.08);sndB(E6,.65,1.3,.07)}
+  else if(k==="mode"){sndN(1760,0,.09,.06,"triangle");sndN(2349,.05,.14,.04,"sine")}
+  else{sndB(E5,0,1,.14);sndB(B5,.17,1.3,.13)}
+}
+function chime(id){
+  id=String(id||"");sndPlay(/^iss/.test(id)?"sophon":/^(?:due|pre|late)/.test(id)||/^[a-z0-9]{3,}[dp]\d/.test(id)?"due":"alert")
 }
 function proNotify(m){
   try{if(document.hidden&&window.Notification&&Notification.permission==="granted")new Notification("JARVIS",{body:m.text,tag:m.id,silent:false})}catch(e){}
@@ -1646,7 +1705,7 @@ function proFlush(){
   var m=proQ.shift();
   if(m.k==="due"&&m.it)lastFired={it:m.it,ts:Date.now()};
   try{if(typeof unlockSpeech==="function")unlockSpeech()}catch(e){}
-  add("a",m.text);try{hist.push({role:"assistant",content:m.text});saveHist()}catch(e){}chime();
+  add("a",m.text);try{hist.push({role:"assistant",content:m.text});saveHist()}catch(e){}chime(m.k==="due"?"due":m.id);
   if(!(m.auto&&proQuiet()))speak(m.text);
   try{if(typeof ringPulse==="function")ringPulse()}catch(e){}
 }
@@ -2606,7 +2665,7 @@ function memAutoSync(){
   clearTimeout(SY.t);SY.t=setTimeout(function(){syncMem().catch(function(){})},4000);
 }
 function syCollect(){
-  var o={};try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf("jv_")===0&&!/^(jv_hist|jv_wx|jv_wxloc|jv_loc|jv_sycode|jv_syurl|jv_syts|jv_syauto|jv_mem|jv_memdel|jv_sky|jv_orbs|jv_tune|jv_lite|jv_ringpos|jv_agenda|jv_prost)$/.test(k))o[k]=localStorage.getItem(k)}}catch(e){}
+  var o={};try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf("jv_")===0&&!/^(jv_hist|jv_wx|jv_wxloc|jv_loc|jv_sycode|jv_syurl|jv_syts|jv_syauto|jv_mem|jv_memdel|jv_mnm|jv_snd|jv_sky|jv_orbs|jv_tune|jv_lite|jv_ringpos|jv_agenda|jv_prost)$/.test(k))o[k]=localStorage.getItem(k)}}catch(e){}
   return o;
 }
 function syPaint(){
@@ -2651,7 +2710,7 @@ if($("syMake")){
     SY.pullArm=0;syMsg("Getting settings...");
     syGet("s").then(function(r){
       if(!r||!r.data){syMsg("Nothing in the cloud yet. On your other device tap SEND SETTINGS TO CLOUD first.");return}
-      var n=0;Object.keys(r.data).forEach(function(k){if(k.indexOf("jv_")===0&&typeof r.data[k]==="string"&&!/^(jv_sycode|jv_syurl|jv_hist|jv_mem|jv_memdel|jv_sky|jv_orbs|jv_tune|jv_lite|jv_ringpos|jv_agenda|jv_prost)$/.test(k)){sv(k,r.data[k]);n++}});
+      var n=0;Object.keys(r.data).forEach(function(k){if(k.indexOf("jv_")===0&&typeof r.data[k]==="string"&&!/^(jv_sycode|jv_syurl|jv_hist|jv_mem|jv_memdel|jv_mnm|jv_snd|jv_sky|jv_orbs|jv_tune|jv_lite|jv_ringpos|jv_agenda|jv_prost)$/.test(k)){sv(k,r.data[k]);n++}});
       syMsg("Got "+n+" settings. Reloading...");setTimeout(function(){location.reload()},700);
     },function(e){syMsg(syErr(e))});
   });
@@ -3702,6 +3761,7 @@ function xrMode(i,speak){
   XR.egap=XR.mode>=3?((LITE||XR.q)?110:70):(LITE||XR.q>=2?1e9:XR.q===1?140:70);var xe=$("xE");if(xe)xe.style.display=(XR.mode>=3||(!LITE&&XR.q<2))?"":"none";
   var g=XR.eg;if(g&&XR.ew)g.clearRect(0,0,XR.ew,XR.eh);XR.lastE=0;
   xrCap("a",m.t+" · "+m.h);
+  if(speak)sndPlay("mode");
   if(speak)reply(XR.mode===1?LT("Night vision on. It boosts whatever light the camera has, so it cannot see in total darkness, Sir.","Penglihatan malam dihidupkan. Ia menguatkan cahaya sedia ada, jadi tidak boleh nampak dalam gelap total, Tuan."):XR.mode===2?LT("Edge scan on. Everything is now a wireframe.","Imbasan tepi dihidupkan. Semuanya kini rangka dawai, Tuan."):XR.mode>=3?xrModeSay():LT("X-ray filter on.","Penapis sinar-X dihidupkan, Tuan."))
 }
 var XCH=[[5,6,7,8],[9,10,11,12],[13,14,15,16],[17,18,19,20]];
@@ -5138,7 +5198,7 @@ function skyDraw(ts,t,dt,ka){
     if(sl2)SKY.anc={x:o.sx,y:o.sy,c:"#ffd27a"}}
   g.globalAlpha=1;
   /* ground + compass */
-  skyGround(g,W,H,t);skyCompass(g,fs);
+  if(!SKY.ar)skyGround(g,W,H,t);skyCompass(g,fs);
   /* selection */
   var S=SKY.sel;
   if(S&&S.t!=="con"&&S.t!=="mw"){var so2=S.t==="iss"?S.o:S;if(so2.vis!==false&&so2.sx!=null&&skyPr(so2)){solBr(g,so2.sx,so2.sy,Math.max(18,(S.t==="body"&&(S.k==="moon"||S.k==="sun")?22:16)),"#ffffff",t);SKY.anc={x:so2.sx,y:so2.sy,c:"#9ffcf0"};var ph=(t*.8)%1;g.globalAlpha=(1-ph)*.6;g.strokeStyle="#9ffcf0";g.lineWidth=1.2;g.beginPath();g.arc(so2.sx,so2.sy,14+ph*18,0,TW2);g.stroke();g.globalAlpha=1;
@@ -5267,7 +5327,7 @@ function skyOpen(opts){
   var tgt2=null,sc=skyScan();
   if(SKY.B.moon.U>.2&&SKY.sunAlt<-4)tgt2=SKY.B.moon;else if(sc.pl.length&&SKY.sunAlt<-4)tgt2=sc.pl[0];
   HG.lon=tgt2?skyAzAlt(tgt2).az:(SKY.sunAlt>-4?skyAzAlt(SKY.B.sun).az+3.14:3.14159);HG.lat=.62;HG.zoom=.95;
-  skyLive();hcPan(skyList());skyCap();skyTsSync();skyTsOn(true);
+  skyLive();hcPan(skyList());skyCap();skyTsSync();skyTsOn(true);sndPlay("sky");
   if(!SKY.iss&&typeof lvIssPoll==="function"){try{lvIssPoll(true).then(function(){SKY.iss=1}).catch(function(){})}catch(e){}}
   if(opts.speak!==false)reply(skyOpenSay(opts.tonight))
 }
@@ -5349,7 +5409,7 @@ function skyTsSync(){
   var mins=Math.round(SKY.off/60000);if(!rg.matches(":active"))rg.value=Math.max(-720,Math.min(720,mins));
   if(dt)dt.textContent=skyDay(skyNowMs()).toUpperCase()+" "+skyTime()+(SKY.rate?" · ×"+SKY.rate+"":Math.abs(mins)<1?" · LIVE":"");
   if(pl)pl.textContent=SKY.rate?"❚❚":"▶";
-  var ch=document.querySelectorAll("#skTs .skc button[data-w]");Array.prototype.forEach.call(ch,function(b){var w=b.getAttribute("data-w");if(w==="gnd"){b.classList.toggle("on",SKY.gnd>0);b.textContent=SKY.gnd===2?"GROUND ½":"GROUND"}else if(w==="gy")b.classList.toggle("on",!!SKY.gy);else b.classList.toggle("on",!!SKY[w])})
+  var ch=document.querySelectorAll("#skTs .skc button[data-w]");Array.prototype.forEach.call(ch,function(b){var w=b.getAttribute("data-w");if(w==="gnd"){b.classList.toggle("on",SKY.gnd>0);b.textContent=SKY.gnd===2?"GROUND ½":"GROUND"}else if(w==="gy")b.classList.toggle("on",!!SKY.gy);else if(w==="ar")b.classList.toggle("on",!!SKY.ar);else b.classList.toggle("on",!!SKY[w])})
 }
 function skyTsBind(){
   var rg=$("skRg"),nw=$("skNow"),pl=$("skPl");if(!rg)return;
@@ -5361,6 +5421,7 @@ function skyTsBind(){
     var w=b.getAttribute("data-w");
     if(w==="gnd"){SKY.gnd=(SKY.gnd+1)%3;skySave();skyTsSync()}
     else if(w==="gy"){skyGyro()}
+    else if(w==="ar"){skyAr()}
     else{SKY[w]=SKY[w]?0:1;skySave();skyTsSync()}
     HG.touch=performance.now()})})
 }
@@ -5376,6 +5437,13 @@ function skyIntent(n){
   var s=n.replace(/^(?:hey |yo |ok |okay )?jarvis,? /,"").replace(/^please /,"").replace(/ please$/,"").replace(/,? sir$/,""),m,on=HG.on&&HG.mode==="sky";
   if(/^(?:show|open|display|bring up|pull up|launch|start|activate|take me to|go to|load|let s see|lets see)(?: me)?(?: the| my| our)? (?:night sky|sky|stars|star map|star chart|planetarium|sky view|sky map|constellations|stargazing|star gazing|heavens|night sky view|sky tonight|stars tonight)(?: view| mode| tonight| above me| over kl| over kuala lumpur)?$/.test(s)||/^(?:night sky|star map|star chart|stargazing|planetarium|sky view|look at the stars|look at the sky|what is in the sky tonight|whats in the sky tonight|what s in the sky tonight|what is in the sky|whats in the sky|what can i see tonight|what can i see in the sky|what is up tonight|whats up tonight|what s up tonight|the night sky|sky tonight)$/.test(s)){return{k:"sky",tonight:/tonight|what/.test(s)}}
   if(/^(?:which|what) planets (?:are|can i see)(?: visible| up| out)?(?: tonight| now| right now)?$/.test(s)||/^(?:what|which) (?:planets|stars) (?:can i see|are visible|are up)(?: tonight| now)?$/.test(s))return{k:"skytonight"};
+  if(/^(?:ar sky|sky ar|ar mode|sky ar mode|camera sky|sky camera|augmented reality sky|augmented sky|(?:see|show me|show) the sky (?:through|in|with) (?:my |the )?camera|sky through (?:my |the )?camera|overlay the sky|point the sky at my camera)$/.test(s))return{k:"skyar",on:true};
+  if(on&&SKY.ar&&/^(?:ar off|turn off ar|stop ar|exit ar|ar sky off|camera off|close the camera|turn off the camera)$/.test(s))return{k:"skyar",on:false};
+  if(/^(?:minimal|minimal view|minimal mode|minimal interface|minimalist|clean view|clean mode|clean interface|simple view|simple interface|minimise|minimize the interface|hide the clutter)$/.test(s))return{k:"mnm",on:true};
+  if(/^(?:full|full view|full mode|full interface|classic view|classic interface|show everything|show all|bring everything back|normal view|normal interface)$/.test(s))return{k:"mnm",on:false};
+  if(/^(?:mute (?:the )?(?:sounds?|chimes?|tones?)|sounds? off|silence (?:the )?(?:chimes?|sounds?)|turn off (?:the )?(?:sounds?|chimes?))$/.test(s))return{k:"snd",on:false};
+  if(/^(?:unmute (?:the )?(?:sounds?|chimes?)|sounds? on|turn on (?:the )?(?:sounds?|chimes?)|chimes on)$/.test(s))return{k:"snd",on:true};
+  if(/^(?:play|test|let me hear|do) (?:the |my |your )?(?:startup|start up|boot|signature|intro) (?:sound|chime|tone|theme)$/.test(s))return{k:"sndtest"};
   if(/\b(?:iss|space station)\b/.test(s)&&/^(?:when|what time|can i see|will i see|could i see|is the|next|show me when|tell me when|any)\b/.test(s)&&/\b(?:next pass|pass|fly over|go over|overhead|visible|see|when|tonight)\b/.test(s)&&!/^where/.test(s))return{k:"issnext"};
   if(!on)m=s.match(/^(?:where is|where s|where are|find|locate|show me|point (?:me )?(?:to|at)|point out) (?:the )?(.+?)(?: in the sky| tonight| in the night sky| right now| up there| overhead)?$/);
   else m=s.match(/^(?:where is|where s|where are|find|locate|show me|show|point (?:me )?(?:to|at)|point out|look at|go to|take me to|focus on|zoom (?:in )?(?:on|to)|center on|centre on|select|tap|identify|what is|what s) (?:the |that )?(.+?)(?: in the sky| tonight| right now)?$/);
@@ -5403,7 +5471,7 @@ function skyIntent(n){
     var hh=s.match(/^(?:go )?(forward|ahead|back|backward|backwards|rewind)(?: by)? (\d+|an|one|two|three|four|five|six|twelve) (hours?|days?)$/);
     if(hh){var nn={an:1,one:1,two:2,three:3,four:4,five:5,six:6,twelve:12}[hh[2]]||+hh[2],sg=/^(?:back|rewind)/.test(hh[1])?-1:1;return{k:"skytime",r:/^hour/.test(hh[3])?{hours:sg*nn}:{days:sg*nn}}}
     if(/^(?:in (?:an|one) hour|plus one hour|next hour)$/.test(s))return{k:"skytime",r:{hours:1}};
-    if(/^(?:gyro|use gyro|gyro on|turn on gyro|use sensors|motion sensor|point at the sky|point my phone at the sky|ar sky|sky ar|enable gyro|use the gyro)$/.test(s))return{k:"skygyro",on:true};
+    if(/^(?:gyro|use gyro|gyro on|turn on gyro|use sensors|motion sensor|point at the sky|point my phone at the sky|enable gyro|use the gyro)$/.test(s))return{k:"skygyro",on:true};
     if(/^(?:gyro off|turn off gyro|stop gyro|disable gyro|sensors off|stop using sensors)$/.test(s))return{k:"skygyro",on:false};
     if(/^(?:ground|horizon|toggle ground|hide the ground|show the ground|hide ground|show ground)$/.test(s))return{k:"skyground"};
     if(/^(?:what s up|whats up|what is up|what is visible|what can i see|what s visible)(?: tonight| now| right now)?$/.test(s))return{k:"skytonight"}}
@@ -5468,6 +5536,37 @@ function issNextSay(){
     reply(LLs(en))
   }).catch(function(){reply(LLs("I cannot reach the ISS tracker right now, Sir.","Penjejak ISS tidak dapat dicapai sekarang, Tuan."))})
 }
+/* ===== v9.37: AR sky (rear camera behind the live star map) ===== */
+function skyArFov(){
+  var W=HG.W||innerWidth,H=HG.H||innerHeight,L=62*SD,sc=W<H?Math.max(W/.75,H):Math.max(W,H/.75),fpx=sc/2/Math.tan(L/2),half=Math.min(W,H)/2,fov=4*Math.atan(half/(2*fpx));
+  return Math.max(.6,Math.min(6.5,75*SD/fov))
+}
+function skyAr(on){
+  if(on===undefined)on=!SKY.ar;
+  if(!(HG.on&&HG.mode==="sky")){hcOpen(true);skyOpen({speak:false})}
+  if(!on){if(HG.ar)hcAr(false);skyTsSync();return Promise.resolve(false)}
+  if(HG.ar&&SKY.ar)return Promise.resolve(true);
+  if(HG.arBusy)return Promise.resolve(false);
+  if(HG.ar)hcAr(false);
+  if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){hcCap("a","THIS BROWSER CANNOT OPEN THE CAMERA");return Promise.resolve(false)}
+  var h=$("holo"),v=$("hVid");
+  if(!SKY.gy)skyGyro(true);
+  HG.arBusy=true;hcCap("a","OPENING THE REAR CAMERA…");
+  return camGet("environment",1280,720,30).then(function(st){
+    HG.arBusy=false;if(!(HG.on&&HG.mode==="sky")){st.getTracks().forEach(function(t){t.stop()});return false}
+    HG.stream=st;v.srcObject=st;v.play().catch(function(){});SKY.ar=1;HG.ar=true;h.classList.add("ar","skar");HG.lastT=-1;
+    HG.zoom=skyArFov();SKY.go=null;hcSize();skyTsSync();sndPlay("ar");
+    $("hHint").textContent="AR · POINT UP · PINCH TO LINE THE STARS UP";hcCap("a","AR SKY · POINT YOUR PHONE AT THE SKY");
+    return true
+  }).catch(function(e){HG.arBusy=false;var n=String(e&&e.name||e);hcCap("a",/NotAllowed|Permission/i.test(n)?"THE CAMERA IS BLOCKED · ALLOW IT FOR THIS SITE":/NotReadable/i.test(n)?"ANOTHER APP IS USING THE CAMERA":"I CANNOT OPEN THE REAR CAMERA");return false})
+}
+function skyArSay(){reply(LLs("AR sky is on. Point your phone up and the stars and planets follow. The phone compass can be a few degrees off, so pinch to match the scale and line it up on the Moon or a bright planet, Sir.","Langit AR dihidupkan. Halakan telefon ke langit, bintang dan planet akan mengikut. Kompas telefon mungkin tersasar beberapa darjah, Tuan."))}
+/* ===== v9.37: minimal interface ===== */
+var MN={on:ld("jv_mnm","1")!=="0"};
+function mnApply(){try{document.body.classList.toggle("mnm",MN.on);var b=$("mnBtn");if(b)b.textContent=MN.on?"FULL":"MINIMAL";mnSig()}catch(e){}}
+function mnSig(){var e=$("sig");if(!e)return;var t=skyHM(Date.now()).split(":");e.innerHTML="<i>"+t[0]+"<u>:</u>"+t[1]+"</i><small>"+skyDay(Date.now()).toUpperCase()+" &middot; KUALA LUMPUR &middot; 3.14&deg;N 101.69&deg;E</small>"}
+function mnSet(on,say){MN.on=on;sv("jv_mnm",on?"1":"0");mnApply();sndPlay("mode");if(say)reply(on?LLs("Minimal view on, Sir. Say full view to bring everything back.","Paparan minimum dihidupkan, Tuan."):LLs("Full view restored, Sir.","Paparan penuh dipulihkan, Tuan."))}
+try{mnApply();var mb=$("mnBtn");if(mb)mb.addEventListener("click",function(){mnSet(!MN.on,false)});setInterval(mnSig,20000)}catch(e){}
 function holoIntent(raw,n){
   var w=n.split(" ").length;if(w>14)return null;
   var sk=skyIntent(n);if(sk)return sk;
@@ -5527,6 +5626,10 @@ function holoRun(h){
   if(h.k==="soltime"){solTime(h.r);return}
   if(h.k==="orbs"){hcOpen(true);orbsOpen(true);return}
   if(h.k==="issnext"){issNextSay();return}
+  if(h.k==="skyar"){if(h.on){hcOpen(true);skyAr(true).then(function(ok){if(ok)skyArSay()})}else{skyAr(false);reply(LLs("AR off, Sir.","AR dimatikan, Tuan."))}return}
+  if(h.k==="mnm"){mnSet(h.on,true);return}
+  if(h.k==="snd"){SND.on=h.on;sv("jv_snd",h.on?"1":"0");if(h.on)sndPlay("alert");reply(h.on?LLs("Sounds on, Sir.","Bunyi dihidupkan, Tuan."):LLs("Sounds muted, Sir.","Bunyi dimatikan, Tuan."));return}
+  if(h.k==="sndtest"){sndPlay("boot");return}
   if(h.k==="sky"){hcOpen(true);skyOpen({tonight:h.tonight});return}
   if(h.k==="skyfind"){skyFind(h.o,true);return}
   if(h.k==="skytog"){skyToggle(h.w,h.on);return}
@@ -5621,7 +5724,7 @@ function hcAr(on){
   if(on===HG.ar||HG.arBusy)return Promise.resolve(HG.ar);
   var h=$("holo"),v=$("hVid");
   if(!on){
-    HG.ar=false;h.classList.remove("ar");$("hHands").classList.remove("on");hcCur(null);HG.hands=[];HG.hDrag=null;HG.hZoom=null;HG.zt=0;HG.cur=null;
+    HG.ar=false;SKY.ar=0;h.classList.remove("ar","skar");$("hHands").classList.remove("on");hcCur(null);HG.hands=[];HG.hDrag=null;HG.hZoom=null;HG.zt=0;HG.cur=null;
     if(HG.stream){try{HG.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}HG.stream=null}
     try{v.srcObject=null}catch(e){}
     $("hHint").textContent="DRAG TO SPIN \u00b7 PINCH TO ZOOM \u00b7 TAP A CITY";if(HG.on)hcSize();return Promise.resolve(false)}
@@ -5664,7 +5767,7 @@ function hcFrame(ts){
   if(LITE&&HG.q<1){HG.q=1;HG.n=0;hcSize()}
   if((HG.fr&7)===0){var kw=HG.cv.clientWidth,kh=HG.cv.clientHeight;if(kw>40&&kh>40&&(Math.abs(kw-HG.W)>1||Math.abs(kh-HG.H)>1||Math.abs(HG.cv.width/HG.cv.height-kw/kh)>.01))hcSize()}
   var dt=Math.min(.05,Math.max(.001,(ts-HG.last)/1000));HG.last=ts;
-  if(HG.ar&&gest.lm&&!document.hidden){var hv=$("hVid");if(hv.readyState>=2&&hv.currentTime!==HG.lastT&&ts-HG.lastDet>HG.gap){HG.lastDet=ts;HG.lastT=hv.currentTime;var h0=performance.now();try{hcHands(gest.lm.detectForVideo(hv,h0))}catch(e){}HG.gap=Math.max(50,Math.min(140,(performance.now()-h0)*1.8))}}
+  if(HG.ar&&!SKY.ar&&gest.lm&&!document.hidden){var hv=$("hVid");if(hv.readyState>=2&&hv.currentTime!==HG.lastT&&ts-HG.lastDet>HG.gap){HG.lastDet=ts;HG.lastT=hv.currentTime;var h0=performance.now();try{hcHands(gest.lm.detectForVideo(hv,h0))}catch(e){}HG.gap=Math.max(50,Math.min(140,(performance.now()-h0)*1.8))}}
   if(HG.pl||HG.pt2){var kk=Math.min(1,dt*14);HG.lon+=HG.pl*kk;HG.lat+=HG.pt2*kk;HG.pl*=1-kk;HG.pt2*=1-kk;if(Math.abs(HG.pl)<1e-5)HG.pl=0;if(Math.abs(HG.pt2)<1e-5)HG.pt2=0}
   if(HG.zt)HG.zoom+=(HG.zt-HG.zoom)*Math.min(1,dt*9);
   if(!HG.idl)HG.ema=HG.ema*.93+dt*1000*.07;
@@ -6952,7 +7055,7 @@ $("goBtn").addEventListener("click",function(){
     setTimeout(function(){
       B.classList.add("done");
       setTimeout(function(){
-        B.classList.add("out");
+        B.classList.add("out");try{sndPlay("boot")}catch(e){}
         curK=lkey();
         var g=startGreeting(gwv,curK);
         add("a",g);speak(g);
