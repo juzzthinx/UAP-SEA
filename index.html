@@ -180,6 +180,12 @@ body.mnm #log{padding-top:8px}
 #andro .anh{margin-top:12px;font-family:"Michroma","Eurostile",sans-serif;font-size:6.5px;letter-spacing:.4em;color:var(--dim);opacity:.6}
 @media (max-height:640px){#anL{min-height:96px}}
 
+/* v9.42 helmet view + palm arm */
+#anV{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.1s ease;filter:grayscale(.3) contrast(1.06) brightness(.82);background:#02070a}
+#andro.cam #anV{opacity:.7}#andro.mir #anV{transform:scaleX(-1)}
+#andro.arm #anP,#andro.arm .anb,#andro.arm .anh{display:none}
+#anL .anr.arm1{justify-content:center;letter-spacing:.3em;font-size:8px;color:var(--c);min-height:0}
+#andro.arm #anL{min-height:34px}
 /* v9.41 arc reactor start-up */
 #andro .ans{transition:opacity 1.2s ease .5s,color .8s,text-shadow .8s}
 #andro.ini .ans{color:#eafffb;text-shadow:0 0 18px var(--c)}
@@ -769,7 +775,7 @@ body.lite .xsw{display:none}
   <div id="bList"></div>
 </div>
 
-<div id="andro"><canvas id="anC"></canvas><div id="anR"></div><div class="anw"><div class="ant">ANDROMEDA</div><div class="ans">SEQUENCE</div><div id="anL"></div><div class="anb"><i id="anP"></i></div><div class="anh">TAP TO SKIP</div></div></div>
+<div id="andro"><video id="anV" playsinline muted autoplay></video><canvas id="anC"></canvas><div id="anR"></div><div class="anw"><div class="ant">ANDROMEDA</div><div class="ans">SEQUENCE</div><div id="anL"></div><div class="anb"><i id="anP"></i></div><div class="anh">TAP TO SKIP</div></div></div>
 <div id="eyes"><video id="eyeVid" playsinline muted autoplay></video><div class="cn a"></div><div class="cn b"></div>
 <div class="top"><span>VISUAL FEED</span><span id="eyeSt">LIVE</span></div>
 <div class="ringw" id="eyeRing"><svg class="rl r1" viewBox="0 0 200 200"><circle cx="100" cy="100" r="92" fill="none" stroke="currentColor" stroke-width="6" opacity=".9"/><circle cx="100" cy="100" r="64" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".85"/></svg><svg class="rl r2" viewBox="0 0 200 200"><circle cx="100" cy="100" r="78" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="2 7" opacity=".7"/></svg><svg class="rl r3" viewBox="0 0 200 200"><circle cx="100" cy="100" r="98" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="26 14 4 14" opacity=".55"/></svg><svg class="rl r4" viewBox="0 0 200 200"><path d="M100 16 A84 84 0 0 1 184 100" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".85"/></svg>
@@ -1394,7 +1400,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.41";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
+var VER="v9.42";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -5488,6 +5494,8 @@ function skyIntent(n){
   if(/^(?:what do you see|what can you see|what objects (?:do you see|are (?:there|here|in front of me))|list (?:the )?objects|count (?:the )?objects|what(?:'s| is) around me|what(?:'s| is) in front of me)$/.test(s))return XR.on&&XR.mode===4?{k:"objlist"}:{k:"ident"};
   if(/^(?:what(?:'s| is) (?:this|that|it)|whats (?:this|that|it)|what am i (?:looking at|seeing|holding)|identify (?:this|that|it|the object)|recogni[sz]e (?:this|that)|tell me what (?:this|that) is|what kind of (?:thing|object) is (?:this|that)|apa (?:ni|ini|itu|benda ni))$/.test(s))return{k:"ident"};
   if(/^(?:(?:initiate|initialize|initialise|activate|start|launch|begin|engage|run|execute|mulakan|aktifkan) (?:the |my )?andromeda(?: sequence| protocol| mode| boot| startup)?|andromeda (?:sequence|protocol)|andromeda initiate|(?:mulakan|aktifkan) urutan andromeda)$/.test(s))return{k:"andro"};
+  if(/^(?:(?:initiate|initialize|initialise|activate|start|launch|run|engage) (?:the |my )?andromeda(?: sequence| protocol)?(?: in| with| using)? (?:the )?(?:helmet|visor|camera)(?: view| mode)?|andromeda (?:helmet|visor|camera)(?: view| mode| sequence)?|(?:helmet|visor) (?:view|mode|sequence))$/.test(s))return{k:"andro",cam:"environment"};
+  if(/^(?:arm andromeda|andromeda (?:standby|palm|palm mode|arm|armed)|palm (?:mode|start|ignite|ignition)|ready andromeda|andromeda ready|ignite andromeda|prepare andromeda)$/.test(s))return{k:"andarm"};
   if(/\b(?:iss|space station)\b/.test(s)&&/^(?:when|what time|can i see|will i see|could i see|is the|next|show me when|tell me when|any)\b/.test(s)&&/\b(?:next pass|pass|fly over|go over|overhead|visible|see|when|tonight)\b/.test(s)&&!/^where/.test(s))return{k:"issnext"};
   if(!on)m=s.match(/^(?:where is|where s|where are|find|locate|show me|point (?:me )?(?:to|at)|point out) (?:the )?(.+?)(?: in the sky| tonight| in the night sky| right now| up there| overhead)?$/);
   else m=s.match(/^(?:where is|where s|where are|find|locate|show me|show|point (?:me )?(?:to|at)|point out|look at|go to|take me to|focus on|zoom (?:in )?(?:on|to)|center on|centre on|select|tap|identify|what is|what s) (?:the |that )?(.+?)(?: in the sky| tonight| right now)?$/);
@@ -5712,8 +5720,19 @@ function objIdent(){
   eyes.face="environment";eyesOpen();
   var n=0,iv=setInterval(function(){n++;var v=$("eyeVid");if(eyes.on&&v&&v.videoWidth>0&&v.readyState>=2){clearInterval(iv);setTimeout(function(){if(eyes.on)eyesAction("id")},700)}else if(n>24)clearInterval(iv)},250)
 }
-/* ===== v9.41: Andromeda sequence = globe -> Kuala Lumpur -> arc reactor start-up -> "Andromeda initiated" ===== */
-var AND={on:false,raf:0,tm:[],t0:0,dur:9.4,q:null,done:false,bad:0,st:""};
+/* ===== v9.42: Andromeda sequence - live globe (day/night, ISS, quakes) -> Kuala Lumpur -> arc reactor start-up -> initiated; helmet view + palm ignite ===== */
+var AND={on:false,arm:false,raf:0,tm:[],t0:0,dur:9.4,q:null,qa:null,done:false,bad:0,st:"",cam:false,stream:null,tr:null,issT:0,chg:0,bk:null,hs:null,armT:0,lastDet:0,lastT:-1,sun:[1,0,0]};
+function andSun(){
+  var jd=Date.now()/86400000+2440587.5,v=skySunEq(jd).v,m=Math.hypot(v[0],v[1],v[2])||1,G=skyLstAt(jd)-SKL[1]*Math.PI/180,c=Math.cos(G),sn=Math.sin(G),x=v[0]/m,y=v[1]/m;
+  AND.sun=[x*c+y*sn,-x*sn+y*c,v[2]/m]
+}
+function andVec(lat,lon){var D=Math.PI/180,cl=Math.cos(lat*D);return[cl*Math.cos(lon*D),cl*Math.sin(lon*D),Math.sin(lat*D)]}
+function andIss(){
+  var s0=LV.iss,p=LV.prev;if(!s0){AND.tr=null;return}
+  var age=(performance.now()-s0.ts)/60000,a=[],dm,pos;
+  if(p){for(dm=-36;dm<=48;dm+=3){pos=issProp(s0,p,age,dm);a.push(andVec(pos.lat,pos.lon))}AND.tr={t:a,cur:andVec(issProp(s0,p,age,0).lat,issProp(s0,p,age,0).lon),i0:12}}
+  else AND.tr={t:null,cur:andVec(s0.lat,s0.lon)}
+}
 function andDraw(ts){
   if(!AND.on)return;AND.raf=requestAnimationFrame(andDraw);
   var cv=$("anC"),dpr=Math.min(window.devicePixelRatio||1,LITE?1:1.5),W=innerWidth,H=innerHeight;
@@ -5723,20 +5742,54 @@ function andDraw(ts){
       fade=Math.max(0,Math.min(1,(e-4.5)/.9)),ga=Math.min(1,e/1.0)*(1-fade),
       cx=W/2,cy=H*.36,R=Math.min(W*.34,H*.2)*(.8+.3*ez),
       lon=101.69*D-(1-ez)*2.4,lat=3.14*D+(1-ez)*.42,c0=Math.cos(lon),s0=Math.sin(lon),cp=Math.cos(lat),sp=Math.sin(lat);
-  g.setTransform(dpr,0,0,dpr,0,0);g.globalCompositeOperation="source-over";g.globalAlpha=1;g.fillStyle="#02070a";g.fillRect(0,0,W,H);
+  g.setTransform(dpr,0,0,dpr,0,0);g.globalCompositeOperation="source-over";g.globalAlpha=1;
+  if(AND.cam){g.clearRect(0,0,W,H);g.fillStyle="rgba(2,7,10,.46)";g.fillRect(0,0,W,H);andBrackets(g,W,H,Math.min(1,e/1.2))}
+  else{g.fillStyle="#02070a";g.fillRect(0,0,W,H)}
   if(ga>.01){
-    var gl=g.createRadialGradient(cx,cy,R*.6,cx,cy,R*1.5);gl.addColorStop(0,"rgba(46,230,214,.10)");gl.addColorStop(1,"rgba(0,0,0,0)");
+    if(!AND.sunT||ts-AND.sunT>20000){AND.sunT=ts;andSun()}
+    if(!AND.issT||ts-AND.issT>2500){AND.issT=ts;andIss()}
+    var S=AND.sun,gl=g.createRadialGradient(cx,cy,R*.6,cx,cy,R*1.5);gl.addColorStop(0,"rgba(46,230,214,.10)");gl.addColorStop(1,"rgba(0,0,0,0)");
     g.globalAlpha=ga;g.fillStyle=gl;g.fillRect(cx-R*1.6,cy-R*1.6,R*3.2,R*3.2);
     g.globalAlpha=ga*.32;g.strokeStyle="#46e6d6";g.lineWidth=1;g.beginPath();g.arc(cx,cy,R,0,6.2832);g.stroke();
-    g.globalAlpha=ga*.13;g.lineWidth=.8;g.beginPath();
-    var G=HG.grat,L,j,P,xx,yy,zz,Z,oz;
-    for(i=0;i<G.length;i++){L=G[i];oz=-1;for(j=0;j<L.length;j++){P=L[j];xx=P[1]*c0-P[0]*s0;zz=P[0]*c0+P[1]*s0;yy=cp*P[2]-sp*zz;Z=sp*P[2]+cp*zz;if(Z>.02){if(oz>.02)g.lineTo(cx+xx*R,cy-yy*R);else g.moveTo(cx+xx*R,cy-yy*R)}oz=Z}}
+    g.globalAlpha=ga*.12;g.lineWidth=.8;g.beginPath();
+    var G=HG.grat,L,j2,P,xx,yy,zz,Z,oz;
+    for(i=0;i<G.length;i++){L=G[i];oz=-1;for(j2=0;j2<L.length;j2++){P=L[j2];xx=P[1]*c0-P[0]*s0;zz=P[0]*c0+P[1]*s0;yy=cp*P[2]-sp*zz;Z=sp*P[2]+cp*zz;if(Z>.02){if(oz>.02)g.lineTo(cx+xx*R,cy-yy*R);else g.moveTo(cx+xx*R,cy-yy*R)}oz=Z}}
     g.stroke();
     var A=HG.lat0,n=A.N,st=LITE?2:1,b,Zs=A.sZ,xs=A.sX,ys=A.sY;
-    for(i=0;i<n;i+=st){var px=A.px[i],py=A.py[i],pz=A.pz[i];xx=py*c0-px*s0;zz=px*c0+py*s0;yy=cp*pz-sp*zz;Z=sp*pz+cp*zz;xs[i]=cx+xx*R;ys[i]=cy-yy*R;Zs[i]=Z}
+    if(!AND.bk||AND.bk.length<n)AND.bk=new Uint8Array(n);var bk=AND.bk;
+    for(i=0;i<n;i+=st){var px=A.px[i],py=A.py[i],pz=A.pz[i];xx=py*c0-px*s0;zz=px*c0+py*s0;yy=cp*pz-sp*zz;Z=sp*pz+cp*zz;xs[i]=cx+xx*R;ys[i]=cy-yy*R;Zs[i]=Z;
+      var dn=px*S[0]+py*S[1]+pz*S[2];bk[i]=(Z<.3?0:Z<.65?1:2)*2+(dn<-.04?0:1)}
     g.fillStyle="#7ff5e8";
-    for(b=0;b<3;b++){g.globalAlpha=ga*(b===0?.22:b===1?.5:.9);g.beginPath();
-      for(i=0;i<n;i+=st){Z=Zs[i];if(Z>.03&&(b===0?Z<.3:b===1?Z<.65:Z>=.65))g.rect(xs[i]-.7,ys[i]-.7,1.5,1.5)}g.fill()}
+    var AL=[.07,.2,.16,.46,.32,.9];
+    for(b=0;b<6;b++){g.globalAlpha=ga*AL[b];g.beginPath();
+      for(i=0;i<n;i+=st){if(Zs[i]>.03&&bk[i]===b)g.rect(xs[i]-.7,ys[i]-.7,1.5,1.5)}g.fill()}
+    /* terminator */
+    var ax=S[1],ay=-S[0],az=0,am=Math.hypot(ax,ay);if(am<1e-4){ax=1;ay=0;am=1}ax/=am;ay/=am;
+    var bx=S[1]*az-S[2]*ay,by=S[2]*ax-S[0]*az,bz=S[0]*ay-S[1]*ax,ph2,tp,Zp;
+    g.globalAlpha=ga*.5;g.strokeStyle="#bff8ef";g.lineWidth=1;g.setLineDash([2,4]);g.beginPath();oz=-1;
+    for(ph2=0;ph2<=6.3;ph2+=.1){var cc=Math.cos(ph2),ss=Math.sin(ph2),qx=ax*cc+bx*ss,qy=ay*cc+by*ss,qz=az*cc+bz*ss;
+      xx=qy*c0-qx*s0;zz=qx*c0+qy*s0;yy=cp*qz-sp*zz;Zp=sp*qz+cp*zz;if(Zp>.02){if(oz>.02)g.lineTo(cx+xx*R,cy-yy*R);else g.moveTo(cx+xx*R,cy-yy*R)}oz=Zp}
+    g.stroke();g.setLineDash([]);
+    /* earthquakes (M4+ in the last day) */
+    var QA=AND.qa;
+    if(QA&&e>1.6){
+      g.strokeStyle="#e8fffc";g.lineWidth=1;var qn=0;
+      for(i=0;i<QA.length&&qn<26;i++){var q=QA[i];if(q.m<4)continue;qn++;
+        xx=q.y*c0-q.x*s0;zz=q.x*c0+q.y*s0;yy=cp*q.z-sp*zz;Z=sp*q.z+cp*zz;if(Z<.08)continue;
+        var pp=((e*.62+qn*.37)%1);g.globalAlpha=ga*(1-pp)*.8;g.beginPath();g.arc(cx+xx*R,cy-yy*R,2+pp*(4+q.m*1.9),0,6.2832);g.stroke();
+        g.globalAlpha=ga*.9;g.fillStyle="#e8fffc";g.fillRect(cx+xx*R-1,cy-yy*R-1,2,2)}
+    }
+    /* ISS + orbit trail */
+    var T2=AND.tr;
+    if(T2&&e>1.2){
+      if(T2.t){g.strokeStyle="#9ffcf0";g.lineWidth=1.1;g.globalAlpha=ga*.55;g.beginPath();oz=-1;
+        for(i=0;i<T2.t.length;i++){var V=T2.t[i];xx=V[1]*c0-V[0]*s0;zz=V[0]*c0+V[1]*s0;yy=cp*V[2]-sp*zz;Z=sp*V[2]+cp*zz;if(Z>.02){if(oz>.02)g.lineTo(cx+xx*R,cy-yy*R);else g.moveTo(cx+xx*R,cy-yy*R)}oz=Z}
+        g.stroke()}
+      var C=T2.cur;xx=C[1]*c0-C[0]*s0;zz=C[0]*c0+C[1]*s0;yy=cp*C[2]-sp*zz;Z=sp*C[2]+cp*zz;
+      if(Z>.06){var ix=cx+xx*R,iy=cy-yy*R,pi2=(e*.8)%1;g.globalAlpha=ga;g.fillStyle="#ffffff";g.fillRect(ix-2,iy-2,4,4);
+        g.strokeStyle="#ffffff";g.globalAlpha=ga*(1-pi2)*.7;g.beginPath();g.arc(ix,iy,3+pi2*9,0,6.2832);g.stroke();
+        g.globalAlpha=ga*.9;g.fillStyle="#e8fffc";g.font="600 8px Michroma,ui-monospace,Menlo,monospace";g.textAlign="left";g.fillText("ISS",ix+8,iy+3)}
+    }
     if(e>2.9){
       var la=Math.min(1,(e-2.9)/.7)*ga,ph=((e-2.9)*.9)%1;
       g.strokeStyle="#9ffcf0";g.fillStyle="#e8fffc";g.lineWidth=1.2;
@@ -5745,10 +5798,11 @@ function andDraw(ts){
       g.beginPath();g.moveTo(cx-14,cy);g.lineTo(cx-7,cy);g.moveTo(cx+7,cy);g.lineTo(cx+14,cy);g.moveTo(cx,cy-14);g.lineTo(cx,cy-7);g.moveTo(cx,cy+7);g.lineTo(cx,cy+14);g.stroke();
       var lx=cx+R*.2,ly=cy-R*.34,right=cx+R*.2+120<W-8;
       if(!right){lx=cx-R*.2}
+      var kd=andVec(3.14,101.69),dk=kd[0]*S[0]+kd[1]*S[1]+kd[2]*S[2],dl=dk>.08?"DAYLIGHT":dk<-.08?"NIGHT":"TWILIGHT";
       g.globalAlpha=la*.7;g.beginPath();g.moveTo(cx+(right?6:-6),cy-6);g.lineTo(lx,ly);g.lineTo(lx+(right?110:-110),ly);g.stroke();
       g.globalAlpha=la;g.textAlign=right?"left":"right";g.textBaseline="alphabetic";
       g.font="600 10px Michroma,ui-monospace,Menlo,monospace";g.fillText("KUALA LUMPUR",lx+(right?2:-2),ly-6);
-      g.globalAlpha=la*.65;g.font="500 8px ui-monospace,Menlo,monospace";g.fillText("3.14°N  101.69°E",lx+(right?2:-2),ly+12)
+      g.globalAlpha=la*.65;g.font="500 8px ui-monospace,Menlo,monospace";g.fillText("3.14°N  101.69°E  ·  "+dl,lx+(right?2:-2),ly+12)
     }
   }
   g.globalAlpha=1;
@@ -5758,6 +5812,12 @@ function andDraw(ts){
   if(pc){var v=String(Math.round(pe*100));if(pc.textContent!==v)pc.textContent=v}
   if(sx!==AND.st){AND.st=sx;var sn=$("anSt");if(sn)sn.textContent=sx;if(p>=1)$("anR").classList.add("lit")}
   var pr=$("anP");if(pr)pr.style.width=Math.min(100,e/4.5*100)+"%"
+}
+function andBrackets(g,W,H,a){
+  var m=18,l=26,t=calcSafe();function calcSafe(){return 18}
+  g.save();g.globalAlpha=a*.55;g.strokeStyle="#9ffcf0";g.lineWidth=1.2;g.beginPath();
+  g.moveTo(m,m+l);g.lineTo(m,m);g.lineTo(m+l,m);g.moveTo(W-m-l,m);g.lineTo(W-m,m);g.lineTo(W-m,m+l);
+  g.moveTo(m,H-m-l);g.lineTo(m,H-m);g.lineTo(m+l,H-m);g.moveTo(W-m-l,H-m);g.lineTo(W-m,H-m);g.lineTo(W-m,H-m-l);g.stroke();g.restore()
 }
 function andLines(){
   return[
@@ -5788,34 +5848,51 @@ function andBrief(){
   en.push(AND.bad?"All systems are yours, with "+AND.bad+" on standby.":"All systems are yours.");ms.push("Semua sistem di tangan anda.");
   return LT(en.join(" "),ms.join(" "))
 }
+function andCamStop(){
+  try{if(AND.stream)AND.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}
+  AND.stream=null;AND.cam=false;var v=$("anV");if(v){try{v.srcObject=null}catch(e){}}
+  var el=$("andro");if(el)el.classList.remove("cam","mir")
+}
+function andCamOn(st,mir){
+  AND.stream=st;AND.cam=true;var v=$("anV"),el=$("andro");v.srcObject=st;v.play().catch(function(){});
+  if(mir)el.classList.add("mir");else el.classList.remove("mir");el.classList.add("cam")
+}
 function andEnd(skipped){
   if(AND.done)return;AND.done=true;AND.tm.forEach(clearTimeout);AND.tm=[];
   var el=$("andro");
   if(skipped)sndPlay("mode");
   el.classList.remove("vis");
   AND.tm.push(setTimeout(function(){
-    AND.on=false;cancelAnimationFrame(AND.raf);el.classList.remove("on","t1","t2","ini");$("anL").innerHTML="";$("anP").style.width="0";
+    AND.on=false;cancelAnimationFrame(AND.raf);el.classList.remove("on","t1","t2","ini","arm");$("anL").innerHTML="";$("anP").style.width="0";andCamStop();
     var r=$("anR");r.classList.remove("on","lit");$("anArc").style.strokeDashoffset="527.8";
     var sb=el.querySelector(".ans");if(sb)sb.textContent="SEQUENCE";
     try{reply(andBrief())}catch(e){}
   },760))
 }
-function andStart(){
-  if(AND.on)return;
-  AND.on=true;AND.done=false;AND.bad=0;AND.q=null;AND.st="";unlockSpeech();ctx();try{cancelSpeech()}catch(e){}
+function andPrep(){
+  unlockSpeech();ctx();try{cancelSpeech()}catch(e){}
   try{if(XR.on)xrOff()}catch(e){}try{if(gest.on)gestClose()}catch(e){}try{if(eyes.on)eyesClose()}catch(e){}
   try{hcInit()}catch(e){}
-  var el=$("andro"),r=$("anR");
+  var r=$("anR");
   if(!r.firstChild){
     var sv0=$("reactor").querySelectorAll("svg"),k;
     for(k=0;k<sv0.length;k++){var c=sv0[k].cloneNode(true),ar=c.querySelector("#bArc"),gd=c.querySelector("#bgd");if(gd)gd.id="angd";if(ar){ar.id="anArc";ar.setAttribute("stroke","url(#angd)")}r.appendChild(c)}
     var nn=document.createElement("div");nn.id="anN";nn.innerHTML='<b><span id="anPc">0</span><i>%</i></b><span id="anSt"></span>';r.appendChild(nn)
   }
-  $("anPc").textContent="0";$("anSt").textContent="";$("anArc").style.strokeDashoffset="527.8";
-  $("anL").innerHTML="";el.classList.remove("t1","t2","ini");el.classList.add("on");void el.offsetWidth;el.classList.add("vis");
+  $("anPc").textContent="0";$("anSt").textContent="";$("anArc").style.strokeDashoffset="527.8";AND.st="";AND.sunT=0;AND.issT=0;AND.tr=null
+}
+function andStart(o){
+  if(AND.on)return;o=o||{};
+  AND.arm=false;AND.on=true;AND.done=false;AND.bad=0;AND.q=null;AND.qa=null;
+  andPrep();
+  var el=$("andro"),r=$("anR");
+  $("anL").innerHTML="";el.classList.remove("t1","t2","ini","arm");el.classList.add("on");void el.offsetWidth;el.classList.add("vis");
+  if(o.stream)andCamOn(o.stream,!!o.mir);
+  else if(o.cam&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){camGet(o.cam,960,720,24).then(function(st){if(AND.on&&!AND.done)andCamOn(st,o.cam==="user");else st.getTracks().forEach(function(t){t.stop()})}).catch(function(){})}
   AND.dur=LITE?8.2:9.4;AND.t0=performance.now();cancelAnimationFrame(AND.raf);AND.raf=requestAnimationFrame(andDraw);
   sndPlay("boot");
-  try{lvIssPoll(false).catch(function(){})}catch(e){}try{lvLoadQ().then(function(q){AND.q=q.length}).catch(function(){AND.q=-1})}catch(e){AND.q=-1}
+  try{lvIssPoll(false).catch(function(){})}catch(e){}
+  try{lvLoadQ().then(function(q){AND.q=q.length;AND.qa=q.slice().sort(function(a,b){return b.m-a.m})}).catch(function(){AND.q=-1})}catch(e){AND.q=-1}
   var L=andLines(),i;
   AND.tm.push(setTimeout(function(){el.classList.add("t1")},500));
   for(i=0;i<L.length;i++)(function(i){AND.tm.push(setTimeout(function(){if(AND.on&&!AND.done)andType(i,L)},1300+i*300))})(i);
@@ -5823,7 +5900,63 @@ function andStart(){
   AND.tm.push(setTimeout(function(){el.classList.add("ini");var sb=el.querySelector(".ans");if(sb)sb.textContent="INITIATED";sndB(659.25,0,1.5,.12);sndB(987.77,.18,1.7,.12);sndB(1318.51,.36,2.4,.12)},7300));
   AND.tm.push(setTimeout(function(){andEnd(false)},AND.dur*1000))
 }
-try{$("andro").addEventListener("click",function(){if(AND.on&&!AND.done&&performance.now()-AND.t0>700)andEnd(true)})}catch(e){}
+/* ----- palm ignite: hold an open palm up to the front camera ----- */
+function andPalmOpen(lm){
+  var w=lm[0],d=function(a,b){return Math.hypot(a.x-b.x,a.y-b.y)},sc=d(w,lm[9]),f=[[8,6],[12,10],[16,14],[20,18]],n=0,i;
+  for(i=0;i<4;i++){if(d(lm[f[i][0]],w)>d(lm[f[i][1]],w)*1.12)n++}
+  return n>=4&&sc>.07&&d(lm[4],lm[17])>sc*.7
+}
+function andArmDraw(ts){
+  if(!AND.arm)return;AND.raf=requestAnimationFrame(andArmDraw);
+  var cv=$("anC"),dpr=Math.min(window.devicePixelRatio||1,1.5),W=innerWidth,H=innerHeight,v=$("anV");
+  if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}
+  var g=cv.getContext("2d"),dt=Math.min(.1,(ts-(AND.lastF||ts))/1000);AND.lastF=ts;
+  g.setTransform(dpr,0,0,dpr,0,0);g.globalAlpha=1;g.clearRect(0,0,W,H);g.fillStyle="rgba(2,7,10,.5)";g.fillRect(0,0,W,H);andBrackets(g,W,H,1);
+  var hint=$("anHint"),msg="";
+  if(!gest.lm){msg=AND.lmErr?"HAND TRACKER OFFLINE · TAP TO START":"LOADING HAND TRACKER…"}
+  else if(v.readyState>=2&&v.videoWidth&&ts-AND.lastDet>70&&v.currentTime!==AND.lastT){
+    AND.lastDet=ts;AND.lastT=v.currentTime;var res=null;try{res=gest.lm.detectForVideo(v,ts)}catch(e){}
+    AND.hs=res&&res.landmarks&&res.landmarks[0]?res.landmarks[0]:null
+  }
+  var hs=gest.lm?AND.hs:null,open=false;
+  if(hs){
+    var vw=v.videoWidth||640,vh=v.videoHeight||480,sc=Math.max(W/vw,H/vh),ox=(W-vw*sc)/2,oy=(H-vh*sc)/2,i,pts=[],mx=0,my=0;
+    for(i=0;i<21;i++){pts.push([W-(hs[i].x*vw*sc+ox),hs[i].y*vh*sc+oy])}
+    for(i=0;i<5;i++){var k5=[0,5,9,13,17][i];mx+=pts[k5][0];my+=pts[k5][1]}mx/=5;my/=5;
+    open=andPalmOpen(hs);
+    g.fillStyle=open?"#e8fffc":"#7ff5e8";g.globalAlpha=.8;for(i=0;i<21;i++){g.fillRect(pts[i][0]-1.5,pts[i][1]-1.5,3,3)}
+    var rr=Math.max(46,Math.hypot(pts[0][0]-pts[9][0],pts[0][1]-pts[9][1])*1.35);
+    g.globalAlpha=.3;g.strokeStyle="#9ffcf0";g.lineWidth=1.2;g.beginPath();g.arc(mx,my,rr,0,6.2832);g.stroke();
+    if(AND.chg>0){g.globalAlpha=.95;g.lineWidth=3.2;g.strokeStyle="#9ffcf0";g.shadowColor="#2ee6d6";g.shadowBlur=12;g.beginPath();g.arc(mx,my,rr,-1.5708,-1.5708+6.2832*AND.chg);g.stroke();g.shadowBlur=0}
+    msg=open?"HOLD STEADY…":"OPEN YOUR PALM FULLY"
+  }else if(gest.lm)msg="SHOW YOUR PALM TO THE CAMERA";
+  AND.chg=Math.max(0,Math.min(1,AND.chg+(open?dt/1.15:-dt/.7)));
+  if(hint&&hint.textContent!==msg)hint.textContent=msg;
+  if(AND.chg>=1){var st=AND.stream;AND.arm=false;cancelAnimationFrame(AND.raf);AND.chg=0;sndPlay("ar");andStart({stream:st,mir:true});return}
+  if(performance.now()-AND.armT>60000)andDisarm()
+}
+function andDisarm(){
+  if(!AND.arm)return;AND.arm=false;cancelAnimationFrame(AND.raf);AND.tm.forEach(clearTimeout);AND.tm=[];
+  var el=$("andro");el.classList.remove("vis");
+  setTimeout(function(){if(AND.arm||AND.on)return;el.classList.remove("on","t1","arm");andCamStop();$("anL").innerHTML=""},760)
+}
+function andArm(){
+  if(AND.on||AND.arm)return;
+  if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){reply(LLs("This browser cannot open the camera, Sir.","Pelayar ini tidak boleh membuka kamera, Tuan."));return}
+  andPrep();AND.arm=true;AND.chg=0;AND.hs=null;AND.lmErr=false;AND.armT=performance.now();AND.lastF=0;
+  var el=$("andro");$("anL").innerHTML='<div class="anr arm1" id="anHint">STARTING CAMERA…</div>';
+  el.classList.remove("t2","ini");el.classList.add("on","arm");void el.offsetWidth;el.classList.add("vis");setTimeout(function(){el.classList.add("t1")},300);
+  var sb=el.querySelector(".ans");if(sb)sb.textContent="STANDBY";
+  camGet("user",640,480,30).then(function(st){
+    if(!AND.arm){st.getTracks().forEach(function(t){t.stop()});return}
+    andCamOn(st,true);cancelAnimationFrame(AND.raf);AND.raf=requestAnimationFrame(andArmDraw)
+  }).catch(function(e){AND.arm=false;andDisarm();reply(LLs(/NotAllowed|Permission/i.test(String(e&&e.name))?"The camera is blocked for this site, Sir.":"I cannot open the camera, Sir.","Kamera tidak dapat dibuka, Tuan."))});
+  gLoad().catch(function(){AND.lmErr=true});
+  sndPlay("mode")
+}
+try{$("andro").addEventListener("click",function(){
+  if(AND.arm){if(AND.lmErr&&AND.stream){var st=AND.stream;AND.arm=false;cancelAnimationFrame(AND.raf);andStart({stream:st,mir:true})}else andDisarm();return}
+  if(AND.on&&!AND.done&&performance.now()-AND.t0>700)andEnd(true)})}catch(e){}
 function holoIntent(raw,n){
   var w=n.split(" ").length;if(w>14)return null;
   var sk=skyIntent(n);if(sk)return sk;
@@ -5882,7 +6015,8 @@ function holoRun(h){
   if(h.k==="soltime"){solTime(h.r);return}
   if(h.k==="orbs"){hcOpen(true);orbsOpen(true);return}
   if(h.k==="issnext"){issNextSay();return}
-  if(h.k==="andro"){andStart();return}
+  if(h.k==="andro"){andStart(h.cam?{cam:h.cam}:null);return}
+  if(h.k==="andarm"){andArm();reply(LLs("Andromeda is armed. Hold an open palm up to the camera, Sir.","Andromeda sedia. Angkat tapak tangan terbuka ke kamera, Tuan."));return}
   if(h.k==="objlist"){objListSay();return}
   if(h.k==="ident"){objIdent();return}
   if(h.k==="skyar"){if(h.on){hcOpen(true);skyAr(true).then(function(ok){if(ok)skyArSay()})}else{skyAr(false);reply(LLs("AR off, Sir.","AR dimatikan, Tuan."))}return}
