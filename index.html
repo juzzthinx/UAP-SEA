@@ -1400,7 +1400,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.45";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
+var VER="v9.46";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -3322,8 +3322,62 @@ var TW={c:1,s:0,cp:1,sp:0,k:1,cx:0,gy:0,D:950,sx:0,sy:0,z:0,rx:new Float32Array(
 var TPART={
   all:{lon:.55,lat:.2,zoom:1,fy:226},
   bridge:{lon:.28,lat:.08,zoom:2.5,fy:172},
-  top:{lon:.7,lat:.14,zoom:2.3,fy:392}
+  top:{lon:.7,lat:.14,zoom:2.3,fy:392},
+  base:{lon:.9,lat:.42,zoom:1.7,fy:24}
 };
+function twH(n){var v=Math.sin(n*127.1)*43758.5453;return v-Math.floor(v)}
+/* v9.46: live KL weather for the hologram (Open-Meteo, same source as the rest of Jarvis) */
+function twWxLoad(){
+  var n=Date.now();if(TW.wxT&&n-TW.wxT<600000)return;TW.wxT=n;
+  var url="https://api.open-meteo.com/v1/forecast?latitude=3.1579&longitude=101.7116&current=temperature_2m,weather_code,is_day,wind_speed_10m,cloud_cover&timezone=auto";
+  withTO(fetch(url).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}),6000).then(function(j){
+    var c=j&&j.current;if(c&&typeof c.weather_code==="number")TW.wx={code:c.weather_code,day:c.is_day,wind:c.wind_speed_10m||0,cloud:c.cloud_cover||0,t:Math.round(c.temperature_2m)};else TW.wxT=n-480000
+  }).catch(function(){TW.wxT=n-480000});
+}
+/* v9.46: KL Tower, true height (421 m) and true distance (about 1.0 km) in the label, placement stylised */
+function twKlTower(g,col,W,H,lbl,q){
+  var kx=-318,kz=-205,P=new Path2D(),PA=new Path2D(),sh=[[0,7.5],[90,6.4],[180,5.4],[260,4.8]],pod=[[270,7],[276,13],[284,15.5],[300,16],[318,14.5],[330,10],[336.5,5]],i,n=q>=2?10:16,dr=[[1,0],[-1,0],[0,1],[0,-1]];
+  sh.concat(pod).forEach(function(r){twDisc(P,kx,r[0],kz,r[1],n)});
+  [sh,pod].forEach(function(L){for(i=0;i<L.length-1;i++){dr.forEach(function(d){twLine(P,kx+d[0]*L[i][1],L[i][0],kz+d[1]*L[i][1],kx+d[0]*L[i+1][1],L[i+1][0],kz+d[1]*L[i+1][1])})}});
+  twLine(PA,kx,336.5,kz,kx,421,kz);[352,368,384,400,412].forEach(function(y){twDisc(PA,kx,y,kz,1.2,6)});
+  g.strokeStyle=col;g.lineWidth=.9;g.globalAlpha=.5;g.stroke(P);g.strokeStyle="#e8fffc";g.lineWidth=1;g.globalAlpha=.7;g.stroke(PA);
+  twP(kx,421,kz);var lx=TW.sx,ly=TW.sy;
+  g.globalAlpha=.9;g.fillStyle="#ff6a82";g.beginPath();g.arc(lx,ly,1.7,0,6.2832);g.fill();
+  if(lbl&&Math.abs(lx-TW.cx)>80*TW.k+18&&lx>10&&lx<W-10){var fs2=Math.round(8+Math.min(3,H/320)),right=lx>W-120;g.font="500 "+fs2+"px Michroma,ui-monospace,monospace";g.textBaseline="middle";g.fillStyle=col;g.globalAlpha=.78;g.textAlign=right?"right":"left";g.fillText("KL TOWER",right?lx-8:lx+8,ly);g.globalAlpha=.55;g.fillText("1.0 KM",right?lx-8:lx+8,ly+fs2+3);g.textAlign="left"}
+}
+/* v9.46: guided tour of KLCC (voice: "tour KLCC") */
+var TOUR={id:0,on:false};
+function twTourStop(say){TOUR.id++;TOUR.on=false;if(say)reply(LT("Tour ended, Sir.","Lawatan ditamatkan, Tuan.","Tour ended, Sir.",null,"Tour ended, Sir.","Tour ended, Sir."))}
+function twTour(){
+  if(!(HG.on&&HG.mode==="tower")){hcOpen(true);hcTower(false)}
+  twWxLoad();
+  var id=++TOUR.id,w=TW.wx;TOUR.on=true;
+  var wxs=w?" It is "+w.t+" degrees and "+(HWMO[w.code]||"fair").toLowerCase()+" at KLCC right now.":"",wxm=w?" Cuaca di KLCC sekarang "+w.t+" darjah.":"";
+  var S=[
+    {p:"all",en:"Welcome to KLCC, Sir. The Petronas Twin Towers. 452 meters and 88 floors, opened in 1999. They were the tallest buildings in the world from 1998 to 2004.",ms:"Selamat datang ke KLCC, Tuan. Menara Berkembar Petronas. 452 meter dan 88 tingkat, dibuka pada 1999. Ia bangunan tertinggi dunia dari 1998 hingga 2004."},
+    {p:"base",en:"At the foot of the towers is Suria KLCC, the shopping centre. Each tower has an eight pointed star plan, drawn from Islamic geometry.",ms:"Di kaki menara terdapat Suria KLCC, pusat membeli-belah. Setiap menara berpelan bintang lapan penjuru, berasaskan geometri Islam."},
+    {p:"bridge",en:"The skybridge. Floors 41 and 42, 170 meters above the street. It spans 58 meters and weighs about 750 tonnes.",ms:"Jejantas langit. Tingkat 41 dan 42, 170 meter dari jalan. Panjangnya 58 meter dan beratnya kira-kira 750 tan."},
+    {p:"top",en:"The crown. The roof is at 405 meters, and the spire takes it to 452. The observation deck is on level 86.",ms:"Mahkota menara. Bumbung pada 405 meter, dan puncak menjadikannya 452 meter. Dek tinjauan di tingkat 86."},
+    {p:"all",en:"That was KLCC, Sir."+wxs+" Say tour KLCC to see it again.",ms:"Itulah KLCC, Tuan."+wxm+" Sebut lawatan KLCC untuk melihatnya semula."}
+  ];
+  var i=0;
+  function alive(){return TOUR.id===id&&HG.on&&HG.mode==="tower"}
+  function run(){
+    if(!alive())return;
+    if(i>=S.length){TOUR.on=false;return}
+    var st=S[i++],t0=Date.now(),txt=LT(st.en,st.ms,st.en,null,st.en,st.en),minT=cfg.speak==="1"?5500:9000;
+    hcTowerPart(st.p,false);
+    if(i===1||i===S.length){hist.push({role:"assistant",content:txt});saveHist();add("a",txt)}
+    speak(txt);
+    (function wait(){
+      if(!alive())return;
+      var el=Date.now()-t0,busy=sp.pending>0||sp.streaming;
+      if(el>=minT&&(!busy||el>26000)){run();return}
+      setTimeout(wait,300)
+    })()
+  }
+  run();
+}
 function twInit(){
   if(TW.ready)return;var s,j,a;
   for(s=0;s<8;s++){
@@ -3351,7 +3405,7 @@ function twLine(P,x0,y0,z0,x1,y1,z1){twP(x0,y0,z0);var ax=TW.sx,ay=TW.sy,az=TW.z
 function twLineW(P,x0,y0,z0,x1,y1,z1){twQ(x0,y0,z0);var ax=TW.sx,ay=TW.sy;twQ(x1,y1,z1);P.moveTo(ax,ay);P.lineTo(TW.sx,TW.sy)}
 function twDisc(P,cxm,cym,czm,r,n){var i,a,px=0,py=0;for(i=0;i<=n;i++){a=i/n*6.2832;twP(cxm+Math.cos(a)*r,cym,czm+Math.sin(a)*r);if(i)P.lineTo(TW.sx,TW.sy);else P.moveTo(TW.sx,TW.sy)}}
 function hcTowerDraw(ts,t,dt,ka){
-  var ti;twInit();var g=HG.g,W=HG.W,H=HG.H,col=HG.col,zm=HG.zoom,q=HG.q,i,j,k;
+  var ti;twInit();twWxLoad();var g=HG.g,W=HG.W,H=HG.H,col=HG.col,zm=HG.zoom,q=HG.q,i,j,k;
   var c=Math.cos(HG.lon),s=Math.sin(HG.lon),cp=Math.cos(HG.lat),sp=Math.sin(HG.lat);
   HG.fy+=(HG.fyT-HG.fy)*Math.min(1,dt*3.2);
   var big=W>=700,kk=H*(big?.57:.5)/TW.H*zm,cyy=H*(big?.5:.47),lr=Math.min(W-10,HG.cx+Math.max(170,W*.27));
@@ -3361,6 +3415,17 @@ function hcTowerDraw(ts,t,dt,ka){
   var hs=((t*.17)%1.3)*TW.H,sp1=q>=2?30:q===1?20:15,step=q>=2?2:1,vstep=q>=2?8:q===1?4:2;
   var focusB=HG.part==="bridge",pul=.65+.35*Math.sin(t*3.2);
   g.lineJoin="round";g.lineCap="round";
+  /* v9.46: live KL weather behind the towers: stars on clear nights, drifting cloud, haze */
+  var wx=TW.wx,wc=wx?wx.code:-1,hrK=(new Date().getUTCHours()+8)%24,night=wx&&typeof wx.day==="number"?!wx.day:(hrK<7||hrK>=19),
+      rainK=((wc>=51&&wc<=67)||(wc>=80&&wc<=82)||wc>=95)?((wc===51||wc===61||wc===80)?.4:(wc===53||wc===63||wc===81)?.7:1):0,
+      fogK=(wc===45||wc===48)?1:0,cloudK=wx?Math.min(1,(wx.cloud||0)/100):0,i2;
+  if(night&&!rainK&&!fogK&&cloudK<.7){var pS=new Path2D(),pS2=new Path2D(),nS=q>=2?16:q?28:44;
+    for(i2=0;i2<nS;i2++){var sxp=twH(i2+11)*W,syp=twH(i2+23)*H*.66;(i2%2?pS:pS2).rect(sxp,syp,(i2%4?1:1.7),(i2%4?1:1.7))}
+    g.fillStyle="#e8fffc";g.globalAlpha=(.4+.3*Math.sin(t*1.3))*(1-cloudK);g.fill(pS);g.globalAlpha=(.4+.3*Math.sin(t*1.9+2))*(1-cloudK);g.fill(pS2)}
+  if(q<2&&(cloudK>.25||rainK||fogK)){var nc=q?3:5,ck=Math.max(cloudK,rainK?.8:0,fogK?.8:0);
+    for(i2=0;i2<nc;i2++){var ccx=((t*(5+i2*3)+i2*210)%(W+440))-220,ccy=H*(.1+.08*i2),cr2=150+i2*36,cgr=g.createRadialGradient(ccx,ccy,2,ccx,ccy,cr2);
+      cgr.addColorStop(0,rgba(col,.05+.09*ck));cgr.addColorStop(1,rgba(col,0));g.globalAlpha=1;g.fillStyle=cgr;g.save();g.translate(ccx,ccy);g.scale(1,.38);g.translate(-ccx,-ccy);g.beginPath();g.arc(ccx,ccy,cr2,0,6.2832);g.fill();g.restore()}}
+  if(fogK){var fgr=g.createLinearGradient(0,0,0,H);fgr.addColorStop(0,rgba(col,.02));fgr.addColorStop(1,rgba(col,.2));g.globalAlpha=1;g.fillStyle=fgr;g.fillRect(0,0,W,H)}
   /* v9.44: projector light cone rising from the base */
   if(q<2){twP(0,0,0);var bm0=TW.sx,bm1=TW.sy;twP(0,TW.H,0);var bm2=TW.sy;
     var bmg=g.createLinearGradient(0,bm1,0,bm2);bmg.addColorStop(0,rgba(col,.13));bmg.addColorStop(.55,rgba(col,.04));bmg.addColorStop(1,rgba(col,0));
@@ -3392,6 +3457,7 @@ function hcTowerDraw(ts,t,dt,ka){
    }
    for(cI=0;cI<8;cI++){var ra2=cI*.785+.2,rc=Math.cos(ra2),rs=Math.sin(ra2);twLine(pRd,rc*215,0,rs*215,rc*450,0,rs*450)}
    g.strokeStyle=col;g.lineWidth=.8;g.globalAlpha=.34;g.stroke(pC1);g.globalAlpha=.17;g.stroke(pC2);g.lineWidth=.7;g.globalAlpha=.14;g.stroke(pRd)}
+  twKlTower(g,col,W,H,HG.part==="all",q);
   /* towers */
   var offs=[-TW.OX,TW.OX],hi,seg,h,ro,rp;
   for(ti=0;ti<2;ti++){
@@ -3475,6 +3541,13 @@ function hcTowerDraw(ts,t,dt,ka){
   }
   if((t%8.3)<.1){g.save();g.lineWidth=1;g.globalAlpha=.38;g.strokeStyle="#ff5470";g.translate(3,0);g.stroke(pF);g.strokeStyle="#9ffcf0";g.translate(-6,0);g.stroke(pF);g.restore()}
   twP(-BX+((t*.55)%1)*2*BX,170,0);g.globalAlpha=.95;g.fillStyle="#fff";g.beginPath();g.arc(TW.sx,TW.sy,focusB?2.6:1.8,0,6.2832);g.fill();
+  /* v9.46: rain, storm flash and haze veil from the live feed */
+  if(rainK>0){var nR=Math.round((q>=2?36:q?64:110)*rainK),pR1=new Path2D(),pR2=new Path2D(),wd=(wx.wind||0)*.35+3,rsx,rsp,rln,rsy,PR;
+    for(i2=0;i2<nR;i2++){rsx=twH(i2*1.7+3)*(W+120)-20;rsp=520+twH(i2+9)*380;rln=9+twH(i2+5)*15;rsy=((t*rsp+twH(i2+15)*(H+60)*2)%(H+60))-30;PR=i2%5?pR1:pR2;PR.moveTo(rsx,rsy);PR.lineTo(rsx-wd*rln/12,rsy+rln)}
+    g.strokeStyle=col;g.lineWidth=.9;g.globalAlpha=.3;g.stroke(pR1);g.strokeStyle="#e8fffc";g.lineWidth=1;g.globalAlpha=.42;g.stroke(pR2)}
+  if(wc>=95){var fph=t%9;if(fph<.14){g.globalAlpha=(1-fph/.14)*.1;g.fillStyle="#e8fffc";g.fillRect(0,0,W,H)}}
+  if(fogK){var fg2=g.createLinearGradient(0,H*.5,0,H);fg2.addColorStop(0,rgba(col,0));fg2.addColorStop(1,rgba(col,.1));g.globalAlpha=1;g.fillStyle=fg2;g.fillRect(0,H*.5,W,H*.5)}
+  g.globalAlpha=1;
   /* beacon at the tip of each spire (aviation light) */
   HG.tp.length=0;
   for(ti=0;ti<2;ti++){twP(offs[ti],TW.H,0);var lx=TW.sx,ly=TW.sy;var bl=((t*.9+ti*.45)%1);
@@ -3522,6 +3595,7 @@ function hcTowerTap(x,y,now){
 function hcTowerPanels(part,id){
   var list;
   if(part==="bridge")list=[{k:"DECKS",id:"d",v:"2",s:"floors 41 and 42"},{k:"HEIGHT",id:"h",v:"170 m",s:"above the street"},{k:"SPAN",id:"s",v:"58.4 m",s:"about 750 tonnes"},{k:"BACK",id:"bk",v:"‹ OVERVIEW",s:"both towers",fn:function(){hcTowerPart("all",true)}}];
+  else if(part==="base")list=[{k:"PODIUM",id:"pd",v:"Suria KLCC",s:"shopping centre"},{k:"PLAN",id:"pl",v:"8-point star",s:"Islamic geometry"},{k:"TOWERS",id:"tw",v:"2",s:"88 floors each"},{k:"BACK",id:"bk",v:"‹ OVERVIEW",s:"both towers",fn:function(){hcTowerPart("all",true)}}];
   else if(part==="top")list=[{k:"SPIRE",id:"sp",v:"46.4 m",s:"antenna mast"},{k:"ROOF",id:"rf",v:"405.5 m",s:"top floor L88 at 375 m"},{k:"OBSERVATION",id:"ob",v:"370 m",s:"level 86"},{k:"BACK",id:"bk",v:"‹ OVERVIEW",s:"both towers",fn:function(){hcTowerPart("all",true)}}];
   else list=[{k:"HEIGHT",id:"h",v:"451.9 m",s:"1,483 ft · 88 floors",fn:function(){hcTowerPart("top",true)}},{k:"SKYBRIDGE",id:"b",v:"170 m",s:"floors 41 · 42 · tap",fn:function(){hcTowerPart("bridge",true)}},{k:"OPENED",id:"o",v:"1999",s:"Pelli · tallest 1998–2004"},{k:"KLCC NOW",id:"wx",v:"…",s:hcTime("Asia/Kuala_Lumpur",false)}];
   hcPan(list,false);
@@ -3533,12 +3607,13 @@ function hcTowerPart(part,speak){
   if(part==="bridge"){/* face the bridge broadside */var n=Math.round(HG.lon/Math.PI)*Math.PI;HG.tgt.lon=n+.22}
   hcTowerPanels(part);
   var id=++HG.cmd;
-  var cap=part==="bridge"?"SKYBRIDGE · 170 M · FLOORS 41–42":part==="top"?"CROWN · SPIRE · 451.9 M":"PETRONAS TWIN TOWERS · KUALA LUMPUR";
+  var cap=part==="bridge"?"SKYBRIDGE · 170 M · FLOORS 41–42":part==="base"?"SURIA KLCC · BASE · EIGHT POINT STAR PLAN":part==="top"?"CROWN · SPIRE · 451.9 M":"PETRONAS TWIN TOWERS · KUALA LUMPUR";
   hcCap("a",cap);
   if(part==="all")hcWx(3.1579,101.7116).then(function(w){if(id!==HG.cmd||HG.part!=="all")return;hcSet("wx",w?w.t+"°C":"—",w?w.w+" · "+hcTime("Asia/Kuala_Lumpur",false):hcTime("Asia/Kuala_Lumpur",false))});
   if(speak){
     var en,ms;
     if(part==="bridge"){en="The skybridge. A two storey bridge on floors 41 and 42, 170 meters above the street. It spans 58 meters between the towers and weighs about 750 tonnes.";ms="Jejantas langit. Jambatan dua tingkat di tingkat 41 dan 42, setinggi 170 meter dari jalan. Panjangnya 58 meter dan beratnya kira-kira 750 tan."}
+    else if(part==="base"){en="The base. Suria KLCC, the shopping centre, sits at the foot of the towers. Each tower has an eight pointed star plan, drawn from Islamic geometry.";ms="Bahagian bawah. Suria KLCC, pusat membeli-belah, terletak di kaki menara. Setiap menara berpelan bintang lapan penjuru, berasaskan geometri Islam."}
     else if(part==="top"){en="The crown. The roof is at 405 meters, and a 46 meter spire takes the architectural height to 452 meters. The observation deck is on level 86, at 370 meters.";ms="Mahkota menara. Bumbung pada 405 meter, dan puncak setinggi 46 meter menjadikan ketinggian 452 meter. Dek tinjauan di tingkat 86, pada 370 meter."}
     else{
       hcWx(3.1579,101.7116).then(function(w){
@@ -6045,6 +6120,8 @@ function holoIntent(raw,n){
   if(new RegExp(JP+"(?:explain|summarize|summarise|break down|recap|whats happening in|what s happening in|how is|hows|how s) (?:the )?(?:crypto|coin) (?:market|markets)(?: today| right now| now)?$").test(n)||new RegExp(JP+"(?:crypto|coin) market (?:recap|summary|mood|update|overview)$").test(n))return{k:"explain"};
   if(/^(use|turn on|enable|activate|start|switch on)( my)? (hands?|hand control|hand tracking|gestures?)( control)?$|^(hologram|holo|ar) mode$|^(control|move) (it|the globe) with my hands?$/.test(n))return{k:"ar",on:true};
   if(HG.on&&/^(turn off|disable|stop|switch off)( my)? (hands?|hand control|hand tracking|gestures?)( control)?$|^hands off$/.test(n))return{k:"ar",on:false};
+  if(/^(?:stop|end|cancel|exit|skip) (?:the )?(?:guided |klcc )?(?:tour|lawatan)$/.test(n))return{k:"twtourstop"};
+  if((/\b(tour|guide me|guided|walk me through|walkthrough|show me around|take me around|lawatan|jelajah)\b/.test(n)&&/\b(klcc|petronas|twin towers?|menara berkembar|the towers?)\b/.test(n))||(HG.on&&HG.mode==="tower"&&/^(?:start |begin |give me )?(?:the |a )?(?:guided )?(?:tour|lawatan)$/.test(n)))return{k:"twtour"};
   if(/\b(klcc|petronas|twin towers?|menara berkembar|kuala lumpur city cent(?:re|er))\b/.test(n)&&(/^(show|open|display|bring up|launch|let me see|see|view|tunjuk|papar|take me|fly|go|visit|pull up|hologram|holo|zoom)\b|\bhologram\b/.test(n))&&!/\b(price|prices|stock|share|weather|news|ticket|tickets|opening hours|how tall|how high|history|directions|navigate|waze)\b/.test(n))return{k:"tower",kl:1,part:/sky ?bridge/.test(n)?"bridge":/\b(spire|crown|antenna|pinnacle|observation)\b/.test(n)?"top":"all"};
   if(/\b(menara 118|merdeka 118|merdeka118|menara118|118 tower|tower 118|kl 118|pnb 118|one one eight|one eighteen|menara one eighteen)\b/.test(n)&&/^(show|open|display|bring up|launch|tunjuk|papar|hologram|holo|view|take me|switch to|go to|fly to|let me see|see|visit|pull up|zoom)\b/.test(n)&&!/\b(price|prices|ticket|tickets|opening hours|history|directions|navigate|waze|news)\b/.test(n))return{k:"m118gone"};
   if(HG.on&&HG.mode==="tower"){
@@ -6066,6 +6143,8 @@ function holoRun(h){
   if(h.k==="soltime"){solTime(h.r);return}
   if(h.k==="orbs"){hcOpen(true);orbsOpen(true);return}
   if(h.k==="issnext"){issNextSay();return}
+  if(h.k==="twtour"){twTour();return}
+  if(h.k==="twtourstop"){twTourStop(true);return}
   if(h.k==="andro"){andStart(h.cam?{cam:h.cam}:null);return}
   if(h.k==="andarm"){andArm();reply(LLs("Andromeda is armed. Hold an open palm up to the camera, Sir.","Andromeda sedia. Angkat tapak tangan terbuka ke kamera, Tuan."));return}
   if(h.k==="objlist"){objListSay();return}
@@ -6102,7 +6181,7 @@ function holoRun(h){
   if(h.k==="recap"){c2Recap();return}
   if(h.k==="explain"){c2Explain();return}
   if(h.k==="m118gone"){reply(LT("Menara 118 has been retired from this Jarvis. The Petronas Twin Towers are still here.","Menara 118 telah dikeluarkan daripada Jarvis ini. Menara Berkembar Petronas masih ada.","118大厦已从这个贾维斯中移除。双子塔仍然在。",null,"Башня 118 удалена из этого Джарвиса. Башни Петронас остались.","メナラ118はこのジャービスから外しました。ペトロナスツインタワーは残っています。"));return}
-  if(h.k==="tower"){if(HG.on&&HG.mode==="tower"&&!(TW.b&&h.kl)){hcTowerPart(h.part,true)}else{hcOpen(true);hcTower(true,h.part,0)}return}
+  if(h.k==="tower"){TOUR.on=false;TOUR.id++;if(HG.on&&HG.mode==="tower"&&!(TW.b&&h.kl)){hcTowerPart(h.part,true)}else{hcOpen(true);hcTower(true,h.part,0)}return}
   if(h.k==="globeback"){hcPlace({t:"city",c:HG.city[0]},false);return}
   var was=HG.on;hcOpen(h.k==="open"?false:true);
   if(h.k==="open"){reply(LT("Globe online.","Glob dalam talian.","地球已启动。",null,"Глобус включён.","地球を起動しました。"));return}
