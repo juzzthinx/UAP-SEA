@@ -163,6 +163,30 @@ body.mnm #log{padding-top:8px}
 @media (min-width:860px){body.mnm .sig{grid-column:1;grid-row:1;align-self:end;text-align:left;padding:0 30px 6px}body.mnm header{padding-bottom:26px}}
 
 /* ---------- v9.40 Andromeda sequence ---------- */
+#lab{position:fixed;inset:0;z-index:205;background:#02070a;display:none;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
+#lab.on{display:block}
+#lbV{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#lab.mir #lbV{transform:scaleX(-1)}
+#lbC,#lbH{position:absolute;inset:0;width:100%;height:100%}
+#lbC{pointer-events:none}
+#lbH{touch-action:none}
+.lbtop{position:absolute;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 8px;display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;z-index:3}
+.lbt,.lbx,.lbc{font:500 8px Michroma,ui-monospace,monospace;letter-spacing:.12em;color:#e8fffc;background:rgba(2,10,12,.62);border:1px solid var(--c);border-radius:999px;padding:9px 13px;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.lbt.on,.lbc.on{background:var(--c);color:#021014}
+.lbx{margin-left:6px;border-color:#fff}
+.lbc i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-left:7px;vertical-align:-1px;background:currentColor;border:1px solid #fff}
+#lbMsg{position:absolute;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 112px);text-align:center;font:500 8px Michroma,ui-monospace,monospace;letter-spacing:.14em;color:#e8fffc;text-shadow:0 0 6px #000,0 0 3px #000;pointer-events:none;z-index:3}
+#lbEn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:none;z-index:4;padding:14px 20px;font-size:9px}
+.lbbar{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,560px);padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 12px);display:flex;flex-direction:column;gap:8px;z-index:3;background:linear-gradient(transparent,rgba(2,10,12,.72) 35%)}
+.lbcard,.lbcol{display:flex;align-items:center;gap:10px;background:rgba(2,10,12,.62);border:1px solid var(--c);border-radius:12px;padding:9px 12px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#e8fffc;font:500 9px Michroma,ui-monospace,monospace;letter-spacing:.08em}
+.lbcard{flex-direction:column;align-items:flex-start;gap:4px}
+.lbcard b,.lbcol b{display:block;font-weight:600;font-size:10px}
+.lbcard span,.lbcol span{font-size:8px;color:var(--c);display:block;margin-top:2px}
+.lbcol s{width:38px;height:38px;border-radius:8px;border:1px solid #fff;background:#333;flex:none}
+.lbrow{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.lbpal{display:flex;gap:6px}
+.lbsw{flex:1;height:46px;border-radius:8px;border:1px solid #fff;cursor:pointer;position:relative;padding:0}
+.lbsw i{position:absolute;left:0;right:0;bottom:3px;font:500 7px Michroma,ui-monospace,monospace;color:#fff;text-shadow:0 0 3px #000,0 0 2px #000;font-style:normal;letter-spacing:.06em}
 #andro{position:fixed;inset:0;z-index:200;display:none;opacity:0;transition:opacity .7s ease;background:#02070a;color:var(--t);overflow:hidden;-webkit-tap-highlight-color:transparent}
 #andro.on{display:block}#andro.vis{opacity:1}
 #anC{position:absolute;inset:0;width:100%;height:100%}
@@ -511,7 +535,7 @@ body.lite .xsw{display:none}
 <button type="button" class="rmi" data-a="live">LIVE</button>
 <button type="button" class="rmi" data-a="solar">SOLAR</button>
 <button type="button" class="rmi" data-a="orbs">ORBS</button>
-<button type="button" class="rmi" data-a="sky">SKY</button></div>
+<button type="button" class="rmi" data-a="sky">SKY</button><button type="button" class="rmi" data-a="lab">LAB</button></div>
   <div class="status" id="status">tap the circle to talk</div>
 </div>
 <div class="wx" id="wx" title="Tap to refresh weather">
@@ -776,6 +800,7 @@ body.lite .xsw{display:none}
 </div>
 
 <div id="andro"><video id="anV" playsinline muted autoplay></video><canvas id="anC"></canvas><div id="anR"></div><div class="anw"><div class="ant">ANDROMEDA</div><div class="ans">SEQUENCE</div><div id="anL"></div><div class="anb"><i id="anP"></i></div><div class="anh">TAP TO SKIP</div></div></div>
+<div id="lab"><video id="lbV" playsinline muted autoplay></video><canvas id="lbC"></canvas><canvas id="lbH"></canvas><div class="lbtop" id="lbTop"><button class="lbt on" data-m="city">AR CITY</button><button class="lbt" data-m="draw">AIR DRAW</button><button class="lbt" data-m="color">COLOUR</button><button class="lbx" id="lbX">EXIT</button></div><div id="lbMsg"></div><button class="lbc" id="lbEn">ENABLE COMPASS</button><div class="lbbar" id="lbBar"></div></div>
 <div id="eyes"><video id="eyeVid" playsinline muted autoplay></video><div class="cn a"></div><div class="cn b"></div>
 <div class="top"><span>VISUAL FEED</span><span id="eyeSt">LIVE</span></div>
 <div class="ringw" id="eyeRing"><svg class="rl r1" viewBox="0 0 200 200"><circle cx="100" cy="100" r="92" fill="none" stroke="currentColor" stroke-width="6" opacity=".9"/><circle cx="100" cy="100" r="64" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".85"/></svg><svg class="rl r2" viewBox="0 0 200 200"><circle cx="100" cy="100" r="78" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="2 7" opacity=".7"/></svg><svg class="rl r3" viewBox="0 0 200 200"><circle cx="100" cy="100" r="98" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="26 14 4 14" opacity=".55"/></svg><svg class="rl r4" viewBox="0 0 200 200"><path d="M100 16 A84 84 0 0 1 184 100" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".85"/></svg>
@@ -1149,7 +1174,7 @@ function vizSize(){var dpr=gestLive?1:Math.min(window.devicePixelRatio||1,2),w=v
 var VN=96;
 function vizFrame(ts){
   vRAF=requestAnimationFrame(vizFrame);
-  if(!vg||eyesLive||holoLive||xrLive)return;
+  if(!vg||eyesLive||holoLive||xrLive||(typeof LAB!=="undefined"&&LAB&&LAB.on))return;
   if(bootEl&&!bootEl.classList.contains("out"))return;
   if(gestLive&&ts-(viz.lastG||0)<30)return;viz.lastG=ts;
   if(LITE&&viz.state&&viz.state!=="stby"&&ts-(viz.lastI||0)<30)return;
@@ -1400,7 +1425,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.46";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
+var VER="v9.47";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -6083,8 +6108,479 @@ function andArm(){
 try{$("andro").addEventListener("click",function(){
   if(AND.arm){if(AND.lmErr&&AND.stream){var st=AND.stream;AND.arm=false;cancelAnimationFrame(AND.raf);andStart({stream:st,mir:true})}else andDisarm();return}
   if(AND.on&&!AND.done&&performance.now()-AND.t0>700)andEnd(true)})}catch(e){}
+/* ===== v9.47 CAMERA LAB: AR city, air draw, colour picker ===== */
+var LAB={on:false,m:"city",face:"",raf:0,col:"#2ee6d6",W:0,H:0,dpr:1,lastF:0,bound:false,camTok:0,o:null,cmp:-1,absSeen:0,oEv:0,st:null,inks:["#2ee6d6","#ffffff","#ff5470","#ffd35a","#a68bff"],pd:false,t0:0,skip:false,toast:null};
+var LD=Math.PI/180;
+var LMK=[
+ {n:"PETRONAS TWIN TOWERS",s:"PETRONAS",lat:3.1579,lon:101.7116,h:451.9,k:"klcc"},
+ {n:"KL TOWER",s:"KL TOWER",lat:3.15278,lon:101.70389,h:421},
+ {n:"THE EXCHANGE 106",s:"EXCHANGE 106",lat:3.14317,lon:101.71867,h:453.6},
+ {n:"ILHAM TOWER",s:"ILHAM",lat:3.15881,lon:101.71878,h:274},
+ {n:"MENARA MAYBANK",s:"MAYBANK",lat:3.14731,lon:101.69953,h:244},
+ {n:"MENARA TELEKOM",s:"TELEKOM",lat:3.11608,lon:101.66575,h:310},
+ {n:"MASJID NEGARA",s:"MASJID NEGARA",lat:3.14194,lon:101.69167,h:73}
+];
+function labLab(r,g,b){
+  function f(c){c/=255;return c>.04045?Math.pow((c+.055)/1.055,2.4):c/12.92}
+  var R=f(r),G=f(g),B=f(b),x=(R*.4124+G*.3576+B*.1805)/.95047,y=R*.2126+G*.7152+B*.0722,z=(R*.0193+G*.1192+B*.9505)/1.08883;
+  function t(v){return v>.008856?Math.cbrt(v):7.787*v+16/116}
+  var fx=t(x),fy=t(y),fz=t(z);return[116*fy-16,500*(fx-fy),200*(fy-fz)]
+}
+var LBN=("black:000000,charcoal:333940,graphite:4a4f57,slate grey:708090,grey:808080,silver:c0c0c0,light grey:d3d3d3,white:ffffff,ivory:fffff0,cream:f5ecd7,beige:d9c9a6,sand:d8bf94,khaki:c3b091,tan:b08d5b,camel:c19a6b,brown:6b4423,chocolate:4b2e1e,coffee:5c4033,rust:b7410e,copper:b87333,bronze:8c6a3b,maroon:5c0a1a,burgundy:7a1530,wine:722f37,crimson:c3112f,red:e0232b,scarlet:ff2400,coral:ff6f61,salmon:fa8072,peach:ffcba4,blush:f4c2c2,pink:ff9ebb,hot pink:ff2f92,rose:e8638b,magenta:d6128c,fuchsia:c400c6,orchid:da70d6,plum:6a2c70,purple:6b2fa0,violet:8a4fff,lavender:b9a5e6,lilac:c8a2c8,indigo:3a2a85,navy:0b1f4b,midnight blue:101d3a,royal blue:2a4fd6,cobalt:0047ab,blue:1f6fe5,azure:2f95e8,sky blue:7ec8f2,powder blue:b6d4ea,baby blue:a7d3f5,cyan:1cc8e6,aqua:3fe0d0,turquoise:20b2aa,teal:0e7c7b,petrol:0f4c5c,jade:2e9b78,emerald:0fa968,green:2e9e3e,forest green:1f5a2e,olive:6b7a2a,moss:7a8450,sage:9caf88,mint:a8e6c1,lime:9be21e,chartreuse:c5e61a,lemon:f7e33f,yellow:f9d71c,mustard:d4a017,gold:d4a82a,amber:ffb000,orange:ff8a1f,tangerine:f28500,burnt orange:cc5500,terracotta:c9674a,mahogany:4a1c14,oxblood:4a0e14,gunmetal:2a3439,steel blue:4682b4,denim:3b5f8a,ice:dff3f7,pearl:efe9e1,champagne:efd9b4,tea green:cfe3c1,seafoam:8fd9c0,mauve:b784a7,dusty rose:c9959b,brick:9c3a2f,sunset orange:ff6a3d,electric blue:2d6bff,neon green:39ff14,army green:4b5320,desert sand:e3c9a0,stone:a39e93,taupe:8b7d6b,ash:b2b6b8,sea green:2e8b6a").split(",").map(function(s){var p=s.split(":"),h=p[1],r=parseInt(h.substr(0,2),16),g=parseInt(h.substr(2,2),16),b=parseInt(h.substr(4,2),16);return{n:p[0],r:r,g:g,b:b,l:labLab(r,g,b)}});
+function labNm(r,g,b){var l=labLab(r,g,b),bi=0,bd=1e9,i,d,q;for(i=0;i<LBN.length;i++){q=LBN[i].l;d=(l[0]-q[0])*(l[0]-q[0])+(l[1]-q[1])*(l[1]-q[1])+(l[2]-q[2])*(l[2]-q[2]);if(d<bd){bd=d;bi=i}}return LBN[bi].n}
+function labHex(r,g,b){return"#"+[r,g,b].map(function(v){v=Math.max(0,Math.min(255,Math.round(v)));return(v<16?"0":"")+v.toString(16)}).join("").toUpperCase()}
+function labWr(a){while(a>Math.PI)a-=6.283185;while(a<-Math.PI)a+=6.283185;return a}
+function labDir(b){return["N","NE","E","SE","S","SW","W","NW"][Math.round((((b/LD)%360)+360)%360/45)%8]}
+function labDist(d){return d<950?(Math.round(d/10)*10)+" M":(d/1000).toFixed(1)+" KM"}
+function labToast(t){LAB.toast={t:t,u:performance.now()+2400}}
+function labSize(){
+  var W=innerWidth,H=innerHeight,d=Math.min(window.devicePixelRatio||1,LITE?1:1.5);
+  if(LAB.W===W&&LAB.H===H&&LAB.dpr===d)return false;
+  LAB.W=W;LAB.H=H;LAB.dpr=d;
+  [$("lbC"),$("lbH")].forEach(function(c){c.width=Math.round(W*d);c.height=Math.round(H*d)});
+  return true
+}
+function labResize(){if(labSize()&&LAB.m==="draw")labInkRedraw()}
+function labCover(W,H){var v=$("lbV"),vw=v.videoWidth||(H>W?720:1280),vh=v.videoHeight||(H>W?1280:720),sc=Math.max(W/vw,H/vh);return{vw:vw,vh:vh,sc:sc,ox:(W-vw*sc)/2,oy:(H-vh*sc)/2}}
+/* ----- camera ----- */
+function labCam(face){
+  var tok=++LAB.camTok,v=$("lbV");
+  labCamStop();LAB.face=face;
+  $("lab").classList.toggle("mir",face==="user");
+  camGet(face,face==="user"?640:1280,face==="user"?480:720,face==="user"?30:24).then(function(st){
+    if(!LAB.on||tok!==LAB.camTok){st.getTracks().forEach(function(t){t.stop()});return}
+    LAB.st=st;v.srcObject=st;v.play().catch(function(){})
+  }).catch(function(e){LAB.camErr=/NotAllowed|Permission/i.test(String(e&&e.name))?"CAMERA BLOCKED FOR THIS SITE":"CANNOT OPEN THE CAMERA"})
+}
+function labCamStop(){var v=$("lbV");try{if(LAB.st)LAB.st.getTracks().forEach(function(t){t.stop()})}catch(e){}LAB.st=null;LAB.camErr="";try{v.srcObject=null}catch(e){}}
+/* ----- open / close / modes ----- */
+function labOpen(m,opt){
+  opt=opt||{};
+  if(AND.on||AND.arm)return;
+  if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){reply(LLs("This browser cannot open the camera, Sir.","Pelayar ini tidak boleh membuka kamera, Tuan."));return}
+  unlockSpeech();ctx();
+  try{if(XR.on)xrOff()}catch(e){}try{if(gest.on)gestClose()}catch(e){}try{if(eyes.on)eyesClose()}catch(e){}try{if(HG.on)hcClose()}catch(e){}
+  var el=$("lab");
+  if(!LAB.on){
+    LAB.on=true;LAB.t0=performance.now();LAB.camErr="";LAB.W=0;
+    LAB.col=(getComputedStyle(document.documentElement).getPropertyValue("--c")||"").trim()||"#2ee6d6";LAB.inks[0]=LAB.col;
+    el.classList.add("on");labBind();LAB.lastF=0;cancelAnimationFrame(LAB.raf);LAB.raf=requestAnimationFrame(labFrame);sndPlay("mode")
+  }
+  labMode(m||LAB.m||"city",opt)
+}
+function labMode(m,opt){
+  opt=opt||{};LAB.m=m;LAB.pd=false;
+  Array.prototype.forEach.call(document.querySelectorAll("#lab .lbt"),function(b){b.classList.toggle("on",b.getAttribute("data-m")===m)});
+  var want=m==="draw"?"user":"environment";
+  if(LAB.face!==want)labCam(want);
+  labSize();var c=$("lbC"),cg=c.getContext("2d");cg.setTransform(1,0,0,1,0,0);cg.clearRect(0,0,c.width,c.height);
+  $("lbEn").style.display="none";
+  if(m==="city")labCityInit();else if(m==="draw")labDrawInit();else labColInit();
+  LAB.sayCol=!!opt.col;LAB.sayPal=!!opt.pal;
+  if(opt.say)labSay(m)
+}
+function labSay(m){
+  if(m==="city")reply(LLs("AR city is on, Sir. Point the back camera at the skyline and I will label the landmarks. If a label sits off, centre a tower you know and tap Align.","AR bandar dihidupkan, Tuan. Halakan kamera belakang ke langit bandar dan saya akan melabel mercu tanda. Jika label tersasar, tumpu pada menara yang anda kenal dan tekan Align."));
+  else if(m==="draw")reply(LLs("Air draw is on, Sir. Raise one finger to draw, and open your hand to lift the pen. You can also draw with your finger on the screen.","Lukisan udara dihidupkan, Tuan. Angkat satu jari untuk melukis, dan buka tapak tangan untuk mengangkat pen. Anda juga boleh melukis dengan jari di skrin."));
+  else reply(LLs("Colour picker is on, Sir. Tap anything to read its colour, or tap Palette for the five main colours in view.","Pemilih warna dihidupkan, Tuan. Ketik apa sahaja untuk membaca warnanya, atau tekan Palette untuk lima warna utama."))
+}
+function labClose(speak){
+  if(!LAB.on)return;LAB.on=false;cancelAnimationFrame(LAB.raf);labCamStop();LAB.face="";
+  if(LAB.oh){window.removeEventListener("deviceorientationabsolute",LAB.oh,true);window.removeEventListener("deviceorientation",LAB.oh,true);LAB.oh=null}
+  LAB.o=null;LAB.cmp=-1;LAB.absSeen=0;LAB.pd=false;
+  $("lab").classList.remove("on","mir");
+  try{$("lbV").pause()}catch(e){}
+  if(speak)reply(LLs("Camera lab closed, Sir.","Makmal kamera ditutup, Tuan."))
+}
+function labBind(){
+  if(LAB.bound)return;LAB.bound=true;
+  $("lbTop").addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("button");if(!b)return;if(b.id==="lbX"){labClose(false);return}var m=b.getAttribute("data-m");if(m&&m!==LAB.m){sndPlay("mode");labMode(m,{})}});
+  $("lbBar").addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("[data-a]");if(b)labDo(b.getAttribute("data-a"),b)});
+  $("lbEn").addEventListener("click",function(){labCityPerm()});
+  var h=$("lbH");["pointerdown","pointermove","pointerup","pointercancel"].forEach(function(t){h.addEventListener(t,labPtr)});
+  window.addEventListener("resize",function(){if(LAB.on)labResize()});
+  window.addEventListener("orientationchange",function(){if(LAB.on)setTimeout(labResize,350)});
+  document.addEventListener("visibilitychange",function(){if(!LAB.on)return;cancelAnimationFrame(LAB.raf);if(!document.hidden){LAB.lastF=0;LAB.raf=requestAnimationFrame(labFrame)}});
+  window.addEventListener("keydown",function(e){if(e.key==="Escape"&&LAB.on)labClose(false)})
+}
+function labFrame(ts){
+  if(!LAB.on)return;LAB.raf=requestAnimationFrame(labFrame);
+  if(performance.now()-LAB.t0>1500&&(HG.on||XR.on||gest.on||eyes.on||AND.on||AND.arm)){labClose(false);return}
+  if(LITE){LAB.skip=!LAB.skip;if(LAB.skip)return}
+  var dt=Math.min(.1,(ts-(LAB.lastF||ts))/1000);LAB.lastF=ts;
+  labResize();
+  var g=$("lbH").getContext("2d"),W=LAB.W,H=LAB.H,msg="";
+  g.setTransform(LAB.dpr,0,0,LAB.dpr,0,0);g.globalAlpha=1;g.clearRect(0,0,W,H);
+  if(LAB.camErr)msg=LAB.camErr;
+  else if(LAB.m==="city")msg=labCityFrame(g,W,H,ts,dt);
+  else if(LAB.m==="draw")msg=labDrawFrame(g,W,H,ts,dt);
+  else msg=labColFrame(g,W,H,ts,dt);
+  if(LAB.toast&&performance.now()<LAB.toast.u)msg=LAB.toast.t;
+  var me=$("lbMsg");if(me.textContent!==msg)me.textContent=msg
+}
+/* ----- pointer: tap labels, draw with a finger, aim the colour reticle ----- */
+function labPtr(e){
+  var x=e.clientX,y=e.clientY,t=e.type,m=LAB.m,D,C,K,L,r,i;
+  if(t==="pointerdown"){LAB.pd=true;LAB.px=x;LAB.py=y;try{$("lbH").setPointerCapture(e.pointerId)}catch(_){}}
+  else if(!LAB.pd)return;
+  if(m==="color"){K=LAB.k;if(t==="pointerdown"||t==="pointermove"){K.x=x;K.y=y;K.dirty=true}}
+  else if(m==="draw"){
+    D=LAB.d;
+    if(t==="pointerdown"){labEnd(D);D.cur={c:LAB.inks[D.ci%LAB.inks.length],p:[[x,y]]};D.strokes.push(D.cur);D.ptrOn=true}
+    else if(t==="pointermove"&&D.ptrOn&&D.cur){L=D.cur.p[D.cur.p.length-1];if(Math.hypot(x-L[0],y-L[1])>1.5)D.cur.p.push([x,y])}
+  }else if(m==="city"&&t==="pointerup"){
+    if(Math.hypot(x-LAB.px,y-LAB.py)<12){C=LAB.c;for(i=C.rects.length-1;i>=0;i--){r=C.rects[i];if(x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h){C.sel=r.i;labCityBar();sndPlay("mode");break}}}
+  }
+  if(t==="pointerup"||t==="pointercancel"){LAB.pd=false;if(m==="draw"){D=LAB.d;D.ptrOn=false;labEnd(D)}}
+}
+/* ----- bar actions ----- */
+function labCopy(txt,ok){
+  function done(){labToast(ok||"COPIED")}
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(function(){labCopy2(txt,ok)});return}}catch(e){}
+  labCopy2(txt,ok)
+}
+function labCopy2(txt,ok){try{var ta=document.createElement("textarea");ta.value=txt;ta.style.cssText="position:fixed;left:-999px;top:0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();labToast(ok||"COPIED")}catch(e){labToast("COPY NOT ALLOWED")}}
+function labDo(a,btn){
+  var m=LAB.m,C=LAB.c,D=LAB.d,K=LAB.k,s,i;
+  if(a==="align")labAlign();
+  else if(a==="wide"||a==="tight"){C.fov=Math.max(45,Math.min(95,C.fov+(a==="wide"?3:-3)));labCityBar();labToast("FIELD OF VIEW "+C.fov+"°")}
+  else if(a==="ask"){s=C.sel>=0&&C.ls[C.sel];if(s&&!busy){var nm=s.n.toLowerCase().replace(/\b\w/g,function(c){return c.toUpperCase()});labClose(false);send("Tell me briefly about "+nm+" in Kuala Lumpur")}}
+  else if(a==="open"){labClose(false);unlockSpeech();ctx();hcOpen(true);hcTower(true)}
+  else if(a==="undo"){if(m==="draw"){labEnd(D);D.strokes.pop();labInkRedraw()}}
+  else if(a==="clear"){if(m==="draw"){D.cur=null;D.strokes=[];labInkRedraw();labToast("CLEARED")}}
+  else if(a==="ink"){if(m==="draw"){D.ci=(D.ci+1)%LAB.inks.length;labDrawBar()}}
+  else if(a==="save"){if(m==="draw")labSave()}
+  else if(a==="pal"){if(m==="color")labPalette(false)}
+  else if(a==="copy"){if(m==="color"){if(K.pal)labCopy(K.pal.map(function(q){return q.h+" "+q.n.toUpperCase()}).join("\n"),"PALETTE COPIED");else if(K.cur)labCopy(K.cur.h,"COPIED "+K.cur.h)}}
+  else if(a==="sw"){if(m==="color"&&K.pal){i=+btn.getAttribute("data-i");if(K.pal[i])labCopy(K.pal[i].h,"COPIED "+K.pal[i].h)}}
+  else if(a==="frz"){if(m==="color"){K.frz=!K.frz;try{if(K.frz)$("lbV").pause();else $("lbV").play()}catch(e){}labColBar()}}
+}
+/* ----- AR CITY ----- */
+function labOriOn(){
+  if(LAB.oh)return;
+  LAB.oh=function(e){
+    var a=e.alpha,b=e.beta,g=e.gamma;if(a==null||b==null||g==null)return;
+    if(typeof e.webkitCompassHeading==="number"&&isFinite(e.webkitCompassHeading)){a=360-e.webkitCompassHeading;LAB.cmp=2}
+    else if(e.type==="deviceorientationabsolute"||e.absolute){LAB.cmp=1;LAB.absSeen=1}
+    else if(LAB.absSeen)return;
+    else if(LAB.cmp<1)LAB.cmp=0;
+    LAB.o={a:a,b:b,g:g};LAB.oEv=performance.now()
+  };
+  window.addEventListener("deviceorientationabsolute",LAB.oh,true);window.addEventListener("deviceorientation",LAB.oh,true)
+}
+function labProj(){
+  var o=LAB.o,a=o.a*LD,b=o.b*LD,g=o.g*LD,ca=Math.cos(a),sa=Math.sin(a),cb=Math.cos(b),sb=Math.sin(b),cg=Math.cos(g),sg=Math.sin(g);
+  var r02=ca*sg+cg*sa*sb,r12=sa*sg-ca*cg*sb,r22=cb*cg;
+  LAB.M=[ca*cg-sa*sb*sg,-cb*sa,r02,cg*sa+ca*sb*sg,ca*cb,r12,-cb*sg,sb,r22];
+  LAB.hd=Math.atan2(-r02,-r12)
+}
+function labCityInit(){
+  var p=LAB.c;
+  LAB.c={ls:p?p.ls:[],lat:p?p.lat:0,lon:p?p.lon:0,acc:p?p.acc:0,real:p?p.real:false,have:p?p.have:false,eps:p?p.eps:0,fov:p?p.fov:63,sel:-1,pos:[],rects:[],t0:performance.now(),perm:""};
+  labCityLoc();labCityPerm();labCityBar()
+}
+function labCityLoc(){
+  var C=LAB.c;
+  function use(lat,lon,acc,real){if(!LAB.on||LAB.c!==C)return;C.lat=lat;C.lon=lon;C.acc=acc;C.real=real;C.have=true;labCityList();labCityBar()}
+  function fb(){coords().then(function(c){use(c.lat,c.lon,0,!!c.ts)}).catch(function(){use(KL.lat,KL.lon,0,false)})}
+  if(navigator.geolocation){try{navigator.geolocation.getCurrentPosition(function(p){use(p.coords.latitude,p.coords.longitude,Math.round(p.coords.accuracy||0),true)},fb,{enableHighAccuracy:true,timeout:7000,maximumAge:60000})}catch(e){fb()}}else fb()
+}
+function labCityList(){
+  var C=LAB.c,la=C.lat*LD,lo=C.lon*LD;C.ls=[];
+  LMK.forEach(function(l){
+    var p=l.lat*LD,q=l.lon*LD,dp=p-la,dq=q-lo,a=Math.sin(dp/2)*Math.sin(dp/2)+Math.cos(la)*Math.cos(p)*Math.sin(dq/2)*Math.sin(dq/2),d=2*6371000*Math.asin(Math.sqrt(a)),
+        b=Math.atan2(Math.sin(dq)*Math.cos(p),Math.cos(la)*Math.sin(p)-Math.sin(la)*Math.cos(p)*Math.cos(dq)),curv=d*d/(2*6371000)*.87;
+    if(d<40000&&d>30)C.ls.push({n:l.n,s:l.s,h:l.h,k:l.k,d:d,b:b,et:Math.atan2(l.h-1.6-curv,d),eb:Math.atan2(-1.6-curv,d)})
+  });
+  C.ls.sort(function(a,b){return a.d-b.d})
+}
+function labCityPerm(){
+  var C=LAB.c;
+  function go(){labOriOn();C.perm="ok";$("lbEn").style.display="none"}
+  try{
+    if(typeof DeviceOrientationEvent!=="undefined"&&typeof DeviceOrientationEvent.requestPermission==="function"){
+      DeviceOrientationEvent.requestPermission().then(function(r){if(r==="granted")go();else{C.perm="deny";$("lbEn").style.display="block"}}).catch(function(){C.perm="need";$("lbEn").style.display="block"});return
+    }
+  }catch(e){}
+  go()
+}
+function labCityBar(){
+  if(LAB.m!=="city")return;
+  var C=LAB.c,s=C.sel>=0&&C.ls[C.sel],h;
+  if(s)h='<div class="lbcard"><b>'+s.n+'</b><span>'+labDist(s.d)+' · '+Math.round(s.h)+' M · '+labDir(s.b)+'</span></div>';
+  else h='<div class="lbcard"><span>'+(C.have?'YOU · '+C.lat.toFixed(3)+'N '+C.lon.toFixed(3)+'E'+(C.acc?' · ±'+C.acc+' M':''):'FINDING YOU…')+'</span></div>';
+  h+='<div class="lbrow"><button type="button" class="lbc" data-a="align">ALIGN</button><button type="button" class="lbc" data-a="wide">WIDER</button><button type="button" class="lbc" data-a="tight">TIGHTER</button>';
+  if(s)h+='<button type="button" class="lbc" data-a="ask">ASK JARVIS</button>';
+  if(s&&s.k==="klcc")h+='<button type="button" class="lbc" data-a="open">HOLOGRAM</button>';
+  $("lbBar").innerHTML=h+'</div>'
+}
+function labAlign(){
+  var C=LAB.c;if(!LAB.o||!C.ls.length){labToast("NO COMPASS OR LANDMARK YET");return}
+  labProj();var hd=LAB.hd,bi=-1,bd=1e9,i,a;
+  for(i=0;i<C.ls.length;i++){a=Math.abs(labWr(C.ls[i].b+C.eps-hd));if(a<bd){bd=a;bi=i}}
+  if(bi<0||bd>35*LD){labToast("CENTRE A LANDMARK, THEN TAP ALIGN");return}
+  C.eps=labWr(hd-C.ls[bi].b);C.sel=bi;labCityBar();labToast("ALIGNED TO "+C.ls[bi].s)
+}
+function labCityFrame(g,W,H,ts,dt){
+  var C=LAB.c,col=LAB.col,T=$("lbTop").getBoundingClientRect().bottom+4;
+  if(!LAB.o){
+    if(C.perm==="need"||C.perm==="deny")return"COMPASS PERMISSION NEEDED · TAP ENABLE COMPASS";
+    if(performance.now()-C.t0>3500)return"NO MOTION SENSOR ON THIS DEVICE · AR CITY NEEDS A COMPASS";
+    return"WAITING FOR COMPASS…"
+  }
+  labProj();
+  var cv=labCover(W,H),f=(Math.max(cv.vw,cv.vh)/2)/Math.tan(C.fov*LD/2)*cv.sc,
+      ang=((screen.orientation&&typeof screen.orientation.angle==="number")?screen.orientation.angle:(window.orientation||0))*LD,cA=Math.cos(ang),sA=Math.sin(ang),M=LAB.M,hd=LAB.hd;
+  function P(b,e){
+    var ce=Math.cos(e),ex=Math.sin(b)*ce,ey=Math.cos(b)*ce,ez=Math.sin(e),
+        dx=M[0]*ex+M[3]*ey+M[6]*ez,dy=M[1]*ex+M[4]*ey+M[7]*ez,dz=M[2]*ex+M[5]*ey+M[8]*ez,xs=dx*cA-dy*sA,ys=dx*sA+dy*cA,dep=-dz,q=dep>.02?dep:.02;
+    return{x:W/2+f*xs/q,y:H/2-f*ys/q,z:dep}
+  }
+  g.lineCap="round";g.lineJoin="round";
+  /* horizon */
+  var h1=P(hd-.5,0),h2=P(hd+.5,0);
+  if(h1.z>.05&&h2.z>.05&&Math.abs(h2.x-h1.x)>2){var sl=(h2.y-h1.y)/(h2.x-h1.x);g.strokeStyle=col;g.lineWidth=1;g.globalAlpha=.3;g.setLineDash([3,7]);g.beginPath();g.moveTo(0,h1.y-sl*h1.x);g.lineTo(W,h1.y+sl*(W-h1.x));g.stroke();g.setLineDash([])}
+  /* heading tape */
+  var hdeg=((hd/LD)%360+360)%360,ppd=f*LD,span=W/2/ppd+6,k0=Math.floor((hdeg-span)/5)*5,kk,cy=T+30,xx,dg,mj;
+  g.strokeStyle=col;g.fillStyle="#e8fffc";g.lineWidth=1;g.globalAlpha=.25;g.beginPath();g.moveTo(0,cy);g.lineTo(W,cy);g.stroke();
+  g.font="500 8px Michroma,ui-monospace,monospace";g.textAlign="center";g.textBaseline="alphabetic";
+  for(kk=k0;kk<=hdeg+span;kk+=5){
+    xx=W/2+(kk-hdeg)*ppd;dg=((kk%360)+360)%360;mj=dg%10===0;
+    g.globalAlpha=.8;g.beginPath();g.moveTo(xx,cy);g.lineTo(xx,cy+(mj?8:4));g.stroke();
+    if(dg%45===0){g.globalAlpha=.95;g.fillText(["N","NE","E","SE","S","SW","W","NW"][dg/45],xx,cy-4)}
+    else if(mj&&ppd>3){g.globalAlpha=.5;g.fillText(String(dg),xx,cy-4)}
+  }
+  g.globalAlpha=.95;g.fillStyle=col;g.beginPath();g.moveTo(W/2-4,cy+14);g.lineTo(W/2+4,cy+14);g.lineTo(W/2,cy+8);g.closePath();g.fill();
+  g.fillStyle="#ffffff";g.font="600 10px Michroma,ui-monospace,monospace";g.fillText(labDir(hd)+" "+("00"+Math.round(hdeg)).slice(-3)+"°",W/2,cy-16);
+  /* landmarks */
+  var ons=[],offs=[],i,l,b,pt,pb,rel,ps,k;
+  for(i=0;i<C.ls.length;i++){
+    l=C.ls[i];b=l.b+C.eps;pt=P(b,l.et);pb=P(b,l.eb);rel=labWr(b-hd);
+    if(pt.z>.15&&pt.x>=26&&pt.x<=W-26){
+      ps=C.pos[i];if(!ps)ps=C.pos[i]={x:pt.x,y:pt.y,bx:pb.x,by:pb.y};
+      else{k=1-Math.exp(-dt*14);ps.x+=(pt.x-ps.x)*k;ps.y+=(pt.y-ps.y)*k;ps.bx+=(pb.x-ps.bx)*k;ps.by+=(pb.y-ps.by)*k}
+      ons.push({l:l,i:i,p:ps})
+    }else{C.pos[i]=null;offs.push({l:l,i:i,rel:pt.z>.15?rel:(rel>=0?3:-3)})}
+  }
+  ons.sort(function(a,b){return a.p.x-b.p.x});
+  C.rects=[];var row=0,lastX=-999,fs=Math.round(9+Math.min(2,W/500));
+  ons.forEach(function(o){
+    var x=o.p.x,yy=Math.max(T+120,Math.min(H-170,o.p.y)),by=Math.min(H-130,Math.max(yy+14,o.p.by)),bxp=o.p.bx,sel=C.sel===o.i,nm=o.l.n,sb=labDist(o.l.d)+" · "+Math.round(o.l.h)+" M · "+labDir(o.l.b),nw,sw,w,hh,bx0,by0;
+    if(x-lastX<150)row=(row+1)%3;else row=0;lastX=x;
+    g.font="600 "+fs+"px Michroma,ui-monospace,monospace";nw=g.measureText(nm).width;
+    g.font="500 "+(fs-2)+"px Michroma,ui-monospace,monospace";sw=g.measureText(sb).width;
+    w=Math.max(nw,sw)+22;hh=fs*2+16;bx0=Math.max(8,Math.min(W-8-w,x-w/2));by0=yy-12-row*(hh+8)-hh;if(by0<T+112)by0=yy+12;
+    g.strokeStyle=col;g.globalAlpha=sel?.9:.5;g.lineWidth=1;g.setLineDash([2,4]);g.beginPath();g.moveTo(x,yy);g.lineTo(bxp,by);g.stroke();g.setLineDash([]);
+    g.globalAlpha=.95;g.fillStyle=sel?"#ffffff":col;g.beginPath();g.moveTo(x,yy-5);g.lineTo(x+5,yy);g.lineTo(x,yy+5);g.lineTo(x-5,yy);g.closePath();g.fill();
+    g.beginPath();g.arc(bxp,by,2.2,0,6.2832);g.globalAlpha=.7;g.fill();
+    g.globalAlpha=1;g.fillStyle="rgba(2,10,12,.66)";g.beginPath();g.rect(bx0,by0,w,hh);g.fill();
+    g.strokeStyle=sel?"#ffffff":col;g.globalAlpha=sel?1:.6;g.lineWidth=sel?1.6:1;g.stroke();
+    g.fillStyle=sel?"#ffffff":"#e8fffc";g.globalAlpha=1;g.textAlign="center";g.textBaseline="middle";
+    g.font="600 "+fs+"px Michroma,ui-monospace,monospace";g.fillText(nm,bx0+w/2,by0+hh*.33);
+    g.fillStyle=col;g.font="500 "+(fs-2)+"px Michroma,ui-monospace,monospace";g.fillText(sb,bx0+w/2,by0+hh*.72);
+    C.rects.push({x:bx0,y:by0,w:w,h:hh,i:o.i})
+  });
+  /* off-screen pointers */
+  offs.sort(function(a,b){return Math.abs(a.rel)-Math.abs(b.rel)});
+  offs.slice(0,4).forEach(function(o,idx){
+    var right=o.rel>0,txt=(right?"":"‹  ")+o.l.s+" "+labDist(o.l.d)+(right?"  ›":""),w,x,y=H*.5-34+idx*34;
+    g.font="500 8px Michroma,ui-monospace,monospace";w=g.measureText(txt).width+18;x=right?W-8-w:8;
+    g.fillStyle="rgba(2,10,12,.6)";g.globalAlpha=1;g.fillRect(x,y,w,24);g.strokeStyle=col;g.globalAlpha=.55;g.lineWidth=1;g.strokeRect(x,y,w,24);
+    g.fillStyle="#e8fffc";g.globalAlpha=1;g.textAlign="center";g.textBaseline="middle";g.fillText(txt,x+w/2,y+12.5)
+  });
+  /* reticle */
+  g.strokeStyle="#ffffff";g.globalAlpha=.55;g.lineWidth=1;g.beginPath();g.moveTo(W/2-9,H/2);g.lineTo(W/2-3,H/2);g.moveTo(W/2+3,H/2);g.lineTo(W/2+9,H/2);g.moveTo(W/2,H/2-9);g.lineTo(W/2,H/2-3);g.moveTo(W/2,H/2+3);g.lineTo(W/2,H/2+9);g.stroke();
+  g.textAlign="left";g.globalAlpha=1;
+  if(LAB.cmp===0)return"COMPASS NOT ABSOLUTE ON THIS DEVICE · USE ALIGN";
+  if(!C.have)return"FINDING YOUR LOCATION…";
+  if(!C.real)return"USING KL CITY CENTRE · ALLOW LOCATION FOR ACCURACY";
+  if(!C.ls.length)return"NO KNOWN LANDMARKS WITHIN 40 KM · BEST IN KUALA LUMPUR";
+  return C.sel>=0?"":"TAP A LABEL FOR DETAILS · LINE OF SIGHT NOT CHECKED"
+}
+/* ----- AIR DRAW ----- */
+function labDrawInit(){
+  var D=LAB.d=LAB.d||{strokes:[],cur:null,ci:0,hs:null,lastDet:0,lastT:-1,pc:0,np:0,lp:0,p:null,pose:0,ptrOn:false};
+  D.cur=null;D.p=null;D.pc=0;D.np=0;D.lp=0;D.hs=null;D.pose=0;LAB.lmErr=false;
+  gLoad().catch(function(){LAB.lmErr=true});
+  labInkRedraw();labDrawBar()
+}
+function labDrawBar(){
+  var D=LAB.d,ink=LAB.inks[D.ci%LAB.inks.length];
+  $("lbBar").innerHTML='<div class="lbrow"><button type="button" class="lbc" data-a="undo">UNDO</button><button type="button" class="lbc" data-a="clear">CLEAR</button><button type="button" class="lbc" data-a="ink">INK<i style="background:'+ink+';color:'+ink+'"></i></button><button type="button" class="lbc" data-a="save">SAVE</button></div>'
+}
+function labStroke(g,s){
+  var p=s.p;if(!p.length)return;
+  g.lineCap="round";g.lineJoin="round";
+  function path(){g.beginPath();g.moveTo(p[0][0],p[0][1]);if(p.length===1){g.lineTo(p[0][0]+.1,p[0][1])}else{var i;for(i=1;i<p.length-1;i++){g.quadraticCurveTo(p[i][0],p[i][1],(p[i][0]+p[i+1][0])/2,(p[i][1]+p[i+1][1])/2)}g.lineTo(p[p.length-1][0],p[p.length-1][1])}}
+  g.strokeStyle=s.c;g.globalAlpha=.16;g.lineWidth=12;path();g.stroke();
+  g.globalAlpha=.92;g.lineWidth=4;path();g.stroke();
+  g.strokeStyle="#ffffff";g.globalAlpha=.85;g.lineWidth=1.5;path();g.stroke();g.globalAlpha=1
+}
+function labInkRedraw(){
+  var D=LAB.d;if(!D)return;var c=$("lbC"),g=c.getContext("2d");
+  g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,c.width,c.height);g.setTransform(LAB.dpr,0,0,LAB.dpr,0,0);
+  D.strokes.forEach(function(s){if(s!==D.cur)labStroke(g,s)})
+}
+function labEnd(D){
+  if(D.cur){var s=D.cur,c=$("lbC").getContext("2d");D.cur=null;c.setTransform(LAB.dpr,0,0,LAB.dpr,0,0);labStroke(c,s)}
+  D.lp=0
+}
+function labPose(l){
+  var w=l[0],d=function(a,b){return Math.hypot(a.x-b.x,a.y-b.y)},sc=d(w,l[9]);if(sc<.04)return 0;
+  var ix=d(l[8],w)>d(l[6],w)*1.1,mc=d(l[12],w)<d(l[10],w)*1.04,rc=d(l[16],w)<d(l[14],w)*1.04;
+  if(ix&&mc&&rc)return 1;
+  if(ix&&d(l[12],w)>d(l[10],w)*1.1&&d(l[16],w)>d(l[14],w)*1.1&&d(l[20],w)>d(l[18],w)*1.1)return 2;
+  return 0
+}
+function labPen(D,W,H,ink){
+  var hs=D.hs;
+  if(!hs){D.np++;D.pose=0;if(D.np>5)labEnd(D);return}
+  D.np=0;
+  var cv=labCover(W,H),t=hs[8],rx=W-(t.x*cv.vw*cv.sc+cv.ox),ry=t.y*cv.vh*cv.sc+cv.oy,pose=labPose(hs),dd,a,L;
+  D.pose=pose;
+  if(!D.p)D.p={x:rx,y:ry};else{dd=Math.hypot(rx-D.p.x,ry-D.p.y);a=Math.min(.85,.38+dd/90);D.p.x+=(rx-D.p.x)*a;D.p.y+=(ry-D.p.y)*a}
+  if(pose===1){
+    D.lp=0;D.pc++;
+    if(D.pc>=2){if(!D.cur){D.cur={c:ink,p:[]};D.strokes.push(D.cur)}L=D.cur.p[D.cur.p.length-1];if(!L||Math.hypot(D.p.x-L[0],D.p.y-L[1])>1.8)D.cur.p.push([D.p.x,D.p.y])}
+  }else{D.pc=0;D.lp++;if(D.lp>=3)labEnd(D)}
+}
+function labDrawFrame(g,W,H,ts,dt){
+  var D=LAB.d,v=$("lbV"),ink=LAB.inks[D.ci%LAB.inks.length],msg="";
+  if(!gest.lm){msg=LAB.lmErr?"HAND TRACKER OFFLINE · DRAW WITH YOUR FINGER ON THE SCREEN":"LOADING HAND TRACKER… YOU CAN ALSO DRAW ON THE SCREEN"}
+  else if(v.readyState>=2&&v.videoWidth&&ts-D.lastDet>(LITE?70:42)&&v.currentTime!==D.lastT){
+    D.lastDet=ts;D.lastT=v.currentTime;var res=null;try{res=gest.lm.detectForVideo(v,ts)}catch(e){}
+    D.hs=res&&res.landmarks&&res.landmarks[0]?res.landmarks[0]:null;labPen(D,W,H,ink)
+  }
+  if(D.cur)labStroke(g,D.cur);
+  if(D.hs&&D.p){
+    g.strokeStyle=ink;g.fillStyle=ink;g.lineWidth=1.6;
+    if(D.pose===1){g.globalAlpha=.95;g.beginPath();g.arc(D.p.x,D.p.y,6,0,6.2832);g.fill();g.globalAlpha=.4;g.beginPath();g.arc(D.p.x,D.p.y,14,0,6.2832);g.stroke()}
+    else{g.globalAlpha=.8;g.setLineDash([3,5]);g.beginPath();g.arc(D.p.x,D.p.y,11,0,6.2832);g.stroke();g.setLineDash([])}
+    g.globalAlpha=1
+  }
+  if(gest.lm){
+    if(!D.hs)msg=D.strokes.length?"":"SHOW YOUR HAND · RAISE ONE FINGER TO DRAW";
+    else msg=D.pose===1?"DRAWING":(D.pose===2?"PEN UP · RAISE ONE FINGER TO DRAW":"RAISE ONE FINGER TO DRAW · OPEN HAND TO LIFT")
+  }
+  return msg
+}
+function labSave(){
+  var W=LAB.W,H=LAB.H,c=document.createElement("canvas"),sc=Math.min(1,1280/Math.max(W,H));
+  c.width=Math.round(W*sc);c.height=Math.round(H*sc);
+  var g=c.getContext("2d"),v=$("lbV"),cv=labCover(W,H);
+  g.fillStyle="#02070a";g.fillRect(0,0,c.width,c.height);
+  try{if(v.readyState>=2&&v.videoWidth){g.save();g.scale(sc,sc);if(LAB.face==="user"){g.translate(W,0);g.scale(-1,1)}g.drawImage(v,cv.ox,cv.oy,cv.vw*cv.sc,cv.vh*cv.sc);g.restore()}}catch(e){}
+  try{g.drawImage($("lbC"),0,0,c.width,c.height)}catch(e){}
+  c.toBlob(function(b){
+    if(!b){labToast("COULD NOT SAVE");return}
+    var f=null;try{f=new File([b],"jarvis-air-draw.png",{type:"image/png"})}catch(e){}
+    if(f&&navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:"Jarvis air draw"}).then(function(){labToast("SAVED")}).catch(function(){labToast("SHARE CANCELLED")});return}
+    var u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download="jarvis-air-draw.png";document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(u)},4000);labToast("SAVED TO DOWNLOADS")
+  },"image/png")
+}
+/* ----- COLOUR + PALETTE ----- */
+function labColInit(){
+  var K=LAB.k=LAB.k||{};K.x=LAB.W/2;K.y=LAB.H*.46;K.cur=null;K.frz=false;K.pal=null;K.lastS=0;K.dirty=true;K.shown="";
+  if(!K.cv){K.cv=document.createElement("canvas");K.cv.width=K.cv.height=9;try{K.cx=K.cv.getContext("2d",{willReadFrequently:true})}catch(e){K.cx=K.cv.getContext("2d")}}
+  try{$("lbV").play()}catch(e){}
+  labColBar()
+}
+function labColBar(){
+  var K=LAB.k,h='<div class="lbcol"><s id="lbCs"></s><div><b id="lbCn">AIMING…</b><span id="lbCh">TAP ANYTHING TO READ ITS COLOUR</span></div></div>';
+  if(K.pal)h+='<div class="lbpal">'+K.pal.map(function(q,i){return'<button type="button" class="lbsw" data-a="sw" data-i="'+i+'" style="background:'+q.h+'"><i>'+q.h.substr(1)+'</i></button>'}).join("")+'</div>';
+  h+='<div class="lbrow"><button type="button" class="lbc" data-a="pal">PALETTE</button><button type="button" class="lbc" data-a="copy">COPY</button><button type="button" class="lbc'+(K.frz?' on':'')+'" data-a="frz">'+(K.frz?'LIVE':'FREEZE')+'</button></div>';
+  $("lbBar").innerHTML=h;K.shown=""
+}
+function labColSample(K,W,H){
+  var v=$("lbV");if(!(v.readyState>=2&&v.videoWidth))return;
+  var cv=labCover(W,H),vx=Math.round((K.x-cv.ox)/cv.sc),vy=Math.round((K.y-cv.oy)/cv.sc);
+  vx=Math.max(4,Math.min(cv.vw-5,vx));vy=Math.max(4,Math.min(cv.vh-5,vy));
+  try{
+    K.cx.drawImage(v,vx-4,vy-4,9,9,0,0,9,9);
+    var d=K.cx.getImageData(0,0,9,9).data,r=0,g=0,b=0,i,c=K.cur;
+    for(i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2]}r/=81;g/=81;b/=81;
+    if(!c)K.cur=c={r:r,g:g,b:b};else{c.r+=(r-c.r)*.5;c.g+=(g-c.g)*.5;c.b+=(b-c.b)*.5}
+    c.n=labNm(c.r,c.g,c.b);c.h=labHex(c.r,c.g,c.b)
+  }catch(e){}
+}
+function labKm(d,n,k){
+  var px=[],i,j,it,cs=[[0,0,0]],cnt=null,q,m,bi,bd;
+  for(i=0;i<n;i++){px.push([d[i*4],d[i*4+1],d[i*4+2]]);cs[0][0]+=d[i*4];cs[0][1]+=d[i*4+1];cs[0][2]+=d[i*4+2]}
+  cs[0]=cs[0].map(function(v){return v/n});
+  function dq(a,b){return(a[0]-b[0])*(a[0]-b[0])+(a[1]-b[1])*(a[1]-b[1])+(a[2]-b[2])*(a[2]-b[2])}
+  while(cs.length<k){bi=0;bd=-1;for(i=0;i<n;i+=3){m=1e9;for(j=0;j<cs.length;j++){q=dq(px[i],cs[j]);if(q<m)m=q}if(m>bd){bd=m;bi=i}}cs.push(px[bi].slice())}
+  for(it=0;it<8;it++){
+    var sm=cs.map(function(){return[0,0,0,0]});
+    for(i=0;i<n;i++){var b=0,bq=1e9;for(j=0;j<k;j++){q=dq(px[i],cs[j]);if(q<bq){bq=q;b=j}}sm[b][0]+=px[i][0];sm[b][1]+=px[i][1];sm[b][2]+=px[i][2];sm[b][3]++}
+    for(j=0;j<k;j++)if(sm[j][3])cs[j]=[sm[j][0]/sm[j][3],sm[j][1]/sm[j][3],sm[j][2]/sm[j][3]];
+    cnt=sm
+  }
+  return cs.map(function(c,j){return{r:c[0],g:c[1],b:c[2],p:cnt[j][3]/n}}).filter(function(o){return o.p>0}).sort(function(a,b){return b.p-a.p})
+}
+function labPalette(speak){
+  var K=LAB.k,v=$("lbV");
+  if(!(v.readyState>=2&&v.videoWidth)){labToast("CAMERA NOT READY");return}
+  var w=48,h=Math.max(16,Math.round(48*v.videoHeight/v.videoWidth)),c=document.createElement("canvas"),x;
+  c.width=w;c.height=h;
+  try{
+    x=c.getContext("2d",{willReadFrequently:true})||c.getContext("2d");x.drawImage(v,0,0,w,h);
+    var d=x.getImageData(0,0,w,h).data,cl=labKm(d,w*h,5);
+    K.pal=cl.map(function(q){return{r:q.r,g:q.g,b:q.b,p:q.p,n:labNm(q.r,q.g,q.b),h:labHex(q.r,q.g,q.b)}});
+    labColBar();
+    if(speak){var names=K.pal.map(function(q){return q.n});reply(LLs("The main colours here are "+names.slice(0,-1).join(", ")+(names.length>1?" and ":"")+names[names.length-1]+", Sir. Tap Copy to keep them.","Warna utama di sini ialah "+names.join(", ")+", Tuan. Tekan Copy untuk menyimpannya."))}
+  }catch(e){labToast("PALETTE FAILED")}
+}
+function labColFrame(g,W,H,ts,dt){
+  var K=LAB.k,col=LAB.col;
+  if(!K.frz&&ts-K.lastS>100||K.dirty){K.lastS=ts;K.dirty=false;labColSample(K,W,H)}
+  var c=K.cur,x=K.x,y=K.y;
+  if(c&&c.h){
+    var str=c.h+c.n;
+    if(str!==K.shown){K.shown=str;var s1=$("lbCs"),n1=$("lbCn"),h1=$("lbCh");if(s1)s1.style.background=c.h;if(n1)n1.textContent=c.n.toUpperCase();if(h1)h1.textContent=c.h+" · RGB "+Math.round(c.r)+" "+Math.round(c.g)+" "+Math.round(c.b)}
+    if(LAB.sayCol){LAB.sayCol=false;reply(LLs("That looks like "+c.n+", hex "+c.h.substr(1)+", Sir.","Itu nampak seperti "+c.n+", hex "+c.h.substr(1)+", Tuan."))}
+    if(LAB.sayPal){LAB.sayPal=false;labPalette(true)}
+  }
+  g.lineCap="round";
+  g.strokeStyle="#ffffff";g.globalAlpha=.9;g.lineWidth=1.6;g.beginPath();g.arc(x,y,26,0,6.2832);g.stroke();
+  if(c&&c.h){g.fillStyle=c.h;g.globalAlpha=1;g.beginPath();g.arc(x,y,14,0,6.2832);g.fill();g.strokeStyle="#ffffff";g.lineWidth=1.4;g.stroke()}
+  g.strokeStyle=col;g.globalAlpha=.9;g.lineWidth=1.4;g.beginPath();
+  g.moveTo(x-38,y);g.lineTo(x-30,y);g.moveTo(x+30,y);g.lineTo(x+38,y);g.moveTo(x,y-38);g.lineTo(x,y-30);g.moveTo(x,y+30);g.lineTo(x,y+38);g.stroke();
+  if(c&&c.n){
+    var t=c.n.toUpperCase()+"  "+c.h,w;g.font="600 9px Michroma,ui-monospace,monospace";w=g.measureText(t).width+18;
+    var bx=Math.max(8,Math.min(W-8-w,x-w/2)),by=y-62<130?y+46:y-62;
+    g.fillStyle="rgba(2,10,12,.7)";g.globalAlpha=1;g.fillRect(bx,by,w,22);g.strokeStyle=col;g.globalAlpha=.6;g.lineWidth=1;g.strokeRect(bx,by,w,22);
+    g.fillStyle="#e8fffc";g.globalAlpha=1;g.textAlign="center";g.textBaseline="middle";g.fillText(t,bx+w/2,by+11.5);g.textAlign="left"
+  }
+  g.globalAlpha=1;
+  return K.frz?"FROZEN · TAP TO PICK · LIVE TO RESUME":(K.pal?"TAP A SWATCH TO COPY ITS HEX":"TAP ANYTHING TO READ ITS COLOUR")
+}
+/* ----- voice ----- */
+function labIntent(n){
+  var P="^(?:(?:hey |yo |ok |okay )?jarvis,? )?(?:please )?",
+      O="(?:(?:open|start|activate|launch|show|turn on|enable|engage|run|initiate|go to|switch to|use|begin)(?: me)?(?: the| my)? )?",
+      R=function(s){return new RegExp(P+s+"$").test(n)};
+  if(LAB.on){
+    if(R("(?:exit|close|leave|quit|done|go back|back|turn off)(?: the)?(?: camera lab| lab| ar city| landmarks?| air draw| drawing| sketch| colou?r picker| colou?r mode| camera| mode)?")||R("(?:stop|end)(?: the)? (?:camera lab|lab|ar city|landmarks?|air draw|drawing|sketch|colou?r picker|camera)"))return{k:"labx"};
+    if(R("(?:clear|erase|wipe|reset)(?: all| the| my)?(?: drawing| sketch| board| canvas| everything| screen)?"))return{k:"labdo",a:"clear"};
+    if(R("undo(?: that| the last| last)?(?: stroke| line)?"))return{k:"labdo",a:"undo"};
+    if(R("(?:save|capture|snap|keep|screenshot)(?: it| this| that| the| my)?(?: drawing| sketch| picture| photo| image| frame)?"))return{k:"labdo",a:"save"};
+    if(R("(?:change|next|switch|new|another)(?: the)?(?: ink| pen| brush| line)? ?colou?r"))return{k:"labdo",a:"ink"};
+    if(R("(?:get |make |give me |show |build |pull )?(?:me )?(?:a |the )?palette(?: from (?:this|that|it|here))?")||R("what are the colou?rs(?: here| in this| in view| i can see)?"))return{k:"labdo",a:"pal"};
+    if(R("copy(?: the)?(?: palette| hex| colou?r| code)?"))return{k:"labdo",a:"copy"};
+    if(R("(?:align|calibrate|re ?align|recalibrate)(?: it| the compass| landmarks?| now)?"))return{k:"labdo",a:"align"};
+    if(R("(?:freeze|unfreeze|resume|go live)(?: it| this| the)?(?: frame| view| camera)?"))return{k:"labdo",a:"frz"}
+  }
+  if(R(O+"(?:ar (?:city|landmarks?|skyline|buildings?|tour)|landmarks?(?: scanner| finder| view| mode)?|(?:city|skyline) (?:ar|scanner|labels?|view)|building (?:finder|scanner|labels?))(?: mode| view| on)?")||R("(?:what|which) (?:building|tower|landmark) (?:is )?(?:that|this|there|over there)")||R("identify(?: the)? (?:buildings?|skyline|landmarks?)"))return{k:"lab",m:"city",say:1};
+  if(R(O+"(?:air ?(?:draw|drawing|sketch|sketching|pen|writing|write)|draw(?:ing)? in the air|sketch in the air|(?:drawing|sketch|draw|sketching) mode|hologram (?:draw|drawing|sketch|pen))(?: mode)?")||R("(?:let me|i want to|i wanna) (?:draw|sketch)"))return{k:"lab",m:"draw",say:1};
+  if(R("(?:what(?: is|s) the colou?r (?:of )?(?:this|that|it)|what colou?r (?:is )?(?:this|that|it)|which colou?r is (?:this|that|it))"))return{k:"lab",m:"color",col:1};
+  if(R("(?:(?:make|get|give me|build|pull|show me)(?: me)? )?(?:a |the )?palette from (?:this|that|it|here)"))return{k:"lab",m:"color",pal:1};
+  if(R(O+"(?:colou?r (?:picker|scanner|finder|eyedropper|mode|detector|palette)|eyedropper|palette (?:picker|scanner|finder|tool)|pick (?:a )?colou?rs?)(?: mode)?"))return{k:"lab",m:"color",say:1};
+  if(R(O+"(?:the )?camera lab"))return{k:"lab",m:LAB.m||"city"};
+  return null
+}
+
 function holoIntent(raw,n){
-  var w=n.split(" ").length;if(w>14)return null;
+  var w=n.split(" ").length;if(w>14)return null;var lb=labIntent(n);if(lb)return lb;
   var sk=skyIntent(n);if(sk)return sk;
   var so=solIntent(n);if(so)return so;
   var ob=orbIntent(n);if(ob)return ob;
@@ -6145,6 +6641,9 @@ function holoRun(h){
   if(h.k==="issnext"){issNextSay();return}
   if(h.k==="twtour"){twTour();return}
   if(h.k==="twtourstop"){twTourStop(true);return}
+  if(h.k==="lab"){labOpen(h.m,{say:h.say,col:h.col,pal:h.pal});return}
+  if(h.k==="labx"){if(LAB.on)labClose(true);return}
+  if(h.k==="labdo"){labDo(h.a);return}
   if(h.k==="andro"){andStart(h.cam?{cam:h.cam}:null);return}
   if(h.k==="andarm"){andArm();reply(LLs("Andromeda is armed. Hold an open palm up to the camera, Sir.","Andromeda sedia. Angkat tapak tangan terbuka ke kamera, Tuan."));return}
   if(h.k==="objlist"){objListSay();return}
@@ -6521,7 +7020,7 @@ function rmGo(a){
   else if(a==="solar"){unlockSpeech();ctx();hcOpen(true);solarOpen(true,null)}
   else if(a==="orbs"){unlockSpeech();ctx();hcOpen(true);orbsOpen(true)}
   else if(a==="sky"){unlockSpeech();ctx();hcOpen(true);skyOpen({})}
-  else if(a==="xray"){unlockSpeech();ctx();xrOn(true)}
+  else if(a==="xray"){unlockSpeech();ctx();xrOn(true)}else if(a==="lab"){unlockSpeech();ctx();labOpen(LAB.m||"city",{say:false})}
   else if(a==="tasks"){var t=document.querySelector('button[data-v="tasks"]');if(t)t.click()}
   else if(a==="chio"){if(!busy){unlockSpeech();ctx();send("open chio")}}
 }
