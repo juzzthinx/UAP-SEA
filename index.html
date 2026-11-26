@@ -1434,7 +1434,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.68";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
+var VER="v9.69";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -6634,7 +6634,8 @@ function gdXf(x,y,z){
   if(Math.abs(x)>.58&&y>-.3){var at=Math.max(0,Math.min(1,(1.05-y)/.6));at=at*at*(3-2*at);x-=(x>0?1:-1)*.15*at}
   if(Math.abs(x)>.7&&y>.2)zz+=.04*(y-.2);
   /* v9.63: longer back (extra length added through the waist, upper body rigid) + sleeker V-taper waist */
-  if(Math.abs(x)<.55&&y>-.3&&y<.8){var wt=(y+.3)/1.1;x*=1-.09*Math.sin(3.1416*wt)}
+  if(Math.abs(x)<.55&&y>-.3&&y<.8){var wt=(y+.3)/1.1;x*=1-.04*Math.sin(3.1416*wt)}
+  if(Math.abs(x)<.56&&y>-.25&&y<1.5)x*=1.07;
   yy=yy<=-.3?yy:(yy<=.5?-.3+(yy+.3)*1.3375:yy+.27);
   if(yy<-.3){var lt=Math.min(1,(-.3-yy)/3.1);zz+=.07*Math.sin(3.1416*lt)}
   return[x,yy,zz]
@@ -6716,9 +6717,9 @@ function gdBuild(){
     [-1,1].forEach(function(s2){
       ln(L.m,s2*.2498,2.121,.1087,s2*.235,1.957,.1031);
       poly(L.m,[[s2*.05,1.93,.285],[s2*.22,1.9,.2],[s2*.26,1.8,.1],[s2*.14,1.72,.18],[s2*.05,1.76,.24]],true);
-      ln(L.h,s2*.05,1.76,.24,s2*.14,1.72,.18);ln(L.d,s2*.16,1.86,.24,s2*.2,1.78,.17);
+      ln(L.h,s2*.05,1.76,.24,s2*.14,1.72,.18);
       cyl(L.m,s2*.31,1.94,-.02,0,.05,.115,.115,6);
-      for(j=-1;j<=1;j++)ln(L.h,s2*.345,1.89,-.02+j*.045,s2*.345,1.99,-.02+j*.045);
+      ln(L.h,s2*.345,1.89,-.02,s2*.345,1.99,-.02);
       ln(L.d,s2*.2,2.12,.15,s2*.23,2.2,.0);ln(L.d,s2*.23,2.2,.0,s2*.19,2.2,-.15);ln(L.d,s2*.19,2.2,-.15,s2*.2,1.95,-.2)
     });
     for(j=-1;j<=1;j++)ring(L.h,j*.06,2.215,.228-j*j*.008,2,.016,6);
@@ -6726,21 +6727,16 @@ function gdBuild(){
     ring(L.h,0,2.2,-.235,2,.03,8);ring(L.h,0,2.2,-.235,2,.012,6);
     [-1,1].forEach(function(s3){
       cyl(L.m,s3*.335,1.94,-.02,0,.08,.16,.16,6);ring(L.h,s3*.38,1.94,-.02,0,.12,6);ring(L.h,s3*.38,1.94,-.02,0,.06,6);
-      poly(L.d,[[s3*.36,2.09,-.1],[s3*.4,2.0,-.12],[s3*.4,1.86,-.12],[s3*.36,1.8,-.1]],false);ln(L.h,s3*.4,2.0,-.12,s3*.4,1.86,-.12);
-      poly(L.m,[[s3*.19,2.27,.1],[s3*.225,2.15,.12],[s3*.2,2.0,.14],[s3*.18,1.9,.14]],false);poly(L.d,[[s3*.215,2.25,.07],[s3*.25,2.13,.08],[s3*.225,1.99,.09],[s3*.2,1.9,.1]],false);
+      poly(L.m,[[s3*.19,2.27,.1],[s3*.225,2.15,.12],[s3*.2,2.0,.14],[s3*.18,1.9,.14]],false);
       ln(L.m,s3*.185,1.8586,.059,s3*.166,1.789,.0547);
       arc(L.h,1.78,.24,.27,.5,.0,6);
-      ln(L.h,s3*.15,1.83,.26,s3*.24,1.88,.14);ln(L.h,s3*.15,1.8,.27,s3*.24,1.85,.14);
       ln(L.d,s3*.14,2.3,-.1,s3*.22,2.02,-.14);ln(L.d,s3*.1,2.34,.0,s3*.2,2.2,.12)
     });
     ln(L.h,-.2,2.28,-.06,-.27,2.62,-.12);ring(L.h,-.27,2.62,-.12,1,.012,5);
     /* v9.68: full-face glass panel, side rails, wide chin guard (original angular design) */
     arc(L.m,2.16,.23,.27,1.0,.04,16);arc(L.m,1.86,.215,.255,1.0,.05,16);
-    arc(L.d,2.115,.235,.275,1.0,.03,14);arc(L.d,1.895,.22,.26,1.0,.04,14);
     ln(L.m,.194,2.194,.146,.181,1.902,.138);ln(L.m,-.194,2.194,.146,-.181,1.902,.138);
     arc(L.m,1.8,.19,.27,1.35,.06,16);arc(L.m,1.74,.17,.25,1.35,.05,16);
-    arc(L.h,1.77,.18,.26,1.2,.04,14);
-    ln(L.d,0,1.75,.25,0,1.8,.27)
   })();
   [[L.m,h0[0]],[L.d,h0[1]],[L.h,h0[2]]].forEach(function(p){var a=p[0],j;for(j=p[1];j<a.length;j+=3){a[j]*=1.28;a[j+1]=1.7+(a[j+1]-1.7)*1.28;a[j+2]*=1.28}});
   poly(L.h,[[0,1.6,.34],[0,1.5,.27],[0,1.36,.28],[0,1.22,.3],[0,1.14,.31]],false);
@@ -6749,39 +6745,45 @@ function gdBuild(){
     cyl(L.m,s*.6,1.32,0,0,.13,.15,.15,14);ring(L.h,s*.67,1.32,0,0,.13,12);
     ecyl(L.m,s*.76,0,dens([[1.1,.15,.18],[1.3,.2,.24],[1.5,.18,.21],[1.6,.1,.13]],2),16,2);
     arc(L.d,1.52,.22,.26,1.3,-.1,10);
-    ecyl(L.m,s*.8,0,dens([[1.06,.13,.15],[.88,.16,.17],[.68,.15,.16],[.52,.11,.11]],2),14,2);
-    cyl(L.m,s*.8,.48,0,0,.22,.11,.11,12);ring(L.h,s*.8,.48,0,0,.085,10);
+    ecyl(L.m,s*.8,0,dens([[1.06,.17,.19],[.88,.205,.21],[.68,.195,.2],[.52,.145,.145]],2),14,2);
+    cyl(L.m,s*.8,.48,0,0,.28,.15,.15,12);ring(L.h,s*.8,.48,0,0,.1,10);
     (function(){
-      /* v9.65 relaxed hanging forearm + living hand (designed in final-frame heights via sf) */
-      var X=s*.8,BZ=1.3375,sf=function(d){return (d+.3)/BZ-.3},hz=function(h){return h/BZ},fi,sg,fx,yT,zT,zc,L3,Lz,jz=[0,.01,.03,.055],fl=[[.094,.075,.062],[.104,.083,.068],[.096,.078,.065],[.078,.062,.052]];
-      /* forearm: tapered, muscle belly high, flowing into the wrist */
-      ecyl(L.m,X,0,dens([[sf(.72),.115,.12,0,.005],[sf(.62),.132,.136,0,.03],[sf(.45),.104,.11,0,.07],[sf(.3),.08,.085,0,.1],[sf(.2),.068,.072,0,.115]],2),14,2);
-      ring(L.d,X,sf(.56),.05,1,.135,12);ring(L.d,X,sf(.4),.085,1,.1,12);
-      poly(L.h,[[X+s*.125,sf(.7),.02],[X+s*.1,sf(.45),.08],[X+s*.07,sf(.22),.115]],false);
-      poly(L.d,[[X,sf(.7),.14],[X,sf(.45),.18],[X,sf(.24),.19]],false);
-      poly(L.d,[[X-s*.1,sf(.62),.1],[X-s*.08,sf(.4),.14],[X-s*.055,sf(.22),.15]],false);
-      ring(L.h,X+s*.12,sf(.6),.06,0,.032,8);ring(L.h,X+s*.12,sf(.6),.06,0,.013,6);
-      /* wrist cuff */
-      cyl(L.m,X,sf(.2),.12,1,hz(.07),.085,.098,12);ring(L.h,X,sf(.17),.12,1,.1,12);
-      /* palm: slim plate with glowing back-of-hand node */
-      box(L.m,X,sf(.095),.13,.17,hz(.18),.085,.92,.9);
-      box(L.d,X+s*.05,sf(.1),.13,.075,hz(.15),.095,.9,.9);
-      ring(L.h,X+s*.09,sf(.105),.13,0,.045,8);ring(L.h,X+s*.09,sf(.105),.13,0,.018,6);
-      ln(L.d,X-.075,sf(.18),.178,X+.075,sf(.18),.178);
-      /* four fingers, relaxed curl, joint lights */
+      /* v9.69 heavy industrial arm + gauntlet hand, same language as the legs */
+      var X=s*.8,BZ=1.3375,sf=function(d){return (d+.3)/BZ-.3},hz=function(h){return h/BZ},fi,sg,fx,yT,zT,zc,jz=[0,.012,.035,.062],fl=[[.108,.086,.07],[.12,.095,.078],[.11,.09,.074],[.09,.07,.058]],bolt=function(x,y,z){ring(L.d,x,y,z,2,.012,5)};
+      poly(L.m,[[X-.14,1.02,.2],[X+.14,1.02,.2],[X+.19,.86,.215],[X+.16,.62,.19],[X-.16,.62,.19],[X-.19,.86,.215]],true);
+      poly(L.d,[[X-.1,.97,.225],[X+.1,.97,.225],[X+.13,.85,.235],[X+.11,.68,.21],[X-.11,.68,.21],[X-.13,.85,.235]],true);
+      ln(L.h,X,.96,.24,X,.72,.225);ln(L.h,X+s*.19,.86,.22,X+s*.16,.64,.195);
+      ring(L.m,X,.56,0,1,.17,12);ring(L.m,X,.4,0,1,.17,12);
+      [.785,2.356,3.927,5.498].forEach(function(a2){ln(L.d,X+Math.cos(a2)*.17,.56,Math.sin(a2)*.17,X+Math.cos(a2)*.17,.4,Math.sin(a2)*.17)});
+      poly(L.m,[[X-.13,.6,-.16],[X+.13,.6,-.16],[X+.15,.5,-.18],[X,.4,-.21],[X-.15,.5,-.18]],true);ln(L.h,X,.6,-.18,X,.4,-.22);
+      cyl(L.d,X-.06,.5,.18,1,.2,.016,.016,6);cyl(L.d,X+.06,.5,.18,1,.2,.016,.016,6);
+      ecyl(L.m,X,0,dens([[sf(.72),.15,.156,0,.005],[sf(.62),.172,.177,0,.03],[sf(.45),.137,.143,0,.07],[sf(.3),.108,.113,0,.1],[sf(.2),.092,.097,0,.115]],2),14,2);
+      ring(L.d,X,sf(.56),.05,1,.178,12);ring(L.d,X,sf(.4),.085,1,.135,12);
+      poly(L.m,[[X-.13,sf(.7),.2],[X+.13,sf(.7),.2],[X+.11,sf(.46),.215],[X+.06,sf(.26),.22],[X-.06,sf(.26),.22],[X-.11,sf(.46),.215]],true);
+      ln(L.h,X,sf(.7),.215,X,sf(.28),.235);
+      poly(L.h,[[X+s*.17,sf(.7),.02],[X+s*.135,sf(.45),.08],[X+s*.1,sf(.22),.115]],false);
+      poly(L.d,[[X-s*.13,sf(.62),.1],[X-s*.105,sf(.4),.14],[X-s*.075,sf(.22),.15]],false);
+      ring(L.h,X+s*.16,sf(.6),.06,0,.036,8);ring(L.h,X+s*.16,sf(.6),.06,0,.014,6);
+      bolt(X-.11,sf(.68),.205);bolt(X+.11,sf(.68),.205);bolt(X,sf(.3),.23);
+      cyl(L.d,X-.07,sf(.5),-.06,1,hz(.32),.016,.016,6);cyl(L.d,X+.07,sf(.5),-.06,1,hz(.32),.016,.016,6);
+      cyl(L.m,X,sf(.2),.12,1,hz(.075),.108,.122,12);ring(L.h,X,sf(.165),.12,1,.126,12);
+      box(L.m,X,sf(.095),.135,.215,hz(.21),.1,.92,.9);
+      box(L.d,X+s*.055,sf(.1),.135,.09,hz(.17),.11,.9,.9);
+      poly(L.m,[[X-.1,sf(.0),.205],[X+.1,sf(.0),.205],[X+.11,sf(-.03),.215],[X-.11,sf(-.03),.215]],true);
+      ring(L.h,X+s*.108,sf(.105),.135,0,.05,8);ring(L.h,X+s*.108,sf(.105),.135,0,.02,6);
+      ln(L.d,X-.09,sf(.2),.19,X+.09,sf(.2),.19);
       for(fi=0;fi<4;fi++){
-        fx=X+(fi-1.5)*.043;yT=.005;zT=.165;
+        fx=X+(fi-1.5)*.052;yT=-.03;zT=.19;
         for(sg=0;sg<3;sg++){
           zc=zT+(jz[sg]+jz[sg+1])/2;
-          box(L.m,fx,sf(yT-fl[fi][sg]/2),zc,.039,hz(fl[fi][sg]),.039,.9,.88);
-          if(sg<2)ring(L.h,fx,sf(yT-fl[fi][sg]),zT+jz[sg+1]+.024,2,.014,5);
+          box(L.m,fx,sf(yT-fl[fi][sg]/2),zc,.046,hz(fl[fi][sg]),.046,.9,.86);
+          if(sg<2)ring(L.h,fx,sf(yT-fl[fi][sg]),zT+jz[sg+1]+.028,2,.016,5);
           yT-=fl[fi][sg]
         }
       }
-      /* thumb on the inner side, resting forward */
-      box(L.m,X-s*.105,sf(.1),.175,.042,hz(.095),.044,.9,.9);
-      box(L.m,X-s*.112,sf(.025),.2,.04,hz(.075),.042,.9,.9);
-      ring(L.h,X-s*.11,sf(.06),.226,2,.014,5)
+      box(L.m,X-s*.125,sf(.11),.2,.05,hz(.11),.052,.9,.9);
+      box(L.m,X-s*.133,sf(.02),.23,.047,hz(.09),.05,.9,.9);
+      ring(L.h,X-s*.13,sf(.06),.26,2,.016,5)
     })();
     ln(L.h,s*.93,1.3,0,s*.93,.55,0);
   });
@@ -6901,14 +6903,28 @@ function gdBuild(){
       bp(L.h,[[.66,s2*.75],[.48,s2*.28]],false,.075);bp(L.h,[[.62,s2*.8],[.44,s2*.3]],false,.075);
       bp(L.h,[[1.44,s2*.3],[1.47,s2*.85]],false,.06);
       /* faceted pauldron prism + teal slash */
-      cyl(L.m,s2*.8,1.33,0,1,.44,.215,.17,6);ring(L.h,s2*.8,1.55,0,1,.215,6);
+      cyl(L.m,s2*.8,1.33,0,1,.46,.265,.215,6);ring(L.h,s2*.8,1.56,0,1,.265,6);
       ln(L.h,s2*.62,1.52,.17,s2*.98,1.2,.19);ln(L.h,s2*.64,1.46,.17,s2*.98,1.14,.19);
       ln(L.d,s2*.6,1.52,.12,s2*.98,1.52,.0);ln(L.d,s2*.98,1.52,.0,s2*.98,1.2,-.14);
       /* faceted arm segments */
-      cyl(L.m,s2*.8,.82,0,1,.34,.185,.15,6);cyl(L.m,s2*.8,.58,0,1,.2,.15,.12,6);
+      cyl(L.m,s2*.8,.82,0,1,.34,.24,.2,6);cyl(L.m,s2*.8,.58,0,1,.2,.2,.16,6);
       ln(L.h,s2*.8,1.04,.18,s2*.8,.6,.15);ln(L.h,s2*.86,1.04,.16,s2*.86,.6,.13)
     });
     for(j=0;j<4;j++){var yy=.12+j*.13;bp(L.m,[[yy,-.8],[yy-.07,0],[yy,.8]],false,.045)}
+  })();
+  /* ---------- v9.69 torso armour: stepped plates, hip guards, back plate (matches the legs) ---------- */
+  (function(){
+    var k,st=[[.5,.34],[.34,.2],[.2,.06]];
+    st.forEach(function(r,i){bp(L.m,[[r[0],-.62+i*.04],[r[0],.62-i*.04],[r[1],.56-i*.04],[r[1],-.56+i*.04]],true,.06)});
+    bp(L.h,[[.5,-.5],[.5,.5]],false,.065);bp(L.d,[[.42,-.55],[.42,.55]],false,.065);bp(L.d,[[.27,-.5],[.27,.5]],false,.065);
+    [-1,1].forEach(function(s2){
+      poly(L.m,[[s2*.36,-.02,.12],[s2*.44,-.14,.1],[s2*.42,-.3,.04],[s2*.35,-.3,.2],[s2*.3,-.12,.25]],true);
+      ln(L.h,s2*.44,-.14,.1,s2*.42,-.3,.04);
+      bp(L.d,[[1.0,s2*2.35],[.62,s2*2.4],[.3,s2*2.5]],false,.05)
+    });
+    bp(L.m,[[1.22,2.3],[1.22,3.98],[.72,3.82],[.72,2.46]],true,.06);bp(L.m,[[.62,2.5],[.62,3.78],[.2,3.62],[.2,2.66]],true,.06);
+    ln(L.h,0,1.2,-.36,0,.24,-.3);
+    for(k=0;k<3;k++)ln(L.d,-.2,.54+k*.18,-.3,.2,.54+k*.18,-.3)
   })();
   /* ---------- v9.61 industrial body ---------- */
   (function(){
