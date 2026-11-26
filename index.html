@@ -1434,7 +1434,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.66";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
+var VER="v9.68";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -6630,11 +6630,13 @@ function gdTap(x,y){
 function gdXf(x,y,z){
   var sm=0,yy=y,zz=z,u;
   if(Math.abs(x)<.45&&y>1.5){u=Math.min(1,(y-1.5)/.28);sm=u*u*(3-2*u);yy=y-.12*sm;zz+=.05*sm}
-  if(y>0)zz+=.1*y;
+  if(y>0)zz+=.07*y;
+  if(Math.abs(x)>.58&&y>-.3){var at=Math.max(0,Math.min(1,(1.05-y)/.6));at=at*at*(3-2*at);x-=(x>0?1:-1)*.15*at}
   if(Math.abs(x)>.7&&y>.2)zz+=.04*(y-.2);
   /* v9.63: longer back (extra length added through the waist, upper body rigid) + sleeker V-taper waist */
-  if(Math.abs(x)<.55&&y>-.3&&y<.8){var wt=(y+.3)/1.1;x*=1-.13*Math.sin(3.1416*wt)}
+  if(Math.abs(x)<.55&&y>-.3&&y<.8){var wt=(y+.3)/1.1;x*=1-.09*Math.sin(3.1416*wt)}
   yy=yy<=-.3?yy:(yy<=.5?-.3+(yy+.3)*1.3375:yy+.27);
+  if(yy<-.3){var lt=Math.min(1,(-.3-yy)/3.1);zz+=.07*Math.sin(3.1416*lt)}
   return[x,yy,zz]
 }
 function gdBuild(){
@@ -6723,14 +6725,24 @@ function gdBuild(){
     ln(L.d,-.06,2.215,.228,.06,2.215,.228);
     ring(L.h,0,2.2,-.235,2,.03,8);ring(L.h,0,2.2,-.235,2,.012,6);
     [-1,1].forEach(function(s3){
-      cyl(L.m,s3*.335,1.94,-.02,0,.08,.15,.15,18);ring(L.h,s3*.38,1.94,-.02,0,.11,18);ring(L.h,s3*.38,1.94,-.02,0,.055,12);
+      cyl(L.m,s3*.335,1.94,-.02,0,.08,.16,.16,6);ring(L.h,s3*.38,1.94,-.02,0,.12,6);ring(L.h,s3*.38,1.94,-.02,0,.06,6);
+      poly(L.d,[[s3*.36,2.09,-.1],[s3*.4,2.0,-.12],[s3*.4,1.86,-.12],[s3*.36,1.8,-.1]],false);ln(L.h,s3*.4,2.0,-.12,s3*.4,1.86,-.12);
+      poly(L.m,[[s3*.19,2.27,.1],[s3*.225,2.15,.12],[s3*.2,2.0,.14],[s3*.18,1.9,.14]],false);poly(L.d,[[s3*.215,2.25,.07],[s3*.25,2.13,.08],[s3*.225,1.99,.09],[s3*.2,1.9,.1]],false);
+      ln(L.m,s3*.185,1.8586,.059,s3*.166,1.789,.0547);
       arc(L.h,1.78,.24,.27,.5,.0,6);
       ln(L.h,s3*.15,1.83,.26,s3*.24,1.88,.14);ln(L.h,s3*.15,1.8,.27,s3*.24,1.85,.14);
       ln(L.d,s3*.14,2.3,-.1,s3*.22,2.02,-.14);ln(L.d,s3*.1,2.34,.0,s3*.2,2.2,.12)
     });
-    ln(L.h,-.2,2.28,-.06,-.27,2.62,-.12);ring(L.h,-.27,2.62,-.12,1,.012,5)
+    ln(L.h,-.2,2.28,-.06,-.27,2.62,-.12);ring(L.h,-.27,2.62,-.12,1,.012,5);
+    /* v9.68: full-face glass panel, side rails, wide chin guard (original angular design) */
+    arc(L.m,2.16,.23,.27,1.0,.04,16);arc(L.m,1.86,.215,.255,1.0,.05,16);
+    arc(L.d,2.115,.235,.275,1.0,.03,14);arc(L.d,1.895,.22,.26,1.0,.04,14);
+    ln(L.m,.194,2.194,.146,.181,1.902,.138);ln(L.m,-.194,2.194,.146,-.181,1.902,.138);
+    arc(L.m,1.8,.19,.27,1.35,.06,16);arc(L.m,1.74,.17,.25,1.35,.05,16);
+    arc(L.h,1.77,.18,.26,1.2,.04,14);
+    ln(L.d,0,1.75,.25,0,1.8,.27)
   })();
-  [[L.m,h0[0]],[L.d,h0[1]],[L.h,h0[2]]].forEach(function(p){var a=p[0],j;for(j=p[1];j<a.length;j+=3){a[j]*=1.15;a[j+1]=1.7+(a[j+1]-1.7)*1.15;a[j+2]*=1.15}});
+  [[L.m,h0[0]],[L.d,h0[1]],[L.h,h0[2]]].forEach(function(p){var a=p[0],j;for(j=p[1];j<a.length;j+=3){a[j]*=1.28;a[j+1]=1.7+(a[j+1]-1.7)*1.28;a[j+2]*=1.28}});
   poly(L.h,[[0,1.6,.34],[0,1.5,.27],[0,1.36,.28],[0,1.22,.3],[0,1.14,.31]],false);
   /* ---------- SHOULDERS + SLIM ARMS ---------- */
   [-1,1].forEach(function(s){
@@ -6741,7 +6753,7 @@ function gdBuild(){
     cyl(L.m,s*.8,.48,0,0,.22,.11,.11,12);ring(L.h,s*.8,.48,0,0,.085,10);
     (function(){
       /* v9.65 relaxed hanging forearm + living hand (designed in final-frame heights via sf) */
-      var X=s*.8,BZ=1.3375,sf=function(d){return (d+.3)/BZ-.3},hz=function(h){return h/BZ},fi,sg,fx,yT,zT,zc,L3,Lz,jz=[0,.01,.03,.055],fl=[[.072,.058,.048],[.08,.064,.052],[.074,.06,.05],[.06,.048,.04]];
+      var X=s*.8,BZ=1.3375,sf=function(d){return (d+.3)/BZ-.3},hz=function(h){return h/BZ},fi,sg,fx,yT,zT,zc,L3,Lz,jz=[0,.01,.03,.055],fl=[[.094,.075,.062],[.104,.083,.068],[.096,.078,.065],[.078,.062,.052]];
       /* forearm: tapered, muscle belly high, flowing into the wrist */
       ecyl(L.m,X,0,dens([[sf(.72),.115,.12,0,.005],[sf(.62),.132,.136,0,.03],[sf(.45),.104,.11,0,.07],[sf(.3),.08,.085,0,.1],[sf(.2),.068,.072,0,.115]],2),14,2);
       ring(L.d,X,sf(.56),.05,1,.135,12);ring(L.d,X,sf(.4),.085,1,.1,12);
@@ -6750,26 +6762,26 @@ function gdBuild(){
       poly(L.d,[[X-s*.1,sf(.62),.1],[X-s*.08,sf(.4),.14],[X-s*.055,sf(.22),.15]],false);
       ring(L.h,X+s*.12,sf(.6),.06,0,.032,8);ring(L.h,X+s*.12,sf(.6),.06,0,.013,6);
       /* wrist cuff */
-      cyl(L.m,X,sf(.2),.12,1,hz(.06),.072,.082,12);ring(L.h,X,sf(.17),.12,1,.083,12);
+      cyl(L.m,X,sf(.2),.12,1,hz(.07),.085,.098,12);ring(L.h,X,sf(.17),.12,1,.1,12);
       /* palm: slim plate with glowing back-of-hand node */
-      box(L.m,X,sf(.095),.13,.135,hz(.15),.07,.92,.9);
-      box(L.d,X+s*.04,sf(.1),.13,.06,hz(.12),.078,.9,.9);
-      ring(L.h,X+s*.075,sf(.105),.13,0,.036,8);ring(L.h,X+s*.075,sf(.105),.13,0,.014,6);
-      ln(L.d,X-.06,sf(.165),.17,X+.06,sf(.165),.17);
+      box(L.m,X,sf(.095),.13,.17,hz(.18),.085,.92,.9);
+      box(L.d,X+s*.05,sf(.1),.13,.075,hz(.15),.095,.9,.9);
+      ring(L.h,X+s*.09,sf(.105),.13,0,.045,8);ring(L.h,X+s*.09,sf(.105),.13,0,.018,6);
+      ln(L.d,X-.075,sf(.18),.178,X+.075,sf(.18),.178);
       /* four fingers, relaxed curl, joint lights */
       for(fi=0;fi<4;fi++){
-        fx=X+(fi-1.5)*.034;yT=.02;zT=.155;
+        fx=X+(fi-1.5)*.043;yT=.005;zT=.165;
         for(sg=0;sg<3;sg++){
           zc=zT+(jz[sg]+jz[sg+1])/2;
-          box(L.m,fx,sf(yT-fl[fi][sg]/2),zc,.03,hz(fl[fi][sg]),.03,.9,.88);
-          if(sg<2)ring(L.h,fx,sf(yT-fl[fi][sg]),zT+jz[sg+1]+.02,2,.011,5);
+          box(L.m,fx,sf(yT-fl[fi][sg]/2),zc,.039,hz(fl[fi][sg]),.039,.9,.88);
+          if(sg<2)ring(L.h,fx,sf(yT-fl[fi][sg]),zT+jz[sg+1]+.024,2,.014,5);
           yT-=fl[fi][sg]
         }
       }
       /* thumb on the inner side, resting forward */
-      box(L.m,X-s*.082,sf(.095),.165,.032,hz(.075),.034,.9,.9);
-      box(L.m,X-s*.088,sf(.035),.185,.03,hz(.06),.032,.9,.9);
-      ring(L.h,X-s*.088,sf(.065),.205,2,.011,5)
+      box(L.m,X-s*.105,sf(.1),.175,.042,hz(.095),.044,.9,.9);
+      box(L.m,X-s*.112,sf(.025),.2,.04,hz(.075),.042,.9,.9);
+      ring(L.h,X-s*.11,sf(.06),.226,2,.014,5)
     })();
     ln(L.h,s*.93,1.3,0,s*.93,.55,0);
   });
@@ -6829,9 +6841,6 @@ function gdBuild(){
       poly(L.m,[[X-.14,-.92],[X+.14,-.92],[X+.1,-1.0],[X-.1,-1.0]].map(function(p){return[p[0],p[1],ty(p[1])+.035]}),true);
       ln(L.h,X,-.5,ty(-.5)+.055,X,-.8,ty(-.8)+.055);
       ln(L.h,X+.22,-.6,ty(-.6)+.032,X+.18,-.9,ty(-.9)+.032);ln(L.h,X-.22,-.6,ty(-.6)+.032,X-.18,-.9,ty(-.9)+.032);
-      P1.forEach(function(p){bolt(p[0],p[1],ty(p[1])+.034)});
-      box(L.m,X,-.47,.17,.3,hh(.07),.14,.95,.9);ln(L.h,X-.14,-.47,.25,X+.14,-.47,.25);
-      for(k=0;k<4;k++)ln(L.d,X+s2*.275,-.55-k*.1,.1-k*.015,X+s2*.275,-.55-k*.1,-.12);
       /* knee: cage rings + struts, sharp guard, wing plates */
       ring(L.m,X,-.97,0,1,.15,12);ring(L.m,X,-1.17,0,1,.15,12);
       for(k=0;k<4;k++){j=k/4*6.2832+.785;ln(L.d,X+Math.cos(j)*.15,-.97,Math.sin(j)*.15,X+Math.cos(j)*.15,-1.17,Math.sin(j)*.15)}
@@ -6906,7 +6915,7 @@ function gdBuild(){
     var j,k2,y,t0,t1;
     /* belt with hazard slashes + buckle */
     arc(L.m,.06,.325,.235,1.45,0,14);arc(L.m,-.07,.31,.225,1.45,0,14);
-    for(j=-6;j<=6;j++){t0=j*.2;bp(L.d,[[-.07,t0],[.06,t0+.14]],false,.03)}
+    for(j=-4;j<=4;j++){t0=j*.2;bp(L.d,[[-.07,t0],[.06,t0+.14]],false,.03)}
     box(L.m,0,0,.24,.17,.15,.05,.9,.9);ring(L.h,0,0,.268,2,.03,6);
     /* chest: heavy plate, hex reactor housing, shelf */
     ring(L.m,0,.9,RZ-.015,2,.3,6);ring(L.d,0,.9,RZ-.02,2,.34,6);
@@ -7070,7 +7079,7 @@ function gdFrame(ts){
   g.stroke();
   /* glow points: visor, core */
   var pulse=.6+.4*Math.sin(t*3.2);
-  var HSc=1.15,cols=15,rows=4,cc,rr,th,yy,xx,zz,q,fac,kk,sz,lit,stt=(typeof viz!=="undefined"&&viz.state)||"",ex=(GD.exprMap&&t<GD.exprU)?GD.exprMap:null,ctr=(cols-1)/2,sw,dist,hgt;
+  var HSc=1.28,cols=15,rows=4,cc,rr,th,yy,xx,zz,q,fac,kk,sz,lit,stt=(typeof viz!=="undefined"&&viz.state)||"",ex=(GD.exprMap&&t<GD.exprU)?GD.exprMap:null,ctr=(cols-1)/2,sw,dist,hgt;
   if(!ex)GD.exprMap=null;
   if(stt==="speak"){if(t>GD.syl){GD.syl=t+.09+Math.random()*.1;GD.lvlT=Math.random()<.13?.07:.32+Math.random()*.68}GD.amp+=(GD.lvlT-GD.amp)*(GD.lvlT>GD.amp?.4:.13)}else GD.amp*=.9;
   sw=(Math.sin(t*.9)*.5+.5)*(cols-1);
@@ -7141,7 +7150,7 @@ function gdFrame(ts){
     g.globalAlpha=.95;g.fillStyle="#e8fffc";g.textAlign=right?"right":"left";g.fillText(c[3],tx,ty-9)
   });
     /* hit areas for tap-to-talk (head) and tap-to-charge (reactor) */
-  var hk=PT(0,2.0,0),hx=px,hy=py,ck=PT(0,.9,.31);GD.hit={hx:hx,hy:hy,hr:.34*hk*1.15,cx:px,cy:py,cr:.27*ck};
+  var hk=PT(0,2.0,0),hx=px,hy=py,ck=PT(0,.9,.31);GD.hit={hx:hx,hy:hy,hr:.34*hk*1.28,cx:px,cy:py,cr:.27*ck};
   GD.pct=Math.round(chips[0][1]*100);
   var stLbl=stt==="listen"?"LISTENING":stt==="think"?"THINKING":stt==="speak"?"SPEAKING":"ANDROMEDA FRAME · TAP HEAD TO TALK";
   if(GD.stTxt!==stLbl){GD.stTxt=stLbl;$("gdSt").textContent=stLbl}
