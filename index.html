@@ -1434,7 +1434,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.64";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
+var VER="v9.66";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -6739,25 +6739,37 @@ function gdBuild(){
     arc(L.d,1.52,.22,.26,1.3,-.1,10);
     ecyl(L.m,s*.8,0,dens([[1.06,.13,.15],[.88,.16,.17],[.68,.15,.16],[.52,.11,.11]],2),14,2);
     cyl(L.m,s*.8,.48,0,0,.22,.11,.11,12);ring(L.h,s*.8,.48,0,0,.085,10);
-    cyl(L.m,s*.8,.42,.28,2,.46,.12,.085,12,3);
-    ring(L.h,s*.8,.42,.51,2,.085,10);
     (function(){
-      var X=s*.8,fi,sg,z0,y0,q,yy2,fx,len=[.085,.06,.045],drop=[0,.012,.03,.05];
-      cyl(L.m,X,.42,.56,2,.07,.125,.125,10);ring(L.h,X,.42,.595,2,.13,10);
-      box(L.m,X,.42,.66,.17,.11,.17,.92,.85);
-      box(L.d,X,.485,.66,.13,.025,.13,.8,.8);ring(L.h,X,.5,.66,1,.032,8);ring(L.h,X,.5,.66,1,.014,6);
+      /* v9.65 relaxed hanging forearm + living hand (designed in final-frame heights via sf) */
+      var X=s*.8,BZ=1.3375,sf=function(d){return (d+.3)/BZ-.3},hz=function(h){return h/BZ},fi,sg,fx,yT,zT,zc,L3,Lz,jz=[0,.01,.03,.055],fl=[[.072,.058,.048],[.08,.064,.052],[.074,.06,.05],[.06,.048,.04]];
+      /* forearm: tapered, muscle belly high, flowing into the wrist */
+      ecyl(L.m,X,0,dens([[sf(.72),.115,.12,0,.005],[sf(.62),.132,.136,0,.03],[sf(.45),.104,.11,0,.07],[sf(.3),.08,.085,0,.1],[sf(.2),.068,.072,0,.115]],2),14,2);
+      ring(L.d,X,sf(.56),.05,1,.135,12);ring(L.d,X,sf(.4),.085,1,.1,12);
+      poly(L.h,[[X+s*.125,sf(.7),.02],[X+s*.1,sf(.45),.08],[X+s*.07,sf(.22),.115]],false);
+      poly(L.d,[[X,sf(.7),.14],[X,sf(.45),.18],[X,sf(.24),.19]],false);
+      poly(L.d,[[X-s*.1,sf(.62),.1],[X-s*.08,sf(.4),.14],[X-s*.055,sf(.22),.15]],false);
+      ring(L.h,X+s*.12,sf(.6),.06,0,.032,8);ring(L.h,X+s*.12,sf(.6),.06,0,.013,6);
+      /* wrist cuff */
+      cyl(L.m,X,sf(.2),.12,1,hz(.06),.072,.082,12);ring(L.h,X,sf(.17),.12,1,.083,12);
+      /* palm: slim plate with glowing back-of-hand node */
+      box(L.m,X,sf(.095),.13,.135,hz(.15),.07,.92,.9);
+      box(L.d,X+s*.04,sf(.1),.13,.06,hz(.12),.078,.9,.9);
+      ring(L.h,X+s*.075,sf(.105),.13,0,.036,8);ring(L.h,X+s*.075,sf(.105),.13,0,.014,6);
+      ln(L.d,X-.06,sf(.165),.17,X+.06,sf(.165),.17);
+      /* four fingers, relaxed curl, joint lights */
       for(fi=0;fi<4;fi++){
-        fx=X+(fi-1.5)*.04;z0=.745;y0=.42;
+        fx=X+(fi-1.5)*.034;yT=.02;zT=.155;
         for(sg=0;sg<3;sg++){
-          yy2=y0-.026*(sg+1)*(fi===0||fi===3?.8:1);
-          box(L.m,fx,(y0+yy2)/2,z0+len[sg]/2,.034,.036,len[sg],.9,.95);
-          if(sg<2)ring(L.h,fx,yy2+.004,z0+len[sg],0,.014,5);
-          z0+=len[sg];y0=yy2
+          zc=zT+(jz[sg]+jz[sg+1])/2;
+          box(L.m,fx,sf(yT-fl[fi][sg]/2),zc,.03,hz(fl[fi][sg]),.03,.9,.88);
+          if(sg<2)ring(L.h,fx,sf(yT-fl[fi][sg]),zT+jz[sg+1]+.02,2,.011,5);
+          yT-=fl[fi][sg]
         }
       }
-      box(L.m,X-s*.1,.4,.7,.045,.04,.1,.9,.9,0,0);
-      box(L.m,X-s*.115,.37,.77,.04,.036,.08,.9,.9);ring(L.h,X-s*.1,.39,.74,0,.014,5);
-      ln(L.d,X-s*.07,.48,.6,X+s*.07,.48,.6)
+      /* thumb on the inner side, resting forward */
+      box(L.m,X-s*.082,sf(.095),.165,.032,hz(.075),.034,.9,.9);
+      box(L.m,X-s*.088,sf(.035),.185,.03,hz(.06),.032,.9,.9);
+      ring(L.h,X-s*.088,sf(.065),.205,2,.011,5)
     })();
     ln(L.h,s*.93,1.3,0,s*.93,.55,0);
   });
@@ -6804,6 +6816,46 @@ function gdBuild(){
       ln(L.d,X-.13,sy(-1.7),.05,X+.13,sy(-1.7),.05);ln(L.d,X-.12,sy(-1.7),.2,X+.12,sy(-1.7),.2);
       ln(L.h,X-.145,sy(-1.84),-.22,X-.145,sy(-1.84),.46);ln(L.h,X+.145,sy(-1.84),-.22,X+.145,sy(-1.84),.46);
       ring(L.h,X,sy(-1.77),-.2,2,.04,8);ring(L.h,X,sy(-1.77),-.2,2,.016,6)
+    })();
+    /* v9.66 industrial leg armour: layered plates, caged knee, hydraulics, stepped boot */
+    (function(){
+      var T=[[-.44,.22],[-.54,.3],[-.7,.32],[-.86,.255],[-1.0,.16]],k,j,
+      ty=function(y){for(var i=0;i<T.length-1;i++)if(y<=T[i][0]&&y>=T[i+1][0]){var f=(T[i][0]-y)/(T[i][0]-T[i+1][0]);return T[i][1]+(T[i+1][1]-T[i][1])*f}return .2},
+      bolt=function(x,y,z,a){ring(L.d,x,y,z,a===undefined?2:a,.012,5)};
+      /* thigh: main plate, stepped inner plate, skirt plate, teal edge */
+      var P1=[[X-.15,-.47],[X+.15,-.47],[X+.22,-.6],[X+.18,-.9],[X-.18,-.9],[X-.22,-.6]];
+      poly(L.m,P1.map(function(p){return[p[0],p[1],ty(p[1])+.03]}),true);
+      poly(L.d,[[X-.11,-.52],[X+.11,-.52],[X+.15,-.62],[X+.12,-.82],[X-.12,-.82],[X-.15,-.62]].map(function(p){return[p[0],p[1],ty(p[1])+.048]}),true);
+      poly(L.m,[[X-.14,-.92],[X+.14,-.92],[X+.1,-1.0],[X-.1,-1.0]].map(function(p){return[p[0],p[1],ty(p[1])+.035]}),true);
+      ln(L.h,X,-.5,ty(-.5)+.055,X,-.8,ty(-.8)+.055);
+      ln(L.h,X+.22,-.6,ty(-.6)+.032,X+.18,-.9,ty(-.9)+.032);ln(L.h,X-.22,-.6,ty(-.6)+.032,X-.18,-.9,ty(-.9)+.032);
+      P1.forEach(function(p){bolt(p[0],p[1],ty(p[1])+.034)});
+      box(L.m,X,-.47,.17,.3,hh(.07),.14,.95,.9);ln(L.h,X-.14,-.47,.25,X+.14,-.47,.25);
+      for(k=0;k<4;k++)ln(L.d,X+s2*.275,-.55-k*.1,.1-k*.015,X+s2*.275,-.55-k*.1,-.12);
+      /* knee: cage rings + struts, sharp guard, wing plates */
+      ring(L.m,X,-.97,0,1,.15,12);ring(L.m,X,-1.17,0,1,.15,12);
+      for(k=0;k<4;k++){j=k/4*6.2832+.785;ln(L.d,X+Math.cos(j)*.15,-.97,Math.sin(j)*.15,X+Math.cos(j)*.15,-1.17,Math.sin(j)*.15)}
+      poly(L.m,[[X-.12,-.98,.19],[X+.12,-.98,.19],[X+.14,-1.08,.185],[X,-1.2,.205],[X-.14,-1.08,.185]],true);
+      ln(L.h,X,-.98,.21,X,-1.2,.22);
+      ln(L.d,X-.14,-1.08,.185,X-.17,-1.08,.05);ln(L.d,X+.14,-1.08,.185,X+.17,-1.08,.05);
+      /* back of knee: exposed hydraulics and cable bundle */
+      [-1,1].forEach(function(q){
+        cyl(L.d,X+q*.055,-1.07,-.15,1,.32,.018,.018,6);cyl(L.m,X+q*.055,-1.16,-.15,1,.13,.036,.036,8);
+        cable(L.d,[X+q*.09,-.93,-.14],[X+q*.09,-1.3,-.19],.03,q*.04)
+      });
+      cable(L.d,[X,-.92,-.15],[X,-1.26,-.19],.04,.05);ring(L.h,X,-1.07,-.17,2,.03,6);
+      /* shin guard: sharp plate, ridge, steps, wing */
+      poly(L.m,[[X-.1,-1.22,.19],[X+.1,-1.22,.19],[X+.08,-1.4,.14],[X+.06,-1.52,.12],[X,-1.58,.1],[X-.06,-1.52,.12],[X-.08,-1.4,.14]],true);
+      ln(L.h,X,-1.22,.2,X,-1.58,.11);ln(L.d,X-.09,-1.3,.17,X+.09,-1.3,.17);ln(L.d,X-.08,-1.4,.15,X+.08,-1.4,.15);
+      poly(L.d,[[X+s2*.1,-1.22,.19],[X+s2*.15,-1.3,.07],[X+s2*.13,-1.45,.0],[X+s2*.08,-1.5,.09]],true);
+      bolt(X-.09,-1.25,.19);bolt(X+.09,-1.25,.19);bolt(X,-1.52,.12);
+      for(k=0;k<4;k++)ln(L.d,X+s2*.17,-1.22-k*.06,.06,X+s2*.17,-1.22-k*.06,-.08);
+      cyl(L.d,X-.06,-1.38,-.2,1,.28,.018,.018,6);cyl(L.d,X+.06,-1.38,-.2,1,.28,.018,.018,6);
+      /* boot: stepped toe and heel plates, hazard slashes */
+      box(L.m,X,-1.745,.29,.2,hh(.05),.2,.9,.85);box(L.m,X,-1.735,.17,.19,hh(.045),.17,.92,.9);
+      box(L.m,X,-1.69,-.13,.2,hh(.06),.1,.9,.8);
+      for(k=0;k<6;k++)ln(L.d,X+s2*.135,-1.84,-.15+k*.1,X+s2*.135,-1.78,-.09+k*.1);
+      bolt(X-.09,-1.75,.36);bolt(X+.09,-1.75,.36);bolt(X-.08,-1.71,-.13);bolt(X+.08,-1.71,-.13)
     })()
   });
   /* ---------- v9.58 nano-tech anatomy: flowing plates and glowing nodes ---------- */
@@ -6825,7 +6877,6 @@ function gdBuild(){
     bp(L.d,[[1.04,th(1.2)],[.62,th(.8)],[.3,th(.5)],[.05,th(.35)]],false);
     bp(L.m,[[.66,th(.12)],[.48,th(.5)],[.24,th(.42)]],false);
     node(1.14,th(.7),.045);node(.34,th(.6),.035);node(.62,th(1.05),.03);
-    ln(L.h,s*.93,.46,.12,s*.93,.4,.5);ring(L.h,s*.8,.4,.665,2,.04,8);ring(L.h,s*.8,.4,.665,2,.018,6);
     ln(L.d,s*.8,1.0,-.15,s*.8,.55,-.12);
     var X=s*.3;
     ln(L.d,X,-.5,-.2,X,-1.0,-.14);ln(L.h,X-s*.04,-1.15,-.2,X-s*.04,-1.5,-.12);
