@@ -1434,7 +1434,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.71";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
+var VER="v9.72";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -6628,20 +6628,22 @@ function gdTap(x,y){
   }
 }
 function gdXf(x,y,z){
-  var sm=0,yy=y,zz=z,u;
+  var sm=0,yy=y,zz=z,u,arm0=Math.abs(x)>.58&&y>-.42;
   if(Math.abs(x)<.45&&y>1.5){u=Math.min(1,(y-1.5)/.28);sm=u*u*(3-2*u);yy=y-.12*sm;zz+=.05*sm}
   if(y>0)zz+=.07*y;
-  if(Math.abs(x)>.58&&y>-.3){var at=Math.max(0,Math.min(1,(1.05-y)/.6));at=at*at*(3-2*at);x-=(x>0?1:-1)*.15*at}
+  if(arm0){var at=Math.max(0,Math.min(1,(1.05-y)/.6));at=at*at*(3-2*at);x-=(x>0?1:-1)*.15*at}
   if(Math.abs(x)>.7&&y>.2)zz+=.04*(y-.2);
   /* v9.63: longer back (extra length added through the waist, upper body rigid) + sleeker V-taper waist */
   if(Math.abs(x)<.55&&y>-.3&&y<.8){var wt=(y+.3)/1.1;x*=1-.04*Math.sin(3.1416*wt)}
   if(Math.abs(x)<.56&&y>-.3&&y<1.5){var wr=Math.min(1,(y+.3)/.3);x*=1+.07*wr*wr*(3-2*wr)}
   yy=yy<=-.3?yy:(yy<=.5?-.3+(yy+.3)*1.3375:yy+.27);
   if(yy<-.3){var lt=Math.min(1,(-.3-yy)/3.1);zz+=.07*Math.sin(3.1416*lt)}
+  /* v9.72 ready pose: elbows bent, forearms and hands swing forward about the elbow hinge */
+  if(arm0&&yy<.83){var ph=Math.min(1,(.83-yy)/.17),ang,ca,sa,dy,dz;ph=ph*ph*(3-2*ph);ang=.55*ph;ca=Math.cos(ang);sa=Math.sin(ang);dy=yy-.743;dz=zz;yy=.743+dy*ca+dz*sa;zz=dz*ca-dy*sa}
   return[x,yy,zz]
 }
 function gdBuild(){
-  var L={m:[],d:[],h:[]},i,k,RZ=.31;
+  var L={m:[],d:[],h:[]},i,k,RZ=.31;GD.tips=[];
   function ln(a,x1,y1,z1,x2,y2,z2){a.push(x1,y1,z1,x2,y2,z2)}
   function box(a,cx,cy,cz,w,h,d,tx,tz,ox,oz){
     tx=tx||1;tz=tz||1;ox=ox||0;oz=oz||0;
@@ -6752,7 +6754,7 @@ function gdBuild(){
     cyl(L.m,s*.8,.48,0,0,.28,.15,.15,12);ring(L.h,s*.8,.48,0,0,.1,10);
     (function(){
       /* v9.69 heavy industrial arm + gauntlet hand, same language as the legs */
-      var X=s*.8,BZ=1.3375,sf=function(d){return (d+.3)/BZ-.3},hz=function(h){return h/BZ},fi,sg,fx,yT,zT,zc,jz=[0,.012,.035,.062],fl=[[.108,.086,.07],[.12,.095,.078],[.11,.09,.074],[.09,.07,.058]],bolt=function(x,y,z){ring(L.d,x,y,z,2,.012,5)};
+      var X=s*.8,BZ=1.3375,sf=function(d){return (d+.3)/BZ-.3},hz=function(h){return h/BZ},fi,sg,fx,yT,zT,zc,jz=[0,.02,.055,.1],fl=[[.108,.086,.07],[.12,.095,.078],[.11,.09,.074],[.09,.07,.058]],bolt=function(x,y,z){ring(L.d,x,y,z,2,.012,5)};
       poly(L.m,[[X-.14,1.02,.2],[X+.14,1.02,.2],[X+.19,.86,.215],[X+.16,.62,.19],[X-.16,.62,.19],[X-.19,.86,.215]],true);
       poly(L.d,[[X-.1,.97,.225],[X+.1,.97,.225],[X+.13,.85,.235],[X+.11,.68,.21],[X-.11,.68,.21],[X-.13,.85,.235]],true);
       ln(L.h,X,.96,.24,X,.72,.225);ln(L.h,X+s*.19,.86,.22,X+s*.16,.64,.195);
@@ -6781,11 +6783,11 @@ function gdBuild(){
         ln(L.d,fx,sf(.15),.185,fx,sf(-.005),.185);
         yT=-.005;zT=.175;
         for(sg=0;sg<3;sg++){
-          zc=zT+(jz[sg]+jz[sg+1])/2;
-          cyl(L.m,fx,sf(yT-fl[fi][sg]/2),zc,1,hz(fl[fi][sg])*.86,.016,.013,6);
-          ln(L.d,fx,sf(yT),zT+jz[sg]+.026,fx,sf(yT-fl[fi][sg]),zT+jz[sg+1]+.026);
-          if(sg<2){ring(L.m,fx,sf(yT-fl[fi][sg]),zT+jz[sg+1]+.012,2,.023,6);ring(L.h,fx,sf(yT-fl[fi][sg]),zT+jz[sg+1]+.012,0,.017,5)}
-          else box(L.m,fx,sf(yT-fl[fi][sg]),zT+jz[3]+.012,.026,hz(.022),.024,.8,.8);
+          zc=zT+(jz[sg]+jz[sg+1])/2;var fxs=fx+(fi-1.5)*.009*sg;
+          cyl(L.m,fxs,sf(yT-fl[fi][sg]/2),zc,1,hz(fl[fi][sg])*.86,.016,.013,6);
+          ln(L.d,fxs,sf(yT),zT+jz[sg]+.026,fxs,sf(yT-fl[fi][sg]),zT+jz[sg+1]+.026);
+          if(sg<2){ring(L.m,fxs,sf(yT-fl[fi][sg]),zT+jz[sg+1]+.012,2,.023,6);ring(L.h,fxs,sf(yT-fl[fi][sg]),zT+jz[sg+1]+.012,0,.017,5)}
+          else{box(L.m,fxs,sf(yT-fl[fi][sg]),zT+jz[3]+.012,.026,hz(.022),.024,.8,.8);GD.tips.push([fxs,sf(yT-fl[fi][sg]-.012),zT+jz[3]+.02,fi+(s>0?4:0)])}
           yT-=fl[fi][sg]
         }
       }
@@ -7061,7 +7063,7 @@ function gdFrame(ts){
     GD.ang+=GD.vel*dt
   }
   var ca=Math.cos(GD.ang),sa=Math.sin(GD.ang),ct=Math.cos(GD.tilt),st=Math.sin(GD.tilt),D=7,
-      u=Math.min(H*.56/6.35,W*.9/2.4),f=u*D,cx=W/2,cy=H*.5+u*.05,px,py,pz;
+      u=Math.min(H*.56/6.35,W*.9/2.4)*(1+.003*Math.sin(t*1.7)),f=u*D,cx=W/2,cy=H*.5+u*.05+Math.sin(t*1.7)*u*.004,px,py,pz;
   function P(x,y,z){
     y+=.365;var x1=x*ca+z*sa,z1=-x*sa+z*ca,y2=y*ct-z1*st,z2=y*st+z1*ct,k=f/(D-z2);
     px=cx+x1*k;py=cy-y2*k;pz=z2;return k
@@ -7150,6 +7152,16 @@ function gdFrame(ts){
         g.globalAlpha=1;g.fillStyle=gl2;g.beginPath();g.arc(px,py,.085*lk,0,6.2832);g.fill();
         g.globalAlpha=vis;g.fillStyle="#ffffff";g.beginPath();g.arc(px,py,Math.max(1.6,.014*lk),0,6.2832);g.fill()
       }else{g.globalAlpha=(.5-tr2*.06)*vis;g.fillStyle="#9ffff2";g.beginPath();g.arc(px,py,Math.max(1,.011*lk*(1-tr2*.08)),0,6.2832);g.fill()}
+    }
+  })();
+  /* fingertip ripple: a travelling glow along the fingers (alive hands) */
+  (function(){
+    var i2,tp,wv,kk2,vv,gr;
+    for(i2=0;i2<(GD.tips||[]).length;i2++){
+      tp=GD.tips[i2];kk2=PT(tp[0],tp[1],tp[2]);if(pz<.05)continue;vv=Math.min(1,pz*3);
+      wv=.5+.5*Math.sin(t*3.2-tp[3]*.55+(tp[3]>3?1.4:0));wv*=wv;
+      gr=g.createRadialGradient(px,py,0,px,py,.07*kk2);gr.addColorStop(0,"rgba(255,255,255,"+(.25+.7*wv)*vv+")");gr.addColorStop(.4,"rgba(120,255,240,"+(.12+.4*wv)*vv+")");gr.addColorStop(1,"rgba(46,230,214,0)");
+      g.globalAlpha=1;g.fillStyle=gr;g.beginPath();g.arc(px,py,.07*kk2,0,6.2832);g.fill()
     }
   })();
   k=PT(0,.9,.31);var fk=Math.max(0,Math.min(1,pz*3));
