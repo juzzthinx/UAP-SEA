@@ -1434,7 +1434,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.70";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
+var VER="v9.71";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -6635,7 +6635,7 @@ function gdXf(x,y,z){
   if(Math.abs(x)>.7&&y>.2)zz+=.04*(y-.2);
   /* v9.63: longer back (extra length added through the waist, upper body rigid) + sleeker V-taper waist */
   if(Math.abs(x)<.55&&y>-.3&&y<.8){var wt=(y+.3)/1.1;x*=1-.04*Math.sin(3.1416*wt)}
-  if(Math.abs(x)<.56&&y>-.25&&y<1.5)x*=1.07;
+  if(Math.abs(x)<.56&&y>-.3&&y<1.5){var wr=Math.min(1,(y+.3)/.3);x*=1+.07*wr*wr*(3-2*wr)}
   yy=yy<=-.3?yy:(yy<=.5?-.3+(yy+.3)*1.3375:yy+.27);
   if(yy<-.3){var lt=Math.min(1,(-.3-yy)/3.1);zz+=.07*Math.sin(3.1416*lt)}
   return[x,yy,zz]
@@ -6802,16 +6802,28 @@ function gdBuild(){
   box(L.m,0,1.1,-.38,.54,.46,.18,.9,.9);
   ln(L.d,0,.7,-.28,0,1.5,-.26);
   /* ---------- HIPS + FULL-LENGTH LEGS ---------- */
-  box(L.m,0,-.22,0,.7,.15,.46,1.02,1.02);
-  box(L.m,0,-.34,.18,.22,.18,.09,.8,.7);
-  ln(L.h,-.08,-.3,.225,.08,-.3,.225);
+  /* v9.71 anatomical pelvis: flared bowl, iliac crests, groin + sacral plates, hip ball joints */
+  (function(){
+    var pw=function(d){return d>=-.3?(d+.3)/1.3375-.3:-.3+(d+.3)/2};
+    ecyl(L.m,0,0,dens([[pw(.05),.3,.21,0,0],[pw(-.05),.38,.24,0,-.01],[pw(-.25),.47,.275,0,-.01],[pw(-.4),.52,.275,0,0],[pw(-.55),.5,.26,0,0]],2),22,2);
+    arc(L.d,pw(-.2),.48,.285,1.5,0,14);arc(L.d,pw(-.4),.53,.285,1.4,0,14);
+    poly(L.d,[[-.3,pw(-.02),.255],[0,pw(-.5),.3],[.3,pw(-.02),.255]],false);poly(L.m,[[-.22,pw(-.04),.27],[0,pw(-.44),.31],[.22,pw(-.04),.27]],false);
+    poly(L.m,[[-.1,pw(-.4),.305],[.1,pw(-.4),.305],[.075,pw(-.58),.28],[-.075,pw(-.58),.28]],true);ln(L.h,-.06,pw(-.5),.31,.06,pw(-.5),.31);
+    poly(L.m,[[-.3,pw(.0),-.2],[.3,pw(.0),-.2],[.4,pw(-.3),-.27],[0,pw(-.52),-.3],[-.4,pw(-.3),-.27]],true);
+    poly(L.d,[[-.2,pw(-.04),-.225],[.2,pw(-.04),-.225],[.26,pw(-.28),-.28],[0,pw(-.44),-.3],[-.26,pw(-.28),-.28]],true);
+    ln(L.h,0,pw(-.05),-.23,0,pw(-.55),-.31);
+    [-1,1].forEach(function(q){
+      poly(L.m,[[q*.3,pw(.05),.205],[q*.42,pw(-.02),.18],[q*.48,pw(-.2),.1],[q*.45,pw(-.36),.12],[q*.3,pw(-.2),.285]],true);
+      ln(L.h,q*.42,pw(-.02),.18,q*.48,pw(-.2),.1);
+      ring(L.m,q*.3+q*.2,pw(-.42),0,0,.15,12);ring(L.d,q*.3+q*.2,pw(-.42),0,0,.19,12);ring(L.h,q*.3+q*.23,pw(-.42),0,0,.085,10);
+      cyl(L.d,q*.3,pw(-.4),.0,0,.4,.04,.04,8)
+    })
+  })();
   [-1,1].forEach(function(s2){
     var X=s2*.3,hh=function(h){return h/2};
-    cyl(L.m,X,-.4,0,0,.2,.16,.16,12);ring(L.h,X+s2*.1,-.4,0,0,.12,10);
     /* muscular thigh: quad sweep forward, hamstring behind */
-    ecyl(L.m,X,0,dens([[-.44,.2,.22,0,0],[-.54,.26,.27,0,.03],[-.7,.275,.285,0,.035],[-.86,.22,.24,0,.015],[-1.0,.145,.16,0,0],[-1.03,.12,.13,0,0]],2),16,2);
+    ecyl(L.m,X,0,dens([[-.44,.25,.255,0,0],[-.54,.265,.275,0,.03],[-.7,.275,.285,0,.035],[-.86,.22,.24,0,.015],[-1.0,.145,.16,0,0],[-1.03,.12,.13,0,0]],2),16,2);
     arc(L.d,-.62,.27,.28,.95,-.05,10);arc(L.d,-.78,.25,.26,.9,-.04,10);arc(L.d,-.92,.19,.2,.9,-.03,8);
-    poly(L.m,[[X-.1,-.48,.26],[X-.15,-.68,.32],[X-.1,-.92,.22]],false);poly(L.m,[[X+.1,-.48,.26],[X+.15,-.68,.32],[X+.1,-.92,.22]],false);
     poly(L.d,[[X,-.5,.27],[X,-.72,.33],[X,-.95,.2]],false);
     poly(L.d,[[X-s2*.2,-.5,.1],[X-s2*.25,-.75,.1],[X-s2*.17,-.98,.06]],false);
     /* knee armour */
@@ -6930,11 +6942,11 @@ function gdBuild(){
     st.forEach(function(r,i){bp(L.m,[[r[0],-.62+i*.04],[r[0],.62-i*.04],[r[1],.56-i*.04],[r[1],-.56+i*.04]],true,.06)});
     bp(L.h,[[.5,-.5],[.5,.5]],false,.065);bp(L.d,[[.42,-.55],[.42,.55]],false,.065);bp(L.d,[[.27,-.5],[.27,.5]],false,.065);
     [-1,1].forEach(function(s2){
-      poly(L.m,[[s2*.36,-.02,.12],[s2*.44,-.14,.1],[s2*.42,-.3,.04],[s2*.35,-.3,.2],[s2*.3,-.12,.25]],true);
-      ln(L.h,s2*.44,-.14,.1,s2*.42,-.3,.04);
       bp(L.d,[[1.0,s2*2.35],[.62,s2*2.4],[.3,s2*2.5]],false,.05)
     });
     bp(L.m,[[1.22,2.3],[1.22,3.98],[.72,3.82],[.72,2.46]],true,.06);bp(L.m,[[.62,2.5],[.62,3.78],[.2,3.62],[.2,2.66]],true,.06);
+    bp(L.m,[[.72,-1.05],[.58,-.5],[.52,0],[.58,.5],[.72,1.05]],false,.05);
+    [-1,1].forEach(function(q){bp(L.d,[[.62,q*1.2],[.34,q*1.45],[.1,q*1.62]],false,.05)});
     ln(L.h,0,1.2,-.36,0,.24,-.3);
     for(k=0;k<3;k++)ln(L.d,-.2,.54+k*.18,-.3,.2,.54+k*.18,-.3)
   })();
