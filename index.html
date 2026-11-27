@@ -1434,7 +1434,7 @@ document.addEventListener("visibilitychange",wxSync);
 $("wx").addEventListener("click",function(){$("wxS").textContent="LOADING...";getWeather(true).then(function(w){if(!w){wx=wx||null;paintWx();$("wxS").textContent="WEATHER UNAVAILABLE · TAP TO RETRY"}})});
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function R(t,links){return{t:t,links:links||null}}
-var VER="v9.75";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
+var VER="v9.76";var lastEndSir=false;var eyesLive=false,gestLive=false,holoLive=false,xrLive=false;
 function cleanId(x){return String(x||"").replace(/[\u2010-\u2015\u2212]/g,"-").replace(/\s+/g,"")}
 var NUM={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 function norm(t){
@@ -6700,49 +6700,29 @@ function gdBuild(){
   });
   /* ---------- SMOOTH DOME HELMET with a full-width visor display ---------- */
   var h0=[L.m.length,L.d.length,L.h.length];
-  ecyl(L.m,0,0,dens([[1.7,.12,.15,0,.03],[1.78,.18,.22,0,.03],[1.9,.23,.27,0,.01],[2.05,.245,.285,0,0],[2.18,.22,.25,0,-.01],[2.3,.15,.17,0,-.02],[2.38,.07,.08,0,-.03]],2),18,2);
+  ecyl(L.m,0,0,dens([[1.7,.12,.15,0,.03],[1.78,.18,.22,0,.03],[1.9,.23,.27,0,.01],[2.05,.245,.285,0,0],[2.18,.22,.25,0,-.01],[2.3,.15,.17,0,-.02],[2.38,.07,.08,0,-.03]],1),16,2);
   arc(L.h,2.04,.262,.294,1.15,.05,18);arc(L.h,1.935,.246,.278,1.15,.04,18);
   ln(L.h,Math.sin(-1.15)*.262,2.0857,Math.cos(1.15)*.294,Math.sin(-1.15)*.246,1.9715,Math.cos(1.15)*.278);
   ln(L.h,Math.sin(1.15)*.262,2.0857,Math.cos(1.15)*.294,Math.sin(1.15)*.246,1.9715,Math.cos(1.15)*.278);
   arc(L.d,1.99,.256,.288,1.15,.045,18);ln(L.d,0,1.7,.2,0,1.93,.285);
-  arc(L.d,2.22,.2,.23,.95,0,12);arc(L.d,1.84,.2,.235,.9,0,10);
-  [-1,1].forEach(function(s){
-    cyl(L.m,s*.27,1.94,-.02,0,.07,.1,.1,12);ring(L.h,s*.31,1.94,-.02,0,.065,12);ring(L.h,s*.31,1.94,-.02,0,.03,8);
-    ln(L.d,s*.2,2.3,.0,s*.24,2.0,-.14);ln(L.d,s*.12,1.78,.24,s*.22,1.82,.1);
-    ln(L.h,s*.255,2.12,.12,s*.255,1.98,.12)
-  });
-  ring(L.m,0,1.74,.02,1,.16,14);ln(L.d,0,2.38,0,0,2.3,-.1);
-  for(i=0;i<4;i++)ln(L.d,-.07+i*.045,1.98,-.275,-.07+i*.045,2.1,-.275);
+  ring(L.m,0,1.74,.02,1,.16,14);
   /* v9.60 helmet refit: crest, bezel, cheek guards, hex ear pods, sensor strip */
   (function(){
-    var j,t,pp,q,xs=[0,-.075,.075];
-    xs.forEach(function(x){pp=null;for(j=0;j<=14;j++){t=-1.22+2.44*j/14;q=[x,2.085+.3*Math.cos(t)-(x?.02:0)+(x?0:.008),.295*Math.sin(t)*1.02];if(pp)ln(x?L.d:L.m,pp[0],pp[1],pp[2],q[0],q[1],q[2]);pp=q}});
+    var j,t,pp,q,xs=[0];
+    xs.forEach(function(x){pp=null;for(j=0;j<=14;j++){t=-1.22+2.44*j/14;q=[x,2.085+.3*Math.cos(t)+.008,.295*Math.sin(t)*1.02];if(pp)ln(L.m,pp[0],pp[1],pp[2],q[0],q[1],q[2]);pp=q}});
     arc(L.m,2.075,.268,.3,1.2,.055,18);arc(L.m,1.913,.252,.284,1.2,.045,18);
     [-1,1].forEach(function(s2){
       ln(L.m,s2*.2498,2.121,.1087,s2*.235,1.957,.1031);
-      poly(L.m,[[s2*.05,1.93,.285],[s2*.22,1.9,.2],[s2*.26,1.8,.1],[s2*.14,1.72,.18],[s2*.05,1.76,.24]],true);
-      ln(L.h,s2*.05,1.76,.24,s2*.14,1.72,.18);
-      ln(L.d,s2*.2,2.12,.15,s2*.23,2.2,.0);ln(L.d,s2*.23,2.2,.0,s2*.19,2.2,-.15);ln(L.d,s2*.19,2.2,-.15,s2*.2,1.95,-.2)
     });
-    for(j=-1;j<=1;j++)ring(L.h,j*.06,2.215,.228-j*j*.008,2,.016,6);
-    ln(L.d,-.06,2.215,.228,.06,2.215,.228);
-    ring(L.h,0,2.2,-.235,2,.03,8);ring(L.h,0,2.2,-.235,2,.012,6);
     [-1,1].forEach(function(s3){
-      /* minimal air-vent compartments, flush on the helmet side */
+      /* v9.76 minimal side vent: one flush slot panel */
       poly(L.m,[[s3*.252,2.05,-.1],[s3*.252,2.05,.03],[s3*.258,1.91,.03],[s3*.258,1.91,-.1]],true);
-      poly(L.d,[[s3*.262,2.03,-.085],[s3*.262,2.03,.015],[s3*.266,1.93,.015],[s3*.266,1.93,-.085]],true);
-      for(j=0;j<4;j++)ln(L.h,s3*.268,1.99-j*.02,-.075,s3*.268,1.99-j*.02,.005);
-      poly(L.m,[[s3*.248,1.885,-.09],[s3*.248,1.885,-.03],[s3*.25,1.83,-.03],[s3*.25,1.83,-.09]],true);
-      ln(L.d,s3*.254,1.86,-.08,s3*.254,1.86,-.04);
-      poly(L.m,[[s3*.19,2.27,.1],[s3*.225,2.15,.12],[s3*.2,2.0,.14],[s3*.18,1.9,.14]],false);
-      ln(L.m,s3*.185,1.8586,.059,s3*.166,1.789,.0547);
-      arc(L.h,1.78,.24,.27,.5,.0,6);
-      ln(L.d,s3*.14,2.3,-.1,s3*.22,2.02,-.14);ln(L.d,s3*.1,2.34,.0,s3*.2,2.2,.12)
+      for(j=0;j<3;j++)ln(L.h,s3*.268,2.0-j*.04,-.075,s3*.268,2.0-j*.04,.005)
     });
     /* v9.68: full-face glass panel, side rails, wide chin guard (original angular design) */
     arc(L.m,2.16,.23,.27,1.0,.04,16);arc(L.m,1.86,.215,.255,1.0,.05,16);
     ln(L.m,.194,2.194,.146,.181,1.902,.138);ln(L.m,-.194,2.194,.146,-.181,1.902,.138);
-    arc(L.m,1.8,.19,.27,1.35,.06,16);arc(L.m,1.74,.17,.25,1.35,.05,16);
+    arc(L.m,1.8,.19,.27,1.35,.06,16);
   })();
   [[L.m,h0[0]],[L.d,h0[1]],[L.h,h0[2]]].forEach(function(p){var a=p[0],j;for(j=p[1];j<a.length;j+=3){a[j]*=1.28;a[j+1]=1.7+(a[j+1]-1.7)*1.28;a[j+2]*=1.28}});
   poly(L.h,[[0,1.6,.34],[0,1.5,.27],[0,1.36,.28],[0,1.22,.3],[0,1.14,.31]],false);
